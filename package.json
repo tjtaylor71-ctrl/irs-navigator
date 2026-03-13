@@ -1,0 +1,11 @@
+{
+  "name": "irs-navigator",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/preset-react": "^7.23.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.23.0"
+  }
+}
