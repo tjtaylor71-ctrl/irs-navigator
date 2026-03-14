@@ -273,10 +273,10 @@ def checkout_success():
 <style>
   body{font-family:Georgia,serif;background:#f8f6f1;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
   .box{background:#fff;border-radius:16px;border:1px solid #e8e4dc;padding:48px 40px;max-width:520px;text-align:center}
-  h2{color:#1a1a2e;margin-bottom:8px}
+  h2{color:#1a2d5a;margin-bottom:8px}
   p{color:#666;margin-bottom:20px;line-height:1.6}
-  .btn{display:inline-block;padding:13px 26px;background:#1a1a2e;color:#c8a96e;border:2px solid #c8a96e;border-radius:8px;font-family:Georgia,serif;font-weight:bold;font-size:15px;text-decoration:none;margin:6px}
-  .btn-sec{background:transparent;color:#1a1a2e;border-color:#e8e4dc}
+  .btn{display:inline-block;padding:13px 26px;background:#1a2d5a;color:#7ec11f;border:2px solid #7ec11f;border-radius:8px;font-family:Georgia,serif;font-weight:bold;font-size:15px;text-decoration:none;margin:6px}
+  .btn-sec{background:transparent;color:#1a2d5a;border-color:#e8e4dc}
 </style></head><body><div class="box">
   <div style="font-size:56px;margin-bottom:16px">✅</div>
   <h2>Payment Successful!</h2>
@@ -290,7 +290,7 @@ def checkout_success():
 
     html += """
   </div>
-  <p style="margin-top:24px;font-size:13px">Need help? <a href="https://www.calendly.com/taylor-tax-financial/tax-help" style="color:#1a1a2e">Schedule a consultation</a></p>
+  <p style="margin-top:24px;font-size:13px">Need help? <a href="https://www.calendly.com/taylor-tax-financial/tax-help" style="color:#1a2d5a">Schedule a consultation</a></p>
 </div></body></html>"""
     return Response(html, mimetype="text/html")
 
