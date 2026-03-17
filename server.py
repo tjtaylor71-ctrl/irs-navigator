@@ -600,45 +600,96 @@ def admin_panel():
 @app.route("/api/admin/data")
 @require_admin
 def api_admin_data():
+    PRODUCT_PRICES = {"navigator": 59, "wizard": 99, "bundle": 129}
+
     with auth.get_db() as conn:
         users = conn.execute(
             "SELECT id, email, created_at FROM users ORDER BY created_at DESC"
         ).fetchall()
+
+        # All purchases — include wizard_locked and lock reason
         purchases = conn.execute(
-            "SELECT id, user_id, product, expires_at, created_at FROM purchases "
-            "WHERE expires_at > datetime('now') ORDER BY created_at DESC"
+            "SELECT id, user_id, product, expires_at, created_at, "
+            "wizard_locked, wizard_lock_reason, stripe_session_id "
+            "FROM purchases ORDER BY created_at DESC"
         ).fetchall()
 
+        # Referral partners
+        partners = conn.execute(
+            "SELECT user_id FROM referral_partners WHERE active = 1"
+        ).fetchall()
+        partner_user_ids = {r["user_id"] for r in partners}
+
+        # Pro subscribers
+        pro_subs = conn.execute(
+            "SELECT user_id, firm_name FROM pro_subscribers WHERE active = 1"
+        ).fetchall()
+        pro_user_ids = {r["user_id"]: r["firm_name"] for r in pro_subs}
+
+        # Referral conversions — to track which users came via referral
+        conversions = conn.execute(
+            "SELECT referred_user_id FROM referral_conversions"
+        ).fetchall()
+        referred_user_ids = {r["referred_user_id"] for r in conversions}
+
+    # Build purchase map with amounts
     purchase_map = {}
     for p in purchases:
         uid = p["user_id"]
         if uid not in purchase_map:
             purchase_map[uid] = []
-        purchase_map[uid].append({"id": p["id"], "product": p["product"], "expires_at": p["expires_at"]})
+        purchase_map[uid].append({
+            "id":                p["id"],
+            "product":           p["product"],
+            "expires_at":        p["expires_at"],
+            "created_at":        p["created_at"],
+            "wizard_locked":     p["wizard_locked"],
+            "wizard_lock_reason": p["wizard_lock_reason"],
+            "amount":            PRODUCT_PRICES.get(p["product"], 0),
+            "active":            p["expires_at"] > __import__("datetime").datetime.utcnow().isoformat(),
+        })
 
     user_list = []
     for u in users:
+        uid = u["id"]
+        user_purchases = purchase_map.get(uid, [])
+        total_spent    = sum(p["amount"] for p in user_purchases)
+
+        # Determine customer type
+        types = []
+        if uid in pro_user_ids:
+            types.append(f"Pro Subscriber ({pro_user_ids[uid]})")
+        if uid in partner_user_ids:
+            types.append("Referral Partner")
+        if uid in referred_user_ids:
+            types.append("Referred Customer")
+        if user_purchases and not types:
+            types.append("Direct Customer")
+        if not user_purchases and not types:
+            types.append("Free Account")
+
         user_list.append({
-            "id":         u["id"],
-            "email":      u["email"],
-            "created_at": u["created_at"],
-            "purchases":  purchase_map.get(u["id"], []),
+            "id":           uid,
+            "email":        u["email"],
+            "created_at":   u["created_at"],
+            "purchases":    user_purchases,
+            "total_spent":  total_spent,
+            "customer_type": types,
         })
 
-    all_purchases = conn.execute(
-        "SELECT product FROM purchases WHERE expires_at > datetime('now')"
-    ).fetchall() if False else purchases  # reuse above
-
-    nav_count = sum(1 for p in purchases if p["product"] in ("navigator", "bundle"))
-    wiz_count = sum(1 for p in purchases if p["product"] in ("wizard", "bundle"))
+    active_purchases = [p for ps in purchase_map.values() for p in ps if p["active"]]
+    nav_count = sum(1 for p in active_purchases if p["product"] in ("navigator", "bundle"))
+    wiz_count = sum(1 for p in active_purchases if p["product"] in ("wizard", "bundle"))
+    total_revenue = sum(u["total_spent"] for u in user_list)
 
     return jsonify({
         "users": user_list,
         "stats": {
-            "total_users":       len(users),
-            "active_purchases":  len(purchases),
-            "navigator_count":   nav_count,
-            "wizard_count":      wiz_count,
+            "total_users":      len(users),
+            "active_purchases": len(active_purchases),
+            "navigator_count":  nav_count,
+            "wizard_count":     wiz_count,
+            "total_revenue":    total_revenue,
         }
     })
 
