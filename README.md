@@ -156,6 +156,5 @@ The wizard footer reads:
 
 ## Support
 
-Taylor Tax and Financial Consulting Inc.  
-(615) 953-7124  
-www.taylortaxandfinancial.com
+Tyrone J Taylor 
+(270) 305-4438
