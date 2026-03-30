@@ -723,6 +723,7 @@ def api_admin_data():
     admin_emails_set = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()}
     admin_emails_set.add("tjtaylor@taylortaxandfinancial.com")
     display_users = [u for u in user_list if u["email"].lower() not in admin_emails_set]
+    
 
     return jsonify({
         "users": display_users,
