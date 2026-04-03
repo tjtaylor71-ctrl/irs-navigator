@@ -3216,7 +3216,6 @@ def transcript_taxpro():
 
 @app.route("/api/transcript/pro-check")
 def api_transcript_pro_check():
-    def api_transcript_pro_check():
     user = get_current_user()
     if not user:
         return jsonify({"allowed": False, "reason": "not_logged_in"}), 401
