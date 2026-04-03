@@ -3286,22 +3286,25 @@ def api_transcript_analyze():
 
     mode = request.form.get("mode", "taxpayer")
 
-    if mode == "taxpro":
-        # Pro subscriber check
-        with auth.get_db() as conn:
-            sub = conn.execute(
-                "SELECT * FROM pro_subscribers WHERE user_id = ? AND active = 1",
-                (user["user_id"],)
-            ).fetchone()
-        if not sub:
-            return jsonify({"error": "Pro Subscriber access required."}), 403
-        sessions_used  = sub["sessions_used"] or 0
-        sessions_limit = sub["sessions_limit"] or 10
-        if sessions_used >= sessions_limit:
-            return jsonify({"error": "You have used all your sessions for this month."}), 403
+   
+   if mode == "taxpro":
+        # Admins always allowed — no session deducted
+        if not is_admin(user):
+            with auth.get_db() as conn:
+                sub = conn.execute(
+                    "SELECT * FROM pro_subscribers WHERE user_id = ? AND active = 1",
+                    (user["user_id"],)
+                ).fetchone()
+            if not sub:
+                return jsonify({"error": "Pro Subscriber access required."}), 403
+            sessions_used  = sub["sessions_used"] or 0
+            sessions_limit = sub["sessions_limit"] or 10
+            if sessions_used >= sessions_limit:
+                return jsonify({"error": "You have used all your sessions for this month."}), 403
     else:
-        # Taxpayer — requires Navigator or Wizard access
-        if not auth.has_access(user["user_id"], "navigator") and \
+        # Taxpayer — requires Navigator or Wizard access (admins always allowed)
+        if not is_admin(user) and \
+           not auth.has_access(user["user_id"], "navigator") and \
            not auth.has_access(user["user_id"], "wizard"):
             return jsonify({"error": "Navigator or Wizard access required."}), 403
 
