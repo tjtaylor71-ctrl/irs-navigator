@@ -2751,7 +2751,10 @@ def demo_wizard():
     return Response(html, mimetype="text/html")
 
 
-
+@app.route("/demo-transcript")
+def demo_transcript():
+    html = build_page("demo_transcript.js", "TranscriptDemo", "IRS Pilot Transcript Analyzer — Interactive Demo")
+    return Response(html, mimetype="text/html")
 # ── Admin Delete Routes ────────────────────────────────────────────────────────
 
 @app.route("/api/admin/user/delete", methods=["POST"])
