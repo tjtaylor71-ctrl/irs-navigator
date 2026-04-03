@@ -3216,6 +3216,21 @@ def transcript_taxpro():
 
 @app.route("/api/transcript/pro-check")
 def api_transcript_pro_check():
+    def api_transcript_pro_check():
+    user = get_current_user()
+    if not user:
+        return jsonify({"allowed": False, "reason": "not_logged_in"}), 401
+
+    # Admins always get pro access
+    if is_admin(user):
+        return jsonify({
+            "allowed": True,
+            "sessions_remaining": 999,
+            "sessions_used": 0,
+            "sessions_limit": 999,
+            "firm_name": "Taylor Tax & Financial Consulting",
+            "contact_name": "Tyrone J. Taylor, EA",
+        })
     """Check if current user is an active Pro Subscriber with sessions remaining."""
     user = get_current_user()
     if not user:
