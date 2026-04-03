@@ -3282,7 +3282,7 @@ def api_transcript_analyze():
     mode = request.form.get("mode", "taxpayer")
 
    
-   if mode == "taxpro":
+    if mode == "taxpro":
         # Admins always allowed — no session deducted
         if not is_admin(user):
             with auth.get_db() as conn:
