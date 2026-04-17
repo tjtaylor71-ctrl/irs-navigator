@@ -1185,7 +1185,7 @@ const DEDUCTIONS_STRATEGIES = {
   credits: [
     { id: "rd_credit", label: "R&D Tax Credit (\u00a741)" },
     { id: "wotc", label: "Work Opportunity Credit (WOTC)" },
-    { id: "energy", label: "Energy Credits (179D / 25C / 30D)" },
+    { id: "energy", label: "Energy Credits (\u00a7179D \u2014 OBBB Updated)" },
     { id: "se_health_hsa", label: "SE Health Insurance + HSA" },
   ],
   deferral: [
@@ -1606,49 +1606,55 @@ function WOTCCredit() {
 
 // ── Strategy: Energy Credits ─────────────────────────────────────────────────
 function EnergyCredits() {
-  const [f, setF] = useState({ ev_cost: "", home_improvements: "", home_energy_cost: "", building_sqft: "", building_cost: "" });
+  const [f, setF] = useState({ building_sqft: "", building_cost: "" });
   const [res, setRes] = useState(null);
-  const reset = () => { setF({ ev_cost: "", home_improvements: "", home_energy_cost: "", building_sqft: "", building_cost: "" }); setRes(null); };
+  const reset = () => { setF({ building_sqft: "", building_cost: "" }); setRes(null); };
   const ch = (e) => setF(p => ({ ...p, [e.target.name]: e.target.value }));
   const n = (v) => parseFloat(String(v||"").replace(/[^0-9.]/g,""))||0;
   const calc = () => {
-    const evCredit = Math.min(n(f.ev_cost) > 0 ? 7500 : 0, 7500);
-    const homeEnergyCredit = Math.min(n(f.home_improvements) * 0.30, 3200);
     const sec179D = Math.min(n(f.building_sqft) * 5.00, n(f.building_cost));
-    setRes({ evCredit, homeEnergyCredit, sec179D, total: evCredit + homeEnergyCredit + sec179D });
+    setRes({ sec179D });
   };
   return React.createElement(StrategyShell, {
-    title: "Energy Tax Credits", irc: "\u00a730D (EV) / \u00a725C (Home Energy) / \u00a7179D (Commercial)", onReset: reset,
-    who: "Individuals buying EVs or making home energy improvements (\u00a725C, \u00a730D). Business owners or building owners making commercial energy improvements (\u00a7179D).",
+    title: "Energy Tax Credits", irc: "\u00a7179D (Commercial) \u2014 Updated for OBBB 2025", onReset: reset,
+    who: "Business owners and commercial building owners making energy-efficiency improvements to qualifying commercial buildings. Note: The One Big Beautiful Bill Act (signed July 4, 2025) eliminated the residential and EV energy credits. See legislative update below.",
     steps: [
-      "Section 30D (EV Credit): Up to $7,500 for new qualifying EVs. Income limits apply: $150K single / $300K MFJ. The vehicle must be assembled in North America and meet battery/component requirements. Starting 2024, claim at the dealership as a point-of-sale credit.",
-      "Section 25C (Home Energy): 30% credit, up to $3,200/year for qualifying improvements including heat pumps, insulation, windows, and electrical panels. No lifetime cap \u2014 you can claim up to $3,200 every year you make improvements.",
-      "Section 179D (Commercial Buildings): Deduction of up to $5.00/sqft for energy-efficient commercial buildings. Requires a qualified energy study and IRS-approved software. REITs, partnerships, and nonprofits can now also claim this deduction.",
-      "For \u00a730D and \u00a725C: claim on Form 8936 and Form 5695 respectively with your personal return.",
-      "For \u00a7179D: obtain a certification from a qualified engineer, then deduct on your business return."
+      React.createElement("div", null,
+        React.createElement("div", { style: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6, padding: "10px 14px", marginBottom: 8 } },
+          React.createElement("div", { style: { fontWeight: "bold", color: "#dc2626", fontSize: 13, marginBottom: 4 } }, "\u26A0\uFE0F Legislative Update \u2014 One Big Beautiful Bill Act (July 4, 2025)"),
+          React.createElement("div", { style: { fontSize: 13, color: "#7f1d1d", lineHeight: 1.6 } },
+            "The following credits were ELIMINATED by the OBBB: ",
+            React.createElement("strong", null, "\u00a730D New EV Credit"), " (expired Sept 30, 2025) \u00b7 ",
+            React.createElement("strong", null, "\u00a725E Used EV Credit"), " (expired Sept 30, 2025) \u00b7 ",
+            React.createElement("strong", null, "\u00a725C Home Energy Improvement Credit"), " (expired Dec 31, 2025) \u00b7 ",
+            React.createElement("strong", null, "\u00a725D Residential Clean Energy Credit"), " (solar panels, expired Dec 31, 2025)"
+          )
+        )
+      ),
+      "Section 179D (Commercial Buildings) \u2014 Still Available through June 30, 2026: Deduction of up to $5.00/sq ft for qualifying energy-efficient commercial buildings. Applies to HVAC, lighting, building envelope, and other energy systems. The deduction is proportional to the energy savings achieved vs. a reference building.",
+      "Who qualifies for \u00a7179D: Owners of commercial buildings, architects, engineers, and contractors who design energy-efficient systems for government-owned buildings (the deduction is allocated to the designer for government buildings).",
+      "Requires a certification from a qualified engineer using IRS-approved energy modeling software. The study must document that the improvements reduce energy costs by at least 25% compared to the ASHRAE 90.1 reference standard.",
+      "The deduction is taken on your business return in the year the property is placed in service. Act before June 30, 2026 \u2014 the OBBB sets this as the final eligibility date for \u00a7179D.",
+      "Still available for 2025 returns (prior year): If you made qualifying commercial energy improvements in 2025, you may still claim \u00a7179D on your 2025 return. Also: EV charging stations (\u00a730C) installed by June 30, 2026 remain eligible for a 30% credit in low-income or non-urban areas."
     ],
     mistakes: [
-      "Buying an EV that doesn\u2019t qualify under the North America assembly or battery content requirements \u2014 check the IRS\u2019s qualified vehicle list before purchasing.",
-      "Exceeding income limits for \u00a730D \u2014 the credit is fully phased out above $150K (single) or $300K (MFJ) based on modified AGI.",
-      "Thinking \u00a725C has a lifetime cap \u2014 it does not. The annual cap of $3,200 resets each year.",
-      "Skipping the energy certification for \u00a7179D \u2014 the IRS requires a third-party study from a licensed engineer."
+      "Assuming the EV credit or residential solar credit is still available \u2014 both were eliminated by the OBBB signed July 4, 2025. Vehicles must have been acquired by September 30, 2025 and solar expenditures made by December 31, 2025.",
+      "Missing the \u00a7179D deadline \u2014 commercial building energy improvements must be placed in service by June 30, 2026 to qualify. Do not delay.",
+      "Skipping the energy certification \u2014 \u00a7179D requires a third-party study from a licensed engineer using approved software. No certification, no deduction.",
+      "Overlooking prior year claims \u2014 if you made qualifying commercial improvements in 2024 or 2025, you may still be able to claim \u00a7179D on those returns."
     ],
-    savings: res && React.createElement("div", null,
-      res.evCredit > 0 && React.createElement(ResultRow, { label: "EV Credit (\u00a730D)", value: fmt(res.evCredit) }),
-      res.homeEnergyCredit > 0 && React.createElement(ResultRow, { label: "Home Energy Credit (\u00a725C, 30%)", value: fmt(res.homeEnergyCredit) }),
-      res.sec179D > 0 && React.createElement(ResultRow, { label: "Commercial Building Deduction (\u00a7179D)", value: fmt(res.sec179D) }),
-      React.createElement(ResultRow, { label: "Total Estimated Credits/Deductions", value: fmt(res.total), bold: true, color: "#15803d" })
+    savings: res && res.sec179D > 0 && React.createElement("div", null,
+      React.createElement(ResultRow, { label: "\u00a7179D Estimated Deduction", value: fmt(res.sec179D), bold: true, color: "#15803d" })
     )
   },
     React.createElement("div", { style: cardStyle },
-      React.createElement("div", { style: sectionTitleStyle }, "Calculator"),
-      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } },
-        React.createElement("div", null, React.createElement("label", { style: labelStyle }, "EV Purchase Price ($)"), React.createElement("input", { name: "ev_cost", type: "number", placeholder: "45000", value: f.ev_cost, onChange: ch, style: inpStyle })),
-        React.createElement("div", null, React.createElement("label", { style: labelStyle }, "Home Energy Improvements ($)"), React.createElement("input", { name: "home_improvements", type: "number", placeholder: "15000", value: f.home_improvements, onChange: ch, style: inpStyle })),
+      React.createElement("div", { style: sectionTitleStyle }, "\u00a7179D Calculator (Commercial Buildings)"),
+      React.createElement(InfoBox, { type: "warn" }, "\u26A0\uFE0F The EV (\u00a730D) and residential energy credits (\u00a725C, \u00a725D) have been eliminated by the One Big Beautiful Bill Act. This calculator covers the remaining \u00a7179D commercial deduction only."),
+      React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 } },
         React.createElement("div", null, React.createElement("label", { style: labelStyle }, "Commercial Building Sq Ft"), React.createElement("input", { name: "building_sqft", type: "number", placeholder: "5000", value: f.building_sqft, onChange: ch, style: inpStyle })),
-        React.createElement("div", null, React.createElement("label", { style: labelStyle }, "Commercial Improvement Cost ($)"), React.createElement("input", { name: "building_cost", type: "number", placeholder: "200000", value: f.building_cost, onChange: ch, style: inpStyle }))
+        React.createElement("div", null, React.createElement("label", { style: labelStyle }, "Improvement Cost ($)"), React.createElement("input", { name: "building_cost", type: "number", placeholder: "200000", value: f.building_cost, onChange: ch, style: inpStyle }))
       ),
-      React.createElement("button", { onClick: calc, style: { ...calcBtnStyle, marginTop: 12 } }, "Estimate Energy Credits")
+      React.createElement("button", { onClick: calc, style: { ...calcBtnStyle, marginTop: 12 } }, "Estimate \u00a7179D Deduction")
     )
   );
 }
