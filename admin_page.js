@@ -383,7 +383,11 @@ function AdminPage() {
             key: id, onClick: () => setTab(id),
             style: { padding: "10px 20px", background: tab === id ? "#1a2d5a" : "transparent", color: tab === id ? "#7ec11f" : "#888", border: "none", borderRadius: "8px 8px 0 0", fontFamily: "'DM Sans',sans-serif", fontWeight: "bold", fontSize: 14, cursor: "pointer" }
           }, label)
-        )
+        ),
+        /* @__PURE__ */ React.createElement("a", {
+          href: "/bookkeeping",
+          style: { padding: "10px 20px", color: "#7ec11f", border: "none", borderRadius: "8px 8px 0 0", fontFamily: "'DM Sans',sans-serif", fontWeight: "bold", fontSize: 14, cursor: "pointer", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }
+        }, "\uD83D\uDCCA Bookkeeping \u2197")
       )
     ),
 
