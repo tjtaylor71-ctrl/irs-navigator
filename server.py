@@ -76,6 +76,17 @@ PAGE_TOP = """<!DOCTYPE html>
 PAGE_CHAT_PAGES = {"IRSApp", "TaxProPage", "DashboardPage"}
 
 PAGE_MID_TPL = """</title>
+<meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.irspilot.com">
+  <meta property="og:title" content="IRS Pilot — Solve Your IRS Problem">
+  <meta property="og:description" content="AI-powered tax self-help. Built by a 20-year Enrolled Agent. Get answers, decode notices, and resolve back taxes.">
+  <meta property="og:image" content="https://www.irspilot.com/static/irspilot-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="IRS Pilot — Solve Your IRS Problem">
+  <meta name="twitter:description" content="AI-powered tax self-help. Built by a 20-year Enrolled Agent.">
+  <meta name="twitter:image" content="https://www.irspilot.com/static/irspilot-og.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
