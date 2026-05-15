@@ -297,6 +297,9 @@ def init_db():
         "ALTER TABLE purchases ADD COLUMN expiry_warned INTEGER DEFAULT 0",
         "ALTER TABLE referral_partners ADD COLUMN stripe_connect_id TEXT",
         "ALTER TABLE pro_subscribers ADD COLUMN sessions_billed_through INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN consent_7216_given_at TEXT DEFAULT NULL",
+        "ALTER TABLE users ADD COLUMN consent_7216_ip TEXT DEFAULT NULL",
+    ]
     ]
     with get_db() as conn:
         for sql in migrations:
@@ -374,7 +377,23 @@ def get_access_expiry(user_id: int, product: str) -> str | None:
     return row["expires_at"] if row else None
 
 # ── User operations ────────────────────────────────────────────────────────────
-def create_user(email: str, password: str):
+def record_consent(user_id: int, ip_address: str = None):
+    """Record §7216 consent timestamp and IP for compliance documentation."""
+    now = datetime.utcnow().isoformat()
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE users SET consent_7216_given_at = ?, consent_7216_ip = ? WHERE id = ?",
+            (now, ip_address or '', user_id)
+        )
+
+def has_consent(user_id: int) -> bool:
+    """Check whether a user has given §7216 consent."""
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT consent_7216_given_at FROM users WHERE id = ?",
+            (user_id,)
+        ).fetchone()
+    return bool(row and row["consent_7216_given_at"])
     try:
         with get_db() as conn:
             cur = conn.execute(
