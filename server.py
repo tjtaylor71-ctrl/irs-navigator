@@ -32,6 +32,11 @@ import subprocess
 from pathlib import Path
 from flask import Flask, request, send_file, jsonify, Response, make_response, redirect
 import auth
+def user_has_consent(user):
+    """Returns True if user has given §7216 consent, False otherwise."""
+    if not user:
+        return False
+    return auth.has_consent(user["user_id"])
 import stripe_checkout
 import email_service
 from planning.routes import planning_bp
@@ -365,7 +370,15 @@ def api_register():
     resp  = make_response(jsonify({"redirect": f"/checkout?product={product}" if product else "/account"}))
     resp.set_cookie(auth.SESSION_COOKIE, token, max_age=60*60*24*8, httponly=True, samesite="Lax")
     return resp
-
+@app.route("/api/consent-7216", methods=["POST"])
+def api_consent_7216():
+    """Record §7216 consent for the current logged-in user."""
+    user = get_current_user()
+    if not user:
+        return jsonify({"error": "Not authenticated"}), 401
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "")
+    auth.record_consent(user["user_id"], ip)
+    return jsonify({"ok": True})
 
 @app.route("/api/login", methods=["POST"])
 def api_login():
@@ -1631,6 +1644,8 @@ def _api_bookkeeping_extract_inner():
         return jsonify({"error": "Not authenticated"}), 401
     if not is_admin(_user):
         return jsonify({"error": "Admin access required"}), 403
+    if not user_has_consent(get_current_user()):
+        return jsonify({"error": "CONSENT_REQUIRED"}), 403
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
     if not ANTHROPIC_API_KEY:
         return jsonify({"error": "ANTHROPIC_API_KEY not set"}), 500
@@ -4415,7 +4430,8 @@ def api_transcript_analyze():
     user = get_current_user()
     if not user:
         return jsonify({"error": "You must be logged in to use this feature."}), 401
-
+if not user_has_consent(user):
+        return jsonify({"error": "CONSENT_REQUIRED"}), 403
     mode = request.form.get("mode", "taxpayer")
 
     if mode == "taxpro":
@@ -4720,6 +4736,8 @@ def api_covid_penalty_analyze():
     if not auth.has_access(user["user_id"], "covid_penalty") and not is_admin(user):
         return jsonify({"error": "COVID Penalty Relief Tool access required."}), 403
 
+    if not user_has_consent(user):
+        return jsonify({"error": "CONSENT_REQUIRED"}), 403
     ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
     if not ANTHROPIC_API_KEY:
         return jsonify({"error": "Analysis service not configured."}), 500
