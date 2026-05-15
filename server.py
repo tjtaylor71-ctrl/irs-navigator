@@ -74,7 +74,7 @@ PAGE_TOP = """<!DOCTYPE html>
   <title>"""
 
 PAGE_CHAT_PAGES = {"IRSApp", "TaxProPage", "DashboardPage"}
-PAGE_NO_NAV = {"LoginPage", "ResetPage", "TOSPage", "PrivacyPage", "CovidPenaltyTool", "BookkeepingTool", "ProSignupPage", "IRSApp", "PlanningDashboard", "LetterGenerator", "TranscriptAnalyzer", "ReferralPage", "TaxProPage", "DashboardPage", "PricingPage", "AdminPage", "IRSIntakeWizard", "NavigatorDemo", "WizardDemo"}
+PAGE_NO_NAV = {"LoginPage", "ResetPage", "TOSPage", "PrivacyPage", "SecurityPage", "CovidPenaltyTool", "BookkeepingTool", "ProSignupPage", "IRSApp", "PlanningDashboard", "LetterGenerator", "TranscriptAnalyzer", "ReferralPage", "TaxProPage", "DashboardPage", "PricingPage", "AdminPage", "IRSIntakeWizard", "NavigatorDemo", "WizardDemo"}
 
 PAGE_MID_TPL = """</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2807,8 +2807,10 @@ def terms_page():
 def privacy_page():
     html = build_page("privacy_page.js", "PrivacyPage", "Privacy Policy — IRS Pilot")
     return Response(html, mimetype="text/html")
-
-
+@app.route("/security")
+def security_page():
+    html = build_page("security_page.js", "SecurityPage", "Security & Privacy — IRS Pilot")
+    return Response(html, mimetype="text/html")
 
 @app.route("/api/admin/pro/billing-portal", methods=["POST"])
 @require_admin
