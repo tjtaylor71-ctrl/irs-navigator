@@ -4854,12 +4854,16 @@ def api_covid_penalty_generate_letter():
     if is_notice_eligible:
         grounds.append("IRS Notice 2022-36 (automatic COVID-era penalty relief for tax years 2019 and 2020)")
 
+    # Redact SSN — transmit only last 4 digits to Anthropic API (§7216 / FTC Safeguards compliance)
+_ssn_raw  = tax_info.get('ssn', '')
+_ssn_last4 = _ssn_raw.replace('-', '').replace(' ', '')[-4:] if _ssn_raw else '####'
+_ssn_masked = f"XXX-XX-{_ssn_last4}"
     prompt = f"""Write a formal penalty abatement request letter to the IRS Penalty Abatement Coordinator. The taxpayer is writing in FIRST PERSON — this is their own letter, not written by a representative.
 
 TAXPAYER INFORMATION:
 Name: {tax_info.get('name','[Taxpayer Name]')}
 Address: {tax_info.get('address','')}, {tax_info.get('city','')}, {tax_info.get('state','')} {tax_info.get('zip','')}
-SSN: {tax_info.get('ssn','XXX-XX-####')}
+SSN: {_ssn_masked}
 Tax Year at Issue: {tax_year}
 
 PENALTIES BEING CHALLENGED:
