@@ -210,7 +210,7 @@ def schedule_post():
 
 # ── Studio HTML ────────────────────────────────────────────────────────────────
 
-STUDIO_HTML = '''<!DOCTYPE html>
+STUDIO_HTML = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
