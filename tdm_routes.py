@@ -122,10 +122,10 @@ def generate_image():
         return jsonify({'ok': False, 'error': 'No Gemini API key configured'}), 400
 
     models = [
-        'gemini-2.5-flash-image',
-        'gemini-2.0-flash-preview-image-generation',
-        'gemini-2.0-flash-exp',
-    ]
+    'gemini-2.5-flash-image',
+    'gemini-3-pro-image-preview',
+    'gemini-3.1-flash-image',
+]
 
     last_error = ''
     for model in models:
