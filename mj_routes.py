@@ -304,7 +304,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--black);color:var(--text);
 header{background:var(--dark);border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;}
 .logo{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:.1em;color:var(--gold);line-height:1;}
 .logo span{color:var(--muted);font-size:10px;font-family:"DM Sans",sans-serif;font-weight:400;letter-spacing:.15em;text-transform:uppercase;display:block;margin-top:1px;}
-.hdr-actions{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.hdr-actions{margin-left:auto;display:flex;gap:8px;align-items:center;} .mobile-menu-btn{display:none;}
 .layout{display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 58px);}
 .sidebar{background:var(--dark);border-right:1px solid var(--border);padding:16px 12px;overflow-y:auto;}
 .s-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--dark3);}
@@ -412,12 +412,131 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
 .empty p{font-size:13px;line-height:1.7;max-width:320px;margin:0 auto;}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--dark2);color:var(--gold-light);border:1px solid var(--border);padding:11px 18px;border-radius:6px;font-size:12px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:320px;}
 .toast.show{transform:translateY(0);opacity:1;}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 680px) {
+
+  /* Header */
+  header { padding: 0 14px; gap: 8px; }
+  .logo { font-size: 18px; }
+  .logo span { display: none; }
+  .hdr-actions { gap: 6px; }
+  .hdr-actions a, .hdr-actions button { font-size: 10px !important; padding: 4px 8px !important; }
+
+  /* Layout — sidebar hidden by default on mobile */
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 58px; left: 0; right: 0; bottom: 0;
+    z-index: 200;
+    overflow-y: auto;
+    border-right: none;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar.open { display: block; }
+  .main { min-width: 0; }
+
+  /* Mobile menu button */
+  .mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: var(--dark3);
+    border: 1px solid var(--dark3);
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mobile-menu-btn.on { border-color: var(--gold-dim); color: var(--gold); }
+
+  /* Tabs — horizontal scroll */
+  .tabs { padding: 0 10px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 10px 10px; font-size: 10px; white-space: nowrap; flex-shrink: 0; }
+
+  /* Pane padding */
+  .pane { padding: 12px; }
+
+  /* Gen/theme boxes */
+  .gen-box, .theme-box { padding: 12px; }
+  .gen-box p, .theme-box p { font-size: 11px; margin-bottom: 10px; }
+  .override-row, .theme-row { flex-direction: column; gap: 8px; }
+  .override-row input, .theme-row input { width: 100%; }
+  .btn-row { flex-direction: column; }
+  .btn-row .btn { width: 100%; }
+  .btn { font-size: 12px; padding: 10px 14px; }
+  .quick-row { gap: 4px; }
+  .qchip { font-size: 10px; }
+
+  /* Cards — stack image below text */
+  .card-body { grid-template-columns: 1fr; }
+  .card-text { border-right: none; border-bottom: 1px solid var(--dark3); padding: 10px 12px; }
+  .card-img-col {
+    padding: 10px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark3);
+    justify-content: flex-start;
+  }
+  .drop-zone, .img-preview, .img-gen, .banner-placeholder {
+    width: 80px !important; height: 80px !important;
+  }
+  .drop-zone span { font-size: 9px; }
+  .dz-icon { font-size: 18px; }
+
+  /* Card head */
+  .card-head { padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+  .card-time { margin-left: 0; }
+
+  /* Card foot */
+  .card-foot { padding: 8px 12px; gap: 5px; }
+  .mbtn { font-size: 10px; padding: 4px 8px; }
+  .s-txt { font-size: 10px; width: 100%; order: -1; margin-bottom: 2px; }
+
+  /* Section text */
+  .section-text { font-size: 11px; }
+  .first-comment-text { font-size: 11px; }
+
+  /* Batch bar */
+  .batch-bar { padding: 8px 10px; gap: 6px; }
+  .batch-bar .btn { font-size: 10px !important; padding: 6px 10px !important; width: auto; }
+  .batch-msg { font-size: 10px; width: 100%; }
+
+  /* Schedule table */
+  .sched-head { grid-template-columns: 28px 50px 1fr 80px; font-size: 9px; padding: 6px 10px; }
+  .sched-row { grid-template-columns: 28px 50px 1fr 80px; font-size: 10px; padding: 7px 10px; }
+  .sched-head span:nth-child(5), .sched-row span:nth-child(5),
+  .sched-head span:last-child, .sched-row .pill { display: none; }
+
+  /* Settings modal */
+  #settings-modal > div { width: 95vw !important; padding: 20px !important; }
+
+  /* Stat grid */
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stat-num { font-size: 22px; }
+
+  /* Toast */
+  .toast { left: 10px; right: 10px; max-width: none; bottom: 14px; }
+
+  /* Two col forms */
+  .two-col { grid-template-columns: 1fr; }
+
+  /* Progress */
+  .prog-label { font-size: 10px; }
+}
+
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">MJ Content Studio<span>Michael Jackson Tribute Page</span></div>
+  <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
   <div class="hdr-actions">
     <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;" id="settings-btn">&#9881; Settings</button>
     <a href="/tdm" class="btn btn-ghost" style="font-size:11px;padding:5px 12px;">Switch to TDM</a>
@@ -989,6 +1108,23 @@ function renderSchedule() {
   }).join('');
   document.getElementById('sched-container').innerHTML = '<div class="sched-table"><div class="sched-head"><span>#</span><span>Type</span><span>Caption</span><span>Time</span><span>Status</span></div>'+rows+'</div>';
 }
+
+
+// ── MOBILE MENU ───────────────────────────────────────────
+document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('mobile-menu-btn');
+  sidebar.classList.toggle('open');
+  btn.classList.toggle('on');
+});
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (window.innerWidth <= 680) {
+      document.querySelector('.sidebar').classList.remove('open');
+      document.getElementById('mobile-menu-btn').classList.remove('on');
+    }
+  });
+});
 
 // ── LOAD SAVED POSTS ON INIT ──────────────────────────────
 loadPosts();
