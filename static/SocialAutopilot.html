@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Autopilot — ThatTaxGuru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d1b2a;
+    --ink-soft: #1b2a3a;
+    --paper: #f5f1e8;
+    --paper-warm: #ede5d3;
+    --accent: #c9472f;
+    --accent-deep: #9a3220;
+    --gold: #c8a04a;
+    --line: #d8cfb8;
+    --muted: #6b6354;
+    --ok: #2f7d4a;
+    --warn: #b8860b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.5; }
+  body {
+    background-image:
+      radial-gradient(ellipse at top left, rgba(201, 71, 47, 0.06), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(200, 160, 74, 0.08), transparent 50%);
+    min-height: 100vh;
+  }
+  .app { max-width: 1280px; margin: 0 auto; padding: 32px 28px 80px; }
+
+  /* Masthead */
+  .masthead { border-bottom: 2px solid var(--ink); padding-bottom: 18px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: baseline; gap: 14px; }
+  .brand-mark { font-family: 'Fraunces', serif; font-weight: 900; font-size: 38px; letter-spacing: -0.02em; color: var(--ink); }
+  .brand-mark span { color: var(--accent); }
+  .brand-tag { font-family: 'Raleway', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding-bottom: 6px; }
+  .meta-row { font-family: 'Raleway', sans-serif; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .meta-row strong { color: var(--ink); font-weight: 700; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-bottom: 28px; overflow-x: auto; }
+  .tab { padding: 14px 22px; font-family: 'Raleway', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+  /* Cards */
+  .card { background: white; border: 1px solid var(--line); border-radius: 4px; padding: 26px; margin-bottom: 22px; box-shadow: 0 1px 0 rgba(13, 27, 42, 0.04); }
+  .card h2 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 24px; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .card h3 { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); margin-bottom: 12px; }
+  .card .lede { color: var(--muted); font-size: 14px; margin-bottom: 20px; font-style: italic; }
+
+  /* Form elements */
+  label { display: block; font-family: 'Raleway', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  input[type="text"], input[type="password"], textarea, select {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 3px; font-family: 'DM Sans', sans-serif; font-size: 15px; background: var(--paper); color: var(--ink); transition: border-color 0.15s, background 0.15s;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); background: white; }
+  textarea { resize: vertical; min-height: 90px; }
+  .field { margin-bottom: 18px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .field-row { grid-template-columns: 1fr; } }
+
+  /* Buttons */
+  button.btn { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; padding: 13px 22px; border: none; border-radius: 3px; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-deep); }
+  .btn-primary:disabled { background: var(--muted); cursor: not-allowed; opacity: 0.5; }
+  .btn-secondary { background: var(--ink); color: var(--paper); }
+  .btn-secondary:hover { background: var(--ink-soft); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn-ghost:hover { border-color: var(--ink); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Pillars/goals */
+  .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 8px; }
+  @media (max-width: 720px) { .pillar-grid { grid-template-columns: 1fr; } }
+  .pillar-card { padding: 16px; border: 1px solid var(--line); border-radius: 3px; cursor: pointer; transition: all 0.15s; background: var(--paper); }
+  .pillar-card:hover { border-color: var(--ink); }
+  .pillar-card.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .pillar-card.selected .pillar-name { color: var(--paper); }
+  .pillar-card.selected .pillar-desc { color: rgba(245, 241, 232, 0.7); }
+  .pillar-name { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; margin-bottom: 4px; color: var(--ink); }
+  .pillar-desc { font-size: 13px; color: var(--muted); }
+
+  /* Generated content */
+  .post-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .post-grid { grid-template-columns: 1fr; } }
+  .post { border: 1px solid var(--line); border-radius: 4px; padding: 20px; background: var(--paper); position: relative; }
+  .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .platform-tag { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; padding: 4px 9px; border-radius: 2px; }
+  .platform-tiktok { background: #000; color: #fff; }
+  .platform-instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #fff; }
+  .platform-linkedin { background: #0a66c2; color: #fff; }
+  .platform-facebook { background: #1877f2; color: #fff; }
+  .post-status { font-size: 11px; font-family: 'Raleway', sans-serif; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .status-queued { color: var(--warn); }
+  .status-posted { color: var(--ok); }
+  .status-failed { color: var(--accent); }
+  .post-body { font-size: 14px; line-height: 1.55; white-space: pre-wrap; margin-bottom: 12px; }
+  .post-hashtags { color: var(--accent-deep); font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+  .post-cta { font-size: 12px; padding: 8px 11px; background: white; border-left: 3px solid var(--gold); color: var(--ink); margin-bottom: 12px; }
+  .post-cta strong { font-family: 'Raleway', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+  .post-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mini-btn { font-family: 'Raleway', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; padding: 7px 11px; border-radius: 2px; border: none; cursor: pointer; }
+  .mini-btn-post { background: var(--ok); color: white; }
+  .mini-btn-copy { background: var(--paper-warm); color: var(--ink); }
+  .mini-btn-edit { background: var(--ink); color: var(--paper); }
+  .mini-btn-delete { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+
+  /* Schedule */
+  .sched-row { display: grid; grid-template-columns: 100px 1fr 110px 90px; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: center; }
+  @media (max-width: 720px) { .sched-row { grid-template-columns: 1fr; } }
+  .sched-time { font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; }
+  .sched-platform { font-size: 13px; color: var(--muted); }
+
+  /* Status banner */
+  .banner { padding: 14px 18px; border-radius: 3px; font-size: 14px; margin-bottom: 18px; }
+  .banner-info { background: rgba(200, 160, 74, 0.12); border-left: 3px solid var(--gold); color: var(--ink); }
+  .banner-warn { background: rgba(201, 71, 47, 0.08); border-left: 3px solid var(--accent); color: var(--ink); }
+  .banner-ok { background: rgba(47, 125, 74, 0.1); border-left: 3px solid var(--ok); color: var(--ink); }
+
+  /* KPI */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 720px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: white; border: 1px solid var(--line); border-radius: 4px; padding: 18px; }
+  .kpi-label { font-family: 'Raleway', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-family: 'Fraunces', serif; font-weight: 700; font-size: 32px; color: var(--ink); letter-spacing: -0.01em; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Hashtag pills (settings) */
+  .hash-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .hash-pill { background: var(--paper-warm); border: 1px solid var(--line); padding: 5px 10px; border-radius: 12px; font-size: 12px; color: var(--ink); }
+
+  /* Modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(13, 27, 42, 0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal { background: var(--paper); border-radius: 4px; max-width: 600px; width: 100%; padding: 28px; max-height: 90vh; overflow-y: auto; }
+
+  /* Spinner */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty { text-align: center; padding: 50px 20px; color: var(--muted); font-style: italic; }
+  .footer-note { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); text-align: center; font-family: 'Raleway', sans-serif; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const { useState, useEffect, useMemo, useCallback } = React;
+const e = React.createElement;
+
+// =================================================================
+// CONSTANTS
+// =================================================================
+const STORAGE_KEY = 'irspilot_social_v1';
+
+const PLATFORMS = [
+  { id: 'tiktok', name: 'TikTok', limit: 2200, postable: 'queue' },
+  { id: 'instagram', name: 'Instagram', limit: 2200, postable: 'api' },
+  { id: 'linkedin', name: 'LinkedIn', limit: 3000, postable: 'api' },
+  { id: 'facebook', name: 'Facebook', limit: 63206, postable: 'api' }
+];
+
+const PILLARS = [
+  { id: 'irs_pilot', name: 'IRS Pilot Drive', desc: 'Drive trial signups for IRS Pilot platform.', cta: 'Try IRS Pilot free at https://www.irspilot.com', goal: 'Convert IRS notice anxiety into product trial. ALWAYS include the full URL https://www.irspilot.com in the post body — not just the domain name. The URL must appear as a clickable link, ideally near the end of the post as part of the call-to-action.' },
+  { id: 'authority', name: 'Authority / Growth', desc: 'Build ThatTaxGuru following with sharp tax takes.', cta: 'Follow @ThatTaxGuru for daily tax wins', goal: 'Grow audience with credibility-first content. Do NOT include any URLs — these posts are pure value to attract followers.' },
+  { id: 'book', name: 'Book Sales', desc: 'Sell Stop IRS Collections on Amazon.', cta: 'Get Stop IRS Collections on Amazon: https://www.amazon.com/dp/B0GXLMQVWT', goal: 'Convert IRS pain into a book purchase. ALWAYS include the full Amazon URL https://www.amazon.com/dp/B0GXLMQVWT in the post body — not just "available on Amazon." The URL must appear as a clickable link.' },
+  { id: 'skool', name: 'Skool Community', desc: 'Recruit members to the Tax Guru Classroom community on Skool.', cta: 'Join the Tax Guru Classroom: https://www.skool.com/tax-guru-classroom-8978', goal: 'Recruit taxpayers and small business owners into the Tax Guru Classroom community on Skool, where members learn how to handle IRS and state tax issues. ALWAYS include the full URL https://www.skool.com/tax-guru-classroom-8978 in the post body — not just "join my community." The URL must appear as a clickable link. Frame the community as a learning environment, not a sales funnel — emphasize education, peer support, and ongoing access to a real EA. The audience is people who want to learn how to handle their own tax problems or learn enough to make smart decisions when hiring help.' }
+];
+
+const DEFAULT_HASHTAGS = {
+  irs_pilot: ['#IRSHelp', '#TaxRelief', '#IRSPilot', '#TaxPro', '#TaxSeason', '#BackTaxes', '#TaxResolution'],
+  authority: ['#ThatTaxGuru', '#TaxTips', '#TaxStrategy', '#SmallBusinessTaxes', '#TaxPlanning', '#IRSTips'],
+  book: ['#StopIRSCollections', '#TaxBook', '#IRSCollections', '#TaxRelief', '#FinancialFreedom', '#TaxHelp'],
+  skool: ['#TaxGuruClassroom', '#TaxEducation', '#SmallBusinessTaxes', '#IRSHelp', '#TaxCommunity', '#LearnTaxes', '#ThatTaxGuru']
+};
+
+const DEFAULT_TIMES = ['08:30', '12:30', '17:30', '20:00'];
+
+// =================================================================
+// STATE PERSISTENCE
+// =================================================================
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (err) { return null; }
+}
+function saveState(state) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (err) {}
+}
+
+// =================================================================
+// CONTENT GENERATION (Anthropic API)
+// =================================================================
+async function generatePostsForTopic({ topic, pillar, platforms, voice, apiKey }) {
+  // Don't manually escape — JSON.stringify will handle all escaping
+  // Just use topic and voice as-is
+  const pillarObj = PILLARS.find(p => p.id === pillar);
+  const platformList = platforms.map(p => {
+    const pf = PLATFORMS.find(x => x.id === p);
+    return `- ${pf.name} (max ${pf.limit} chars)`;
+  }).join('\n');
+
+  const systemPrompt = `You are writing social media posts AS Tyrone J. Taylor, EA — known online as ThatTaxGuru. Tyrone is an Enrolled Agent (credentialed in December 2012) with over 20 years of total experience as a tax professional, founder of IRS Pilot, and author of "Stop IRS Collections." You are not a generic copywriter imitating a tax pro — you ARE Tyrone, and the writing must sound like him specifically.
+
+CREDENTIAL ACCURACY — IMPORTANT:
+Do NOT say "an EA for 20 years" or anything that implies the EA credential is older than December 2012. Tyrone has been a TAX PROFESSIONAL for 20+ years; he has been an ENROLLED AGENT since December 2012. These are different facts. Acceptable phrasings: "In 20+ years working in tax", "After 20 years in the tax business", "Over 20 years helping taxpayers", "More than a decade as an EA". Unacceptable: "As an EA for 20 years", "In my 20 years as an Enrolled Agent". Most posts don't need to specify either timeframe at all — when in doubt, just say "in my experience" or "what I've seen over the years" without a number.
+
+HOW TYRONE ACTUALLY WRITES (study this real excerpt from his book and match its voice, rhythm, and texture):
+"""
+So, who am I? My name is Tyrone J Taylor, and I am an Enrolled Agent and owner of Taylor Tax and Financial Consulting. "What is that? Some kind of IRS Agent?" No! I am the OPPOSITE of an IRS Agent! Instead of representing the IRS, I represent taxpayers. Since I have been in the tax business over the last 13 years, I have talked to literally thousands of taxpayers that have had tax issues. One of the issues I've heard the most is how they fear dealing with the IRS themselves. Because of that fear, they don't address the tax issue. So, you can take a DEEP breath and know that generally, that is not your fate. However, don't breathe too deeply! The IRS has other weapons in its arsenal to enforce tax compliance.
+"""
+
+VOICE RULES distilled from how Tyrone writes:
+- Talk DIRECTLY to the reader as "you." Conversational, like sitting across a desk from them. Never write in detached third person about "taxpayers" when you could say "you."
+- Tone is WARM AND REASSURING WITH HONEST EDGES. Tyrone calms people down ("take a deep breath") but never lets them off the hook ("but don't breathe too deeply"). He comforts, then keeps it real. He is NOT snarky, NOT edgy-for-its-own-sake, NOT a hype man. He's the trusted guide who levels with you.
+- Use rhetorical questions, then answer them — sometimes with an imagined reader question in quotes followed by a direct response. ("Think the IRS will just forget about you? They won't.")
+- Use ALL CAPS for emphasis on a single key word — but SPARINGLY, only one or two caps words in an entire post, max. This mimics spoken emphasis.
+- Vary sentence rhythm: short punchy reactions ("No!" "It won't be easy.") mixed with longer explanatory sentences.
+- Credibility appears naturally, never braggy — reference real experience ("in my years working with taxpayers I've seen...") rather than listing credentials. If a timeframe is mentioned at all, frame it correctly: "20+ years in the tax business" (correct — describes total tax career) NOT "20 years as an EA" (incorrect — EA since December 2012).
+- Plain-spoken and human. Explain technical things simply, the way you'd explain them to a worried client, not the way a textbook would.
+
+AVOID: corporate buzzwords, hype-speak, fake urgency, "game-changer/transform/unlock/leverage/delve/unleash," exclamation-point overload, sounding like every other tax account online. If a sentence could have been written by any generic tax marketer, rewrite it so it sounds like Tyrone. NEVER invent client stories, case studies, or specific dollar amounts/settlement figures/statistics — Tyrone does not make up fake clients or numbers. Speak from real experience in general, truthful terms instead.
+
+IRS TECHNICAL ACCURACY — NON-NEGOTIABLE:
+This content is written by a licensed Enrolled Agent. Every factual claim about IRS notices, procedures, deadlines, and rights must be accurate. Accuracy is the brand. A single wrong fact destroys credibility with the tax-savvy audience.
+
+- NEVER conflate different IRS notices. They have distinct legal meanings:
+  * CP14 — first balance-due notice (not a levy notice).
+  * CP501 / CP503 — reminder notices, escalating urgency.
+  * CP504 — Notice of Intent to Levy, but ONLY permits levy of STATE tax refunds. It is NOT the final notice and does NOT grant Collection Due Process (CDP) hearing rights.
+  * LT11 / Letter 1058 — FINAL Notice of Intent to Levy AND Notice of Your Right to a Hearing. THIS is what starts the 30-day CDP clock and what permits levy of wages and bank accounts.
+  * CP90 — also a Final Notice of Intent to Levy with CDP rights (similar function to LT11/1058).
+  * CP2000 — proposed changes from underreporter program (not a collection notice).
+- Do NOT say CP504 grants CDP rights or the 30-day hearing window. Only LT11/Letter 1058 and CP90 do.
+- Do NOT invent IRC sections, deadlines, dollar thresholds, or form numbers. If you are not certain of an exact citation, describe the concept in plain language WITHOUT a specific citation rather than guessing.
+- Base all technical content only on established IRS rules (IRC, IRM, official IRS publications and notices). No third-party tax-blog folklore.
+- When in doubt, be less specific rather than confidently wrong.
+
+Goal of this post: ${pillarObj.goal}
+CTA to weave in (naturally, not as a tagged-on line): ${pillarObj.cta}
+${voice ? `Additional voice notes: ${voice}` : ''}`;
+
+  const userPrompt = `Write social posts about: "${topic}"
+
+Generate ONE post per platform below, tailored to the platform's culture:
+${platformList}
+
+NO FABRICATED CLIENTS OR NUMBERS — STRICT:
+- Do NOT invent client stories, case studies, named or unnamed individuals, or specific scenarios ("I had a client who owed $47,000 and we settled for $4,200..."). These are fabrications and they are not allowed.
+- Do NOT make up dollar amounts, settlement figures, percentages, timelines, or statistics. If you don't have a real, verifiable number, don't use a number at all.
+- Speak from general professional experience in TRUTHFUL, NON-SPECIFIC terms. Acceptable: "In 20+ years working in tax, the most common mistake I see is...", "Many taxpayers don't realize that...", "A lot of people panic when they get this notice." These describe real patterns without inventing a specific person or fake figures.
+- Teach the concept directly. The value is in the accurate information and Tyrone's plain-English explanation, NOT in a dramatized story.
+- If a topic seems to call for an example, use a clearly hypothetical, generic framing without specific numbers ("Say you get a notice saying you owe back taxes...") rather than a fabricated real client.
+
+Platform tone guide:
+- TikTok: Hook in first 3 words. Conversational caption that supplements a video. Imagine this is the caption under a 30-second clip.
+- Instagram: Slightly longer, more polished. Line breaks for scannability. Strong hook line.
+- LinkedIn: Professional but human. Lead with a sharp observation, a common misconception, or a direct question — NOT a fabricated story. End with the CTA woven in naturally. NO hashtag clutter — 3 max.
+- Facebook: Conversational, like a tax-pro friend explaining over coffee. Slightly longer is fine.
+
+Return ONLY a JSON array, no markdown, no preamble. Each item:
+{
+  "platform": "<platform_id>",
+  "body": "<post body, no hashtags>",
+  "hashtags": ["#tag1", "#tag2", ...]
+}
+
+Hashtag rules: 3-5 for LinkedIn, 5-8 for Instagram/TikTok, 2-4 for Facebook. Mix branded (#ThatTaxGuru, #IRSPilot) with discoverable.`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`API error ${response.status}: ${errText.slice(0, 200)}`);
+  }
+
+  const data = await response.json();
+  const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('').trim();
+  const cleaned = text.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '').trim();
+  const posts = JSON.parse(cleaned);
+
+  return posts.map(p => ({
+    id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    platform: p.platform,
+    pillar: pillar,
+    topic: topic,
+    body: p.body,
+    hashtags: p.hashtags || [],
+    status: 'queued',
+    createdAt: new Date().toISOString(),
+    scheduledFor: null,
+    postedAt: null,
+    error: null
+  }));
+}
+
+// =================================================================
+// AUTO-POST DISPATCHERS
+// =================================================================
+async function postToFacebook(post, creds) {
+  if (!creds.fbPageId || !creds.fbToken) {
+    // No direct credentials — route through webhook (Make/Zapier handles posting)
+    return await postToWebhook(post, creds, 'facebook');
+  }
+  const message = post.body + (post.hashtags.length ? '\n\n' + post.hashtags.join(' ') : '');
+  const url = `https://graph.facebook.com/v18.0/${creds.fbPageId}/feed`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, access_token: creds.fbToken })
+  });
+  if (!r.ok) throw new Error(`Facebook: ${r.status} ${(await r.text()).slice(0, 150)}`);
+  return await r.json();
+}
+
+async function postToInstagram(post, creds) {
+  // Instagram requires a media object; for text-only this isn't supported by the Graph API.
+  // We push to webhook as a fallback.
+  if (!creds.zapierHook) throw new Error('Instagram requires media. Set up a Zapier/Make webhook in Settings to post via a connected scheduler.');
+  return await postToWebhook(post, creds, 'instagram');
+}
+
+async function postToLinkedIn(post, creds) {
+  if (!creds.liUrn || !creds.liToken) {
+    // No direct credentials — route through webhook (Make/Zapier handles posting)
+    return await postToWebhook(post, creds, 'linkedin');
+  }
+  const text = post.body + (post.hashtags.length ? '\n\n' + post.hashtags.join(' ') : '');
+  const r = await fetch('https://api.linkedin.com/v2/ugcPosts', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${creds.liToken}`,
+      'Content-Type': 'application/json',
+      'X-Restli-Protocol-Version': '2.0.0'
+    },
+    body: JSON.stringify({
+      author: creds.liUrn,
+      lifecycleState: 'PUBLISHED',
+      specificContent: {
+        'com.linkedin.ugc.ShareContent': {
+          shareCommentary: { text: text },
+          shareMediaCategory: 'NONE'
+        }
+      },
+      visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' }
+    })
+  });
+  if (!r.ok) throw new Error(`LinkedIn: ${r.status} ${(await r.text()).slice(0, 150)}`);
+  return await r.json();
+}
+
+async function postToWebhook(post, creds, platform) {
+  if (!creds.zapierHook) throw new Error('Webhook URL required for ' + platform);
+  var platLower = (platform || '').toString().trim().toLowerCase();
+  const r = await fetch(creds.zapierHook, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      platform: platLower,
+      body: post.body,
+      hashtags: post.hashtags.join(' '),
+      full_text: post.body + '\n\n' + post.hashtags.join(' '),
+      pillar: post.pillar,
+      topic: post.topic,
+      timestamp: new Date().toISOString()
+    })
+  });
+  if (!r.ok) throw new Error(`${platLower} webhook: ${r.status}`);
+  return { ok: true };
+}
+
+async function dispatchPost(post, creds) {
+  // Normalize platform to lowercase so 'Facebook', 'FACEBOOK', 'facebook' all work
+  var plat = (post.platform || '').toString().trim().toLowerCase();
+  switch (plat) {
+    case 'facebook': return await postToFacebook(post, creds);
+    case 'linkedin': return await postToLinkedIn(post, creds);
+    case 'instagram': return await postToInstagram(post, creds);
+    case 'tiktok': return await postToWebhook(post, creds, 'tiktok');
+    default: throw new Error('Unknown platform: ' + post.platform);
+  }
+}
+
+// =================================================================
+// COMPONENTS
+// =================================================================
+function Masthead() {
+  return e('header', { className: 'masthead' },
+    e('div', { className: 'brand' },
+      e('div', { className: 'brand-mark' }, 'Social', e('span', null, '/'), 'Autopilot'),
+      e('div', { className: 'brand-tag' }, 'ThatTaxGuru × IRS Pilot')
+    ),
+    e('div', { className: 'meta-row' },
+      e('strong', null, new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }))
+    )
+  );
+}
+
+function Tabs({ active, setActive }) {
+  const tabs = [
+    { id: 'generate', label: 'Generate' },
+    { id: 'queue', label: 'Queue' },
+    { id: 'schedule', label: 'Schedule' },
+    { id: 'history', label: 'History' },
+    { id: 'settings', label: 'Settings' }
+  ];
+  return e('nav', { className: 'tabs' },
+    tabs.map(t => e('button', {
+      key: t.id,
+      className: 'tab' + (active === t.id ? ' active' : ''),
+      onClick: () => setActive(t.id)
+    }, t.label))
+  );
+}
+
+function GenerateTab({ state, updateState, settings }) {
+  const [topic, setTopic] = useState('');
+  const [pillar, setPillar] = useState('irs_pilot');
+  const [platforms, setPlatforms] = useState(['tiktok', 'instagram', 'linkedin', 'facebook']);
+  const [voice, setVoice] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState(null);
+
+  const togglePlatform = (id) => {
+    setPlatforms(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  };
+
+  const handleGenerate = async () => {
+    setError(null);
+    if (!settings.apiKey) { setError('Set your Anthropic API key in Settings first.'); return; }
+    if (!topic.trim()) { setError('Enter a topic or angle to write about.'); return; }
+    if (platforms.length === 0) { setError('Select at least one platform.'); return; }
+    setGenerating(true);
+    try {
+      const posts = await generatePostsForTopic({ topic, pillar, platforms, voice, apiKey: settings.apiKey });
+      updateState({ ...state, posts: [...posts, ...state.posts] });
+      setTopic('');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return e('div', null,
+    e('div', { className: 'card' },
+      e('h2', null, 'Generate New Posts'),
+      e('p', { className: 'lede' }, 'One topic, four platform-tuned posts. Pick your goal, hit generate, review in the queue.'),
+
+      e('div', { className: 'field' },
+        e('label', null, 'Goal / Pillar'),
+        e('div', { className: 'pillar-grid' },
+          PILLARS.map(p => e('div', {
+            key: p.id,
+            className: 'pillar-card' + (pillar === p.id ? ' selected' : ''),
+            onClick: () => setPillar(p.id)
+          },
+            e('div', { className: 'pillar-name' }, p.name),
+            e('div', { className: 'pillar-desc' }, p.desc)
+          ))
+        )
+      ),
+
+      e('div', { className: 'field' },
+        e('label', null, 'Topic, angle, or hook'),
+        e('textarea', {
+          value: topic,
+          onChange: ev => setTopic(ev.target.value),
+          placeholder: 'e.g. "Why getting an IRS CP504 notice is actually GOOD news (sort of)" — or paste a news headline, a client story angle, a tax statute change, etc.'
+        })
+      ),
+
+      e('div', { className: 'field' },
+        e('label', null, 'Platforms'),
+        e('div', { className: 'btn-row' },
+          PLATFORMS.map(p => e('button', {
+            key: p.id,
+            className: 'btn ' + (platforms.includes(p.id) ? 'btn-secondary' : 'btn-ghost'),
+            onClick: () => togglePlatform(p.id),
+            type: 'button'
+          }, p.name))
+        )
+      ),
+
+      e('div', { className: 'field' },
+        e('label', null, 'Voice notes (optional)'),
+        e('input', {
+          type: 'text',
+          value: voice,
+          onChange: ev => setVoice(ev.target.value),
+          placeholder: 'e.g. "Lean punchy, mention the OBBB changes" or "Quote a real IRS code section"'
+        })
+      ),
+
+      error && e('div', { className: 'banner banner-warn' }, error),
+
+      e('div', { className: 'btn-row' },
+        e('button', {
+          className: 'btn btn-primary',
+          onClick: handleGenerate,
+          disabled: generating
+        }, generating ? [e('span', { className: 'spinner', key: 's' }), 'Generating…'] : 'Generate Posts')
+      )
+    )
+  );
+}
+
+function PostCard({ post, onAction }) {
+  const platformObj = PLATFORMS.find(p => p.id === post.platform) || { id: post.platform, name: post.platform || 'unknown' };
+  const pillarObj = PILLARS.find(p => p.id === post.pillar) || { id: post.pillar, name: post.pillar || 'unknown', cta: '' };
+  // TikTok and Instagram are manual platforms — the action button copies caption and marks posted in one step.
+  // Facebook and LinkedIn are automated — the action button still uses Post Now.
+  const isManual = post.platform === 'tiktok' || post.platform === 'instagram';
+  const primaryLabel = isManual ? 'Copy & Mark Posted' : 'Post Now';
+  const primaryAction = isManual ? 'copy_and_mark' : 'post';
+  return e('div', { className: 'post' },
+    e('div', { className: 'post-header' },
+      e('span', { className: 'platform-tag platform-' + post.platform }, platformObj.name),
+      e('span', { className: 'post-status status-' + post.status }, post.status)
+    ),
+    e('div', { className: 'post-body' }, post.body),
+    post.hashtags.length > 0 && e('div', { className: 'post-hashtags' }, post.hashtags.join(' ')),
+    e('div', { className: 'post-cta' },
+      e('strong', null, pillarObj.name + ' • '),
+      pillarObj.cta
+    ),
+    post.error && e('div', { className: 'banner banner-warn' }, 'Error: ' + post.error),
+    e('div', { className: 'post-actions' },
+      post.status !== 'posted' && e('button', { className: 'mini-btn mini-btn-post', onClick: () => onAction(primaryAction, post), key: 'p' }, primaryLabel),
+      !isManual && e('button', { className: 'mini-btn mini-btn-copy', onClick: () => onAction('copy', post), key: 'c' }, 'Copy'),
+      e('button', { className: 'mini-btn mini-btn-edit', onClick: () => onAction('edit', post), key: 'e' }, 'Edit'),
+      e('button', { className: 'mini-btn mini-btn-delete', onClick: () => onAction('delete', post), key: 'd' }, 'Delete')
+    )
+  );
+}
+
+function QueueTab({ state, updateState, settings }) {
+  const [editingPost, setEditingPost] = useState(null);
+  const [postingId, setPostingId] = useState(null);
+
+  const queued = state.posts.filter(p => p.status === 'queued' || p.status === 'failed');
+
+  const handleAction = async (action, post) => {
+    if (action === 'copy') {
+      const text = post.body + '\n\n' + post.hashtags.join(' ');
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard.');
+    } else if (action === 'copy_and_mark') {
+      // For TikTok/Instagram: copy caption to clipboard AND mark as posted in one click.
+      const text = post.body + '\n\n' + post.hashtags.join(' ');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        // Clipboard may fail on some mobile browsers; still mark as posted so the workflow doesn't get stuck.
+      }
+      const updated = state.posts.map(p => p.id === post.id ? { ...p, status: 'posted', postedAt: new Date().toISOString(), error: null } : p);
+      updateState({ ...state, posts: updated });
+      alert('Caption copied. Marked as posted — paste it into the platform with your image or video.');
+    } else if (action === 'delete') {
+      if (!confirm('Delete this post?')) return;
+      updateState({ ...state, posts: state.posts.filter(p => p.id !== post.id) });
+    } else if (action === 'edit') {
+      setEditingPost({ ...post });
+    } else if (action === 'post') {
+      setPostingId(post.id);
+      try {
+        await dispatchPost(post, settings);
+        const updated = state.posts.map(p => p.id === post.id ? { ...p, status: 'posted', postedAt: new Date().toISOString(), error: null } : p);
+        updateState({ ...state, posts: updated });
+      } catch (err) {
+        const updated = state.posts.map(p => p.id === post.id ? { ...p, status: 'failed', error: err.message } : p);
+        updateState({ ...state, posts: updated });
+      } finally {
+        setPostingId(null);
+      }
+    }
+  };
+
+  const saveEdit = () => {
+    const updated = state.posts.map(p => p.id === editingPost.id ? editingPost : p);
+    updateState({ ...state, posts: updated });
+    setEditingPost(null);
+  };
+
+  return e('div', null,
+    e('div', { className: 'card' },
+      e('h2', null, 'Post Queue'),
+      e('p', { className: 'lede' }, queued.length + ' post' + (queued.length === 1 ? '' : 's') + ' awaiting publish or scheduling.'),
+
+      queued.length === 0
+        ? e('div', { className: 'empty' }, 'Queue is empty. Generate some posts to get started.')
+        : e('div', { className: 'post-grid' },
+            queued.map(p => e(PostCard, {
+              key: p.id,
+              post: postingId === p.id ? { ...p, status: 'queued' } : p,
+              onAction: handleAction
+            }))
+          )
+    ),
+
+    editingPost && e('div', { className: 'modal-bg', onClick: () => setEditingPost(null) },
+      e('div', { className: 'modal', onClick: ev => ev.stopPropagation() },
+        e('h2', null, 'Edit Post'),
+        e('p', { className: 'lede' }, (PLATFORMS.find(p => p.id === editingPost.platform) || { name: editingPost.platform || 'unknown' }).name),
+        e('div', { className: 'field' },
+          e('label', null, 'Body'),
+          e('textarea', {
+            value: editingPost.body,
+            onChange: ev => setEditingPost({ ...editingPost, body: ev.target.value }),
+            style: { minHeight: '180px' }
+          })
+        ),
+        e('div', { className: 'field' },
+          e('label', null, 'Hashtags (space-separated)'),
+          e('input', {
+            type: 'text',
+            value: editingPost.hashtags.join(' '),
+            onChange: ev => setEditingPost({ ...editingPost, hashtags: ev.target.value.split(/\s+/).filter(Boolean) })
+          })
+        ),
+        e('div', { className: 'btn-row' },
+          e('button', { className: 'btn btn-primary', onClick: saveEdit }, 'Save'),
+          e('button', { className: 'btn btn-ghost', onClick: () => setEditingPost(null) }, 'Cancel')
+        )
+      )
+    )
+  );
+}
+
+function ScheduleTab({ state, updateState, settings }) {
+  const [autoOn, setAutoOn] = useState(state.autoSchedule || false);
+  const [times, setTimes] = useState(state.scheduleTimes || DEFAULT_TIMES);
+
+  const toggleAuto = () => {
+    const newVal = !autoOn;
+    setAutoOn(newVal);
+    updateState({ ...state, autoSchedule: newVal, scheduleTimes: times });
+  };
+
+  const updateTime = (i, v) => {
+    const next = [...times];
+    next[i] = v;
+    setTimes(next);
+    updateState({ ...state, scheduleTimes: next, autoSchedule: autoOn });
+  };
+
+  const addTime = () => {
+    const next = [...times, '12:00'];
+    setTimes(next);
+    updateState({ ...state, scheduleTimes: next, autoSchedule: autoOn });
+  };
+
+  const removeTime = (i) => {
+    const next = times.filter((_, idx) => idx !== i);
+    setTimes(next);
+    updateState({ ...state, scheduleTimes: next, autoSchedule: autoOn });
+  };
+
+  const queued = state.posts.filter(p => p.status === 'queued');
+
+  return e('div', null,
+    e('div', { className: 'card' },
+      e('h2', null, 'Auto-Schedule'),
+      e('p', { className: 'lede' }, 'When the tab is open and Autopilot is on, queued posts publish at your chosen times. Browser must stay open — for 24/7 unattended posting, deploy the backend version.'),
+
+      e('div', { className: 'banner ' + (autoOn ? 'banner-ok' : 'banner-info') },
+        e('strong', null, autoOn ? 'AUTOPILOT ON' : 'AUTOPILOT OFF'),
+        ' — ',
+        autoOn
+          ? `Next post scheduled for ${getNextTime(times)}. ${queued.length} in queue.`
+          : 'Toggle on to begin automatic publishing.'
+      ),
+
+      e('div', { className: 'btn-row' },
+        e('button', {
+          className: 'btn ' + (autoOn ? 'btn-ghost' : 'btn-primary'),
+          onClick: toggleAuto
+        }, autoOn ? 'Pause Autopilot' : 'Start Autopilot')
+      ),
+
+      e('h3', { style: { marginTop: '28px' } }, 'Daily Posting Times'),
+      times.map((t, i) => e('div', { key: i, className: 'sched-row' },
+        e('input', {
+          type: 'time',
+          value: t,
+          onChange: ev => updateTime(i, ev.target.value)
+        }),
+        e('div', { className: 'sched-platform' }, 'Picks oldest queued post (round-robin across platforms)'),
+        e('div', null),
+        e('button', { className: 'mini-btn mini-btn-delete', onClick: () => removeTime(i) }, 'Remove')
+      )),
+      e('button', { className: 'btn btn-ghost', onClick: addTime, style: { marginTop: '12px' } }, '+ Add Time Slot')
+    ),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'Up Next'),
+      queued.length === 0
+        ? e('div', { className: 'empty' }, 'Nothing in queue.')
+        : e('div', null,
+            queued.slice(0, 8).map(p => e('div', { key: p.id, className: 'sched-row' },
+              e('div', { className: 'sched-time' }, (PLATFORMS.find(x => x.id === p.platform) || { name: p.platform || 'unknown' }).name),
+              e('div', null, p.body.slice(0, 120) + (p.body.length > 120 ? '…' : '')),
+              e('div', { className: 'sched-platform' }, (PILLARS.find(x => x.id === p.pillar) || { name: p.pillar || 'unknown' }).name),
+              e('div', null)
+            ))
+          )
+    )
+  );
+}
+
+function getNextTime(times) {
+  const now = new Date();
+  const today = times.map(t => {
+    const [h, m] = t.split(':').map(Number);
+    const d = new Date(); d.setHours(h, m, 0, 0); return d;
+  }).filter(d => d > now).sort((a, b) => a - b);
+  if (today.length) return today[0].toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const sortedTimes = [...times].sort();
+  return 'tomorrow at ' + sortedTimes[0];
+}
+
+function HistoryTab({ state, updateState }) {
+  const posted = state.posts.filter(p => p.status === 'posted').sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+  const failed = state.posts.filter(p => p.status === 'failed');
+
+  const stats = useMemo(() => {
+    const byPlatform = {};
+    PLATFORMS.forEach(p => { byPlatform[p.id] = posted.filter(x => x.platform === p.id).length; });
+    return { total: posted.length, byPlatform, failed: failed.length };
+  }, [posted, failed]);
+
+  const clearAll = () => {
+    if (!confirm('Clear all post history? This cannot be undone.')) return;
+    updateState({ ...state, posts: state.posts.filter(p => p.status === 'queued') });
+  };
+
+  return e('div', null,
+    e('div', { className: 'kpi-grid' },
+      e('div', { className: 'kpi' },
+        e('div', { className: 'kpi-label' }, 'Total Posted'),
+        e('div', { className: 'kpi-value' }, stats.total)
+      ),
+      ...PLATFORMS.slice(0, 3).map(p => e('div', { className: 'kpi', key: p.id },
+        e('div', { className: 'kpi-label' }, p.name),
+        e('div', { className: 'kpi-value' }, stats.byPlatform[p.id])
+      ))
+    ),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'Recent Posts'),
+      e('p', { className: 'lede' }, posted.length + ' published • ' + failed.length + ' failed'),
+      posted.length === 0
+        ? e('div', { className: 'empty' }, 'No published posts yet.')
+        : e('div', { className: 'post-grid' },
+            posted.slice(0, 20).map(p => e(PostCard, { key: p.id, post: p, onAction: () => {} }))
+          ),
+      posted.length > 0 && e('div', { className: 'btn-row', style: { marginTop: '20px' } },
+        e('button', { className: 'btn btn-ghost', onClick: clearAll }, 'Clear History')
+      )
+    )
+  );
+}
+
+function SettingsTab({ settings, updateSettings, state, updateState }) {
+  const [draft, setDraft] = useState(settings);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    updateSettings(draft);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const updateField = (k, v) => setDraft({ ...draft, [k]: v });
+
+  const exportData = () => {
+    const blob = new Blob([JSON.stringify({ state, settings }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'social-autopilot-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return e('div', null,
+    saved && e('div', { className: 'banner banner-ok' }, 'Settings saved.'),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'Anthropic API'),
+      e('p', { className: 'lede' }, 'Required for content generation. Stored locally in your browser only.'),
+      e('div', { className: 'field' },
+        e('label', null, 'API Key'),
+        e('input', {
+          type: 'password',
+          value: draft.apiKey || '',
+          onChange: ev => updateField('apiKey', ev.target.value),
+          placeholder: 'sk-ant-…'
+        })
+      )
+    ),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'Facebook'),
+      e('p', { className: 'lede' }, 'Get a Page Access Token from developers.facebook.com → your app → Graph API Explorer. Needs pages_manage_posts permission.'),
+      e('div', { className: 'field-row' },
+        e('div', { className: 'field' },
+          e('label', null, 'Page ID'),
+          e('input', { type: 'text', value: draft.fbPageId || '', onChange: ev => updateField('fbPageId', ev.target.value) })
+        ),
+        e('div', { className: 'field' },
+          e('label', null, 'Page Access Token'),
+          e('input', { type: 'password', value: draft.fbToken || '', onChange: ev => updateField('fbToken', ev.target.value) })
+        )
+      )
+    ),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'LinkedIn'),
+      e('p', { className: 'lede' }, 'Create an app at linkedin.com/developers, request w_member_social. URN format: urn:li:person:YOUR_ID or urn:li:organization:ID for company pages.'),
+      e('div', { className: 'field-row' },
+        e('div', { className: 'field' },
+          e('label', null, 'URN'),
+          e('input', { type: 'text', value: draft.liUrn || '', onChange: ev => updateField('liUrn', ev.target.value), placeholder: 'urn:li:person:abc123' })
+        ),
+        e('div', { className: 'field' },
+          e('label', null, 'Access Token'),
+          e('input', { type: 'password', value: draft.liToken || '', onChange: ev => updateField('liToken', ev.target.value) })
+        )
+      )
+    ),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'Instagram + TikTok Webhook'),
+      e('p', { className: 'lede' }, 'TikTok requires special API approval, and Instagram needs a media object for posts. Easiest path: route through Buffer, Make.com, or Zapier with a webhook trigger that pushes to your connected accounts.'),
+      e('div', { className: 'field' },
+        e('label', null, 'Webhook URL (Zapier / Make / Buffer)'),
+        e('input', { type: 'text', value: draft.zapierHook || '', onChange: ev => updateField('zapierHook', ev.target.value), placeholder: 'https://hooks.zapier.com/…' })
+      )
+    ),
+
+    e('div', { className: 'card' },
+      e('h2', null, 'Data'),
+      e('p', { className: 'lede' }, 'Everything is stored in your browser via localStorage. Export regularly.'),
+      e('div', { className: 'btn-row' },
+        e('button', { className: 'btn btn-ghost', onClick: exportData }, 'Export Backup'),
+        e('button', { className: 'btn btn-ghost', onClick: () => {
+          if (confirm('Clear all data? This wipes posts, history, and settings.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+          }
+        } }, 'Clear All Data')
+      )
+    ),
+
+    e('div', { className: 'btn-row' },
+      e('button', { className: 'btn btn-primary', onClick: handleSave }, 'Save Settings')
+    )
+  );
+}
+
+// =================================================================
+// AUTOPILOT LOOP
+// =================================================================
+function useAutopilot(state, updateState, settings) {
+  useEffect(() => {
+    if (!state.autoSchedule) return;
+    const checkInterval = setInterval(async () => {
+      const now = new Date();
+      const nowHHMM = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      const lastTriggerKey = `lastTrigger_${nowHHMM}_${now.toDateString()}`;
+
+      if (state.scheduleTimes && state.scheduleTimes.includes(nowHHMM) && !state[lastTriggerKey]) {
+        const queued = state.posts.filter(p => p.status === 'queued');
+        if (queued.length === 0) return;
+
+        const next = queued[0];
+        try {
+          await dispatchPost(next, settings);
+          const updated = state.posts.map(p => p.id === next.id ? { ...p, status: 'posted', postedAt: new Date().toISOString() } : p);
+          updateState({ ...state, posts: updated, [lastTriggerKey]: true });
+        } catch (err) {
+          const updated = state.posts.map(p => p.id === next.id ? { ...p, status: 'failed', error: err.message } : p);
+          updateState({ ...state, posts: updated, [lastTriggerKey]: true });
+        }
+      }
+    }, 30000); // check every 30s
+
+    return () => clearInterval(checkInterval);
+  }, [state.autoSchedule, state.scheduleTimes, state.posts, settings]);
+}
+
+// =================================================================
+// APP ROOT
+// =================================================================
+function App() {
+  const [active, setActive] = useState('generate');
+  const [state, setState] = useState(() => {
+    const loaded = loadState();
+    return loaded?.state || { posts: [], autoSchedule: false, scheduleTimes: DEFAULT_TIMES };
+  });
+  const [settings, setSettings] = useState(() => {
+    const loaded = loadState();
+    return loaded?.settings || { apiKey: '', fbPageId: '', fbToken: '', liUrn: '', liToken: '', zapierHook: '' };
+  });
+
+  useEffect(() => { saveState({ state, settings }); }, [state, settings]);
+
+  useAutopilot(state, setState, settings);
+
+  return e('div', { className: 'app' },
+    e(Masthead),
+    e(Tabs, { active, setActive }),
+    active === 'generate' && e(GenerateTab, { state, updateState: setState, settings }),
+    active === 'queue' && e(QueueTab, { state, updateState: setState, settings }),
+    active === 'schedule' && e(ScheduleTab, { state, updateState: setState, settings }),
+    active === 'history' && e(HistoryTab, { state, updateState: setState }),
+    active === 'settings' && e(SettingsTab, { settings, updateSettings: setSettings, state, updateState: setState }),
+    e('div', { className: 'footer-note' }, 'Social Autopilot v1.0 — built for IRS Pilot stack — data stored locally in your browser')
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+</script>
+</body>
+</html>
