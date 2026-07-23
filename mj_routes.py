@@ -1005,21 +1005,16 @@ def buffer_channels():
     try:
         data = request.get_json()
         api_key = data.get('apiKey', '').strip()
+        org_id = data.get('orgId', '697f6b9d75b8747f96f3583a').strip()
         if not api_key:
             return jsonify({'ok': False, 'error': 'No API key provided'}), 400
 
         query = """
-query {
-  account {
-    organizations {
-      id
-      name
-      channels {
-        id
-        name
-        service
-      }
-    }
+query GetChannels($input: ChannelsInput!) {
+  channels(input: $input) {
+    id
+    name
+    service
   }
 }
 """
@@ -1029,7 +1024,10 @@ query {
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {api_key}'
             },
-            json={'query': query},
+            json={
+                'query': query,
+                'variables': {'input': {'organizationId': org_id}}
+            },
             timeout=30
         )
 
@@ -1037,18 +1035,8 @@ query {
         if 'errors' in result:
             return jsonify({'ok': False, 'error': result['errors'][0]['message']}), 400
 
-        account = result.get('data', {}).get('account', {})
-        orgs = account.get('organizations', [])
-        channels = []
-        org_id = None
-        for org in orgs:
-            org_id = org['id']
-            for ch in org.get('channels', []):
-                channels.append({
-                    'id': ch['id'],
-                    'name': ch['name'],
-                    'service': ch['service']
-                })
+        channels_data = result.get('data', {}).get('channels', [])
+        channels = [{'id': ch['id'], 'name': ch['name'], 'service': ch['service']} for ch in channels_data]
 
         return jsonify({'ok': True, 'organizationId': org_id, 'channels': channels})
 
