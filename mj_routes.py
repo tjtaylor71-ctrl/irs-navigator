@@ -1628,6 +1628,14 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
         <div class="btn-row">
           <button class="btn btn-gold" id="gen-img-btn">Generate Image Posts</button>
           <button class="btn btn-dark" id="buffer-send-btn" onclick="sendToBuffer()" style="font-size:12px;">Send to Buffer</button>
+        </div>
+        <div id="post-selection-bar" style="display:none;margin-top:10px;padding:8px 12px;background:var(--dark2);border-radius:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span id="selection-count" style="font-size:12px;color:var(--hint);flex:1;">0 selected</span>
+          <button onclick="selectAllPosts(true)" style="background:none;border:1px solid var(--dark3);border-radius:4px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Select All</button>
+          <button onclick="selectAllPosts(false)" style="background:none;border:1px solid var(--dark3);border-radius:4px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Deselect All</button>
+          <button onclick="regenerateDeselected()" style="background:var(--dark3);border:none;border-radius:4px;padding:4px 12px;font-size:11px;color:var(--gold);cursor:pointer;font-family:DM Sans,sans-serif;">Regenerate Deselected</button>
+        </div>
+        <div style="display:none;">
           <button class="btn btn-ghost" id="clear-images-btn">Clear</button>
         </div>
         <div id="img-prog-wrap" style="display:none;" class="prog-wrap">
@@ -2162,6 +2170,7 @@ function buildCard(type, idx, item, time, typeLabel, typeCls, s1text, s2text, s3
   const schedDisabled = (type==='banner' && !item.imgUrl) || (type!=='banner' && !item.imgUrl) ? ' disabled' : '';
 
   return '<div class="card-head">'
+    +(type==='img' ? '<input type="checkbox" class="post-select-cb" data-idx="'+idx+'" checked style="accent-color:var(--gold);width:15px;height:15px;margin-right:6px;cursor:pointer;flex-shrink:0;" title="Deselect to exclude from Buffer">' : '')
     +'<span class="card-num">#'+String(idx+1).padStart(2,'0')+'</span>'
     +(item.pillar ? '<span class="card-pillar">'+esc(item.pillar)+'</span>' : '')
     +'<span class="card-type '+typeCls+'">'+typeLabel+'</span>'
@@ -2646,6 +2655,13 @@ async function runStoryRefresh() {
 // Load stats on page init
 setTimeout(refreshStoryStats, 1000);
 
+// Wire up post selection checkboxes via delegation
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('post-select-cb')) {
+    updateSelectionBar();
+  }
+});
+
 // -- VIDEO IMAGE PROMPT COPY --------------------------------
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('vid-copy-prompt')) {
@@ -2670,6 +2686,80 @@ document.addEventListener('click', function(e) {
   }
 });
 
+
+
+// -- POST SELECTION ----------------------------------------
+function updateSelectionBar() {
+  var cbs = document.querySelectorAll('.post-select-cb');
+  var checked = document.querySelectorAll('.post-select-cb:checked');
+  var bar = document.getElementById('post-selection-bar');
+  var countEl = document.getElementById('selection-count');
+  if (cbs.length > 0) {
+    bar.style.display = 'flex';
+    countEl.textContent = checked.length + ' of ' + cbs.length + ' selected for Buffer';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function selectAllPosts(checked) {
+  document.querySelectorAll('.post-select-cb').forEach(function(cb) { cb.checked = checked; });
+  updateSelectionBar();
+}
+
+function getSelectedPostIndices() {
+  var indices = [];
+  document.querySelectorAll('.post-select-cb:checked').forEach(function(cb) {
+    indices.push(parseInt(cb.getAttribute('data-idx')));
+  });
+  return indices;
+}
+
+function regenerateDeselected() {
+  var deselected = [];
+  document.querySelectorAll('.post-select-cb').forEach(function(cb) {
+    if (!cb.checked) deselected.push(parseInt(cb.getAttribute('data-idx')));
+  });
+  if (!deselected.length) { toast('No posts deselected - uncheck posts you want to replace first.', true); return; }
+  if (!confirm('Regenerate ' + deselected.length + ' deselected post(s) with new story angles?')) return;
+
+  var override = (document.getElementById('img-override') || {}).value || '';
+  toast('Regenerating ' + deselected.length + ' post(s)...');
+
+  fetch('/mj/api/generate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      count: deselected.length,
+      themeOverride: override,
+      tone: S.tone,
+      cta: S.cta,
+      exclusions: getExclusions()
+    })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!data.ok) { toast('Error: ' + data.error, true); return; }
+    // Replace deselected posts with new ones
+    var newPosts = data.posts.map(function(p, i) {
+      return {id: deselected[i] !== undefined ? deselected[i] : S.imagePosts.length + i, type: 'image', ...p, imgUrl: null, scheduled: false};
+    });
+    newPosts.forEach(function(p, i) {
+      var replaceIdx = deselected[i];
+      if (replaceIdx !== undefined && replaceIdx < S.imagePosts.length) {
+        S.imagePosts[replaceIdx] = p;
+      }
+    });
+    addTopicsToHistory(data.posts);
+    savePosts();
+    renderImagePosts();
+    updateStats();
+    renderSchedule();
+    refreshStoryStats();
+    toast(deselected.length + ' post(s) regenerated!');
+  }).catch(function(e) { toast('Error: ' + e.message, true); });
+}
+
+// Update selection bar whenever image posts render
+var _origRenderImagePosts = window.renderImagePosts;
 
 // -- BUFFER INTEGRATION ----------------------------------------
 var S_BUFFER_KEY = localStorage.getItem('mj_buffer_key') || '';
@@ -2723,7 +2813,12 @@ function sendToBuffer() {
   if (!channelIds.length) { toast('Please select at least one Buffer channel in Settings.', true); return; }
   if (!S.imagePosts || !S.imagePosts.length) { toast('No image posts to send. Generate some first.', true); return; }
 
-  var posts = S.imagePosts.map(function(p) {
+  var selectedIndices = getSelectedPostIndices();
+  var postsToSend = selectedIndices.length > 0
+    ? selectedIndices.map(function(i) { return S.imagePosts[i]; }).filter(Boolean)
+    : S.imagePosts;
+  if (!postsToSend.length) { toast('No posts selected. Check the boxes on posts you want to send.', true); return; }
+  var posts = postsToSend.map(function(p) {
     return { caption: p.caption || p.captionAndHashtags || '', firstComment: p.firstComment || '' };
   });
 
@@ -2766,6 +2861,13 @@ if (S.longVideos.length) renderVideos('long');
 if (S.carousels && S.carousels.length) renderCarousels();
 updateStats();
 setTimeout(refreshStoryStats, 1000);
+
+// Wire up post selection checkboxes via delegation
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('post-select-cb')) {
+    updateSelectionBar();
+  }
+});
 </script>
 </body>
 </html>
