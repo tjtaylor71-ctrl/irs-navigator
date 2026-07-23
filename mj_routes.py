@@ -999,6 +999,137 @@ def schedule_buffer():
         return jsonify({'ok':True,'results':results})
     except Exception as e:
         return jsonify({'ok':False,'error':str(e)}), 500
+@mj_bp.route('/api/buffer-channels', methods=['POST'])
+def buffer_channels():
+    """Fetch Buffer channel IDs using the provided API key"""
+    try:
+        data = request.get_json()
+        api_key = data.get('apiKey', '').strip()
+        if not api_key:
+            return jsonify({'ok': False, 'error': 'No API key provided'}), 400
+
+        query = """
+query {
+  organizations {
+    id
+    name
+    channels {
+      id
+      name
+      service
+    }
+  }
+}
+"""
+        resp = requests.post(
+            'https://api.buffer.com',
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {api_key}'
+            },
+            json={'query': query},
+            timeout=30
+        )
+
+        result = resp.json()
+        if 'errors' in result:
+            return jsonify({'ok': False, 'error': result['errors'][0]['message']}), 400
+
+        orgs = result.get('data', {}).get('organizations', [])
+        channels = []
+        org_id = None
+        for org in orgs:
+            org_id = org['id']
+            for ch in org.get('channels', []):
+                channels.append({
+                    'id': ch['id'],
+                    'name': ch['name'],
+                    'service': ch['service']
+                })
+
+        return jsonify({'ok': True, 'organizationId': org_id, 'channels': channels})
+
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@mj_bp.route('/api/buffer-queue', methods=['POST'])
+def buffer_queue():
+    """Queue MJ Studio posts to Buffer"""
+    try:
+        data = request.get_json()
+        api_key = data.get('apiKey', '').strip()
+        channel_ids = data.get('channelIds', [])  # list of channel IDs to post to
+        posts = data.get('posts', [])  # list of {caption, firstComment}
+
+        if not api_key or not channel_ids or not posts:
+            return jsonify({'ok': False, 'error': 'Missing apiKey, channelIds or posts'}), 400
+
+        results = []
+        errors = []
+
+        for i, post in enumerate(posts):
+            caption = post.get('caption', '')
+            first_comment = post.get('firstComment', '')
+
+            # Create post for each channel
+            mutation = """
+mutation CreatePost($input: CreatePostInput!) {
+  createPost(input: $input) {
+    ... on Post {
+      id
+      status
+    }
+    ... on CoreApiError {
+      message
+    }
+  }
+}
+"""
+            variables = {
+                'input': {
+                    'channelIds': channel_ids,
+                    'content': {
+                        'text': caption
+                    },
+                    'scheduling': {
+                        'type': 'queue'
+                    }
+                }
+            }
+
+            resp = requests.post(
+                'https://api.buffer.com',
+                headers={
+                    'Content-Type': 'application/json',
+                    'Authorization': f'Bearer {api_key}'
+                },
+                json={'query': mutation, 'variables': variables},
+                timeout=30
+            )
+
+            result = resp.json()
+            if 'errors' in result:
+                errors.append(f'Post {i+1}: {result["errors"][0]["message"]}')
+            else:
+                post_data = result.get('data', {}).get('createPost', {})
+                if 'message' in post_data:
+                    errors.append(f'Post {i+1}: {post_data["message"]}')
+                else:
+                    results.append({'postNum': i+1, 'id': post_data.get('id'), 'status': post_data.get('status')})
+
+        return jsonify({
+            'ok': True,
+            'queued': len(results),
+            'errors': errors,
+            'results': results
+        })
+
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+
 MJ_STUDIO_HTML = '''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1344,6 +1475,18 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
     <div class="s-field"><label class="s-label">Buffer Access Token</label><input type="password" id="set-buffer" placeholder="Paste your Buffer access token..."></div>
     <div class="s-field"><label class="s-label">Buffer Profile IDs (comma-separated)</label><input type="text" id="set-profiles" placeholder="e.g. 69e8277c031bfa423c2c788d,..."></div>
     <div class="s-field"><label class="s-label">Gemini API Key (optional)</label><input type="password" id="set-gemini" placeholder="AIza..."></div>
+    <div style="border-top:1px solid var(--dark3);margin-top:16px;padding-top:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Buffer Integration</div>
+      <label style="font-size:11px;font-weight:600;color:var(--hint);">Buffer API Key</label>
+      <input type="password" id="set-buffer-key" placeholder="Paste your Buffer API key..." style="width:100%;background:var(--dark2);border:1px solid var(--dark3);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text);font-family:DM Sans,sans-serif;margin-top:4px;margin-bottom:8px;box-sizing:border-box;">
+      <button class="btn btn-dark" onclick="loadBufferChannels()" style="width:100%;font-size:12px;margin-bottom:8px;">Connect to Buffer</button>
+      <div id="buffer-channels-wrap" style="display:none;">
+        <label style="font-size:11px;font-weight:600;color:var(--hint);">Post to these channels:</label>
+        <div id="buffer-channel-list" style="margin-top:6px;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div id="buffer-connect-status" style="font-size:11px;color:var(--hint);margin-top:6px;"></div>
+    </div>
+
     <div style="display:flex;gap:10px;margin-top:18px;">
       <button class="btn btn-gold" id="save-settings-btn" style="flex:1;">Save Settings</button>
       <button class="btn btn-dark" onclick="clearTopicHistory()" style="font-size:11px;">&#8635; Clear Topic History</button>
@@ -1491,6 +1634,7 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
         </div>
         <div class="btn-row">
           <button class="btn btn-gold" id="gen-img-btn">Generate Image Posts</button>
+          <button class="btn btn-dark" id="buffer-send-btn" onclick="sendToBuffer()" style="font-size:12px;">Send to Buffer</button>
           <button class="btn btn-ghost" id="clear-images-btn">Clear</button>
         </div>
         <div id="img-prog-wrap" style="display:none;" class="prog-wrap">
@@ -2531,6 +2675,93 @@ document.addEventListener('click', function(e) {
       }).catch(function() { showCopyModal(text); });
     } else { showCopyModal(text); }
   }
+});
+
+
+// -- BUFFER INTEGRATION ----------------------------------------
+var S_BUFFER_KEY = localStorage.getItem('mj_buffer_key') || '';
+var S_BUFFER_CHANNELS = JSON.parse(localStorage.getItem('mj_buffer_channels') || '[]');
+
+function loadBufferChannels() {
+  var key = document.getElementById('set-buffer-key').value.trim();
+  var status = document.getElementById('buffer-connect-status');
+  if (!key) { status.textContent = 'Please enter your Buffer API key.'; return; }
+  status.textContent = 'Connecting...';
+  status.style.color = 'var(--gold)';
+  fetch('/mj/api/buffer-channels', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({apiKey: key})
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!data.ok) { status.textContent = 'Error: ' + data.error; status.style.color = '#D48A8A'; return; }
+    S_BUFFER_KEY = key;
+    localStorage.setItem('mj_buffer_key', key);
+    var list = document.getElementById('buffer-channel-list');
+    list.innerHTML = '';
+    data.channels.forEach(function(ch) {
+      var checked = S_BUFFER_CHANNELS.some(function(c) { return c.id === ch.id; });
+      var div = document.createElement('div');
+      div.style.cssText = 'display:flex;align-items:center;gap:8px;';
+      div.innerHTML = '<input type="checkbox" id="ch-' + ch.id + '" value="' + ch.id + '" ' + (checked ? 'checked' : '') + ' style="accent-color:var(--gold);width:14px;height:14px;">'
+        + '<label for="ch-' + ch.id + '" style="font-size:12px;color:var(--text);cursor:pointer;">' + esc(ch.name) + ' <span style="color:var(--hint);font-size:10px;">(' + ch.service + ')</span></label>';
+      list.appendChild(div);
+    });
+    document.getElementById('buffer-channels-wrap').style.display = 'block';
+    status.textContent = 'Connected! Select channels to post to.';
+    status.style.color = '#1D9E75';
+    localStorage.setItem('mj_buffer_channels_all', JSON.stringify(data.channels));
+  }).catch(function(e) {
+    status.textContent = 'Connection failed: ' + e.message;
+    status.style.color = '#D48A8A';
+  });
+}
+
+function getSelectedChannelIds() {
+  var ids = [];
+  var checkboxes = document.querySelectorAll('#buffer-channel-list input[type="checkbox"]:checked');
+  checkboxes.forEach(function(cb) { ids.push(cb.value); });
+  return ids;
+}
+
+function sendToBuffer() {
+  var key = S_BUFFER_KEY || localStorage.getItem('mj_buffer_key');
+  if (!key) { toast('Please connect Buffer in Settings first.', true); return; }
+  var channelIds = getSelectedChannelIds();
+  if (!channelIds.length) { toast('Please select at least one Buffer channel in Settings.', true); return; }
+  if (!S.imagePosts || !S.imagePosts.length) { toast('No image posts to send. Generate some first.', true); return; }
+
+  var posts = S.imagePosts.map(function(p) {
+    return { caption: p.caption || p.captionAndHashtags || '', firstComment: p.firstComment || '' };
+  });
+
+  toast('Sending ' + posts.length + ' posts to Buffer...');
+  document.getElementById('buffer-send-btn').disabled = true;
+  document.getElementById('buffer-send-btn').textContent = 'Sending...';
+
+  fetch('/mj/api/buffer-queue', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({apiKey: key, channelIds: channelIds, posts: posts})
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!data.ok) { toast('Buffer error: ' + data.error, true); }
+    else {
+      var msg = data.queued + ' posts queued to Buffer!';
+      if (data.errors && data.errors.length) msg += ' (' + data.errors.length + ' errors)';
+      toast(msg);
+    }
+    document.getElementById('buffer-send-btn').disabled = false;
+    document.getElementById('buffer-send-btn').textContent = 'Send to Buffer';
+  }).catch(function(e) {
+    toast('Failed: ' + e.message, true);
+    document.getElementById('buffer-send-btn').disabled = false;
+    document.getElementById('buffer-send-btn').textContent = 'Send to Buffer';
+  });
+}
+
+// Restore buffer key in settings when modal opens
+document.getElementById('settings-btn').addEventListener('click', function() {
+  var savedKey = localStorage.getItem('mj_buffer_key');
+  if (savedKey) document.getElementById('set-buffer-key').value = savedKey;
 });
 
 // -- LOAD SAVED POSTS ON INIT ------------------------------
