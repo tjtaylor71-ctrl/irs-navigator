@@ -2780,9 +2780,6 @@ function regenerateDeselected() {
   }).catch(function(e) { toast('Error: ' + e.message, true); });
 }
 
-// Update selection bar whenever image posts render
-var _origRenderImagePosts = window.renderImagePosts;
-
 // -- BUFFER INTEGRATION ----------------------------------------
 var S_BUFFER_KEY = localStorage.getItem('mj_buffer_key') || '';
 var S_BUFFER_CHANNELS = JSON.parse(localStorage.getItem('mj_buffer_channels') || '[]');
