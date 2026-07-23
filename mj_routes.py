@@ -2180,7 +2180,7 @@ function buildCard(type, idx, item, time, typeLabel, typeCls, s1text, s2text, s3
     +(item.pillar ? '<span class="card-pillar">'+esc(item.pillar)+'</span>' : '')
     +'<span class="card-type '+typeCls+'">'+typeLabel+'</span>'
     +'<span class="card-time">'+time+'</span>'
-    +(type==='img' ? '<button onclick="removePost('+idx+')" style="margin-left:auto;background:none;border:none;color:var(--hint);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;" title="Remove this post">x</button>' : '')
+    +(type==='img' ? '<button class="remove-post-btn" data-remove-idx="'+idx+'" style="margin-left:auto;background:none;border:none;color:var(--hint);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;" title="Remove this post">x</button>' : '')
     +'</div>'
     +'<div class="card-body">'
     +'<div class="card-text">'
@@ -2668,6 +2668,13 @@ document.addEventListener('change', function(e) {
   }
 });
 
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('remove-post-btn')) {
+    var idx = parseInt(e.target.getAttribute('data-remove-idx'));
+    removePost(idx);
+  }
+});
+
 // -- VIDEO IMAGE PROMPT COPY --------------------------------
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('vid-copy-prompt')) {
@@ -2898,6 +2905,13 @@ setTimeout(refreshStoryStats, 1000);
 document.addEventListener('change', function(e) {
   if (e.target.classList.contains('post-select-cb')) {
     updateSelectionBar();
+  }
+});
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('remove-post-btn')) {
+    var idx = parseInt(e.target.getAttribute('data-remove-idx'));
+    removePost(idx);
   }
 });
 </script>
