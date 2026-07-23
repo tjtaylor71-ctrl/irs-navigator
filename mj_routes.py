@@ -1115,7 +1115,8 @@ mutation CreatePost($input: CreatePostInput!) {
             'ok': True,
             'queued': len(results),
             'errors': errors,
-            'results': results
+            'results': results,
+            'error_detail': errors[0] if errors else None
         })
 
     except Exception as e:
@@ -2831,11 +2832,16 @@ function sendToBuffer() {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({apiKey: key, channelIds: channelIds, posts: posts})
   }).then(function(r) { return r.json(); }).then(function(data) {
+    console.log('Buffer response:', JSON.stringify(data));
     if (!data.ok) { toast('Buffer error: ' + data.error, true); }
     else {
       var msg = data.queued + ' posts queued to Buffer!';
-      if (data.errors && data.errors.length) msg += ' (' + data.errors.length + ' errors)';
+      if (data.errors && data.errors.length) {
+        msg += ' (' + data.errors.length + ' errors)';
+        if (data.error_detail) msg += ' First error: ' + data.error_detail;
+      }
       toast(msg);
+      if (data.errors && data.errors.length) console.log('Buffer errors:', data.errors);
     }
     document.getElementById('buffer-send-btn').disabled = false;
     document.getElementById('buffer-send-btn').textContent = 'Send to Buffer';
