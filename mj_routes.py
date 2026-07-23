@@ -1010,13 +1010,15 @@ def buffer_channels():
 
         query = """
 query {
-  organizations {
-    id
-    name
-    channels {
+  account {
+    organizations {
       id
       name
-      service
+      channels {
+        id
+        name
+        service
+      }
     }
   }
 }
@@ -1035,7 +1037,8 @@ query {
         if 'errors' in result:
             return jsonify({'ok': False, 'error': result['errors'][0]['message']}), 400
 
-        orgs = result.get('data', {}).get('organizations', [])
+        account = result.get('data', {}).get('account', {})
+        orgs = account.get('organizations', [])
         channels = []
         org_id = None
         for org in orgs:
@@ -1073,50 +1076,52 @@ def buffer_queue():
             first_comment = post.get('firstComment', '')
 
             # Create post for each channel
-            mutation = """
+            # Post to each channel separately
+            for channel_id in channel_ids:
+                mutation = """
 mutation CreatePost($input: CreatePostInput!) {
   createPost(input: $input) {
-    ... on Post {
-      id
-      status
+    ... on PostActionSuccess {
+      post {
+        id
+        status
+      }
     }
-    ... on CoreApiError {
+    ... on MutationError {
       message
     }
   }
 }
 """
-            variables = {
-                'input': {
-                    'channelIds': channel_ids,
-                    'content': {
-                        'text': caption
-                    },
-                    'scheduling': {
-                        'type': 'queue'
+                variables = {
+                    'input': {
+                        'channelId': channel_id,
+                        'text': caption,
+                        'schedulingType': 'queue',
+                        'mode': 'queue'
                     }
                 }
-            }
 
-            resp = requests.post(
-                'https://api.buffer.com',
-                headers={
-                    'Content-Type': 'application/json',
-                    'Authorization': f'Bearer {api_key}'
-                },
-                json={'query': mutation, 'variables': variables},
-                timeout=30
-            )
+                resp = requests.post(
+                    'https://api.buffer.com',
+                    headers={
+                        'Content-Type': 'application/json',
+                        'Authorization': f'Bearer {api_key}'
+                    },
+                    json={'query': mutation, 'variables': variables},
+                    timeout=30
+                )
 
-            result = resp.json()
-            if 'errors' in result:
-                errors.append(f'Post {i+1}: {result["errors"][0]["message"]}')
-            else:
-                post_data = result.get('data', {}).get('createPost', {})
-                if 'message' in post_data:
-                    errors.append(f'Post {i+1}: {post_data["message"]}')
+                result = resp.json()
+                if 'errors' in result:
+                    errors.append(f'Post {i+1} ch {channel_id}: {result["errors"][0]["message"]}')
                 else:
-                    results.append({'postNum': i+1, 'id': post_data.get('id'), 'status': post_data.get('status')})
+                    post_data = result.get('data', {}).get('createPost', {})
+                    if 'message' in post_data:
+                        errors.append(f'Post {i+1} ch {channel_id}: {post_data["message"]}')
+                    else:
+                        success = post_data.get('post', {})
+                        results.append({'postNum': i+1, 'channelId': channel_id, 'id': success.get('id'), 'status': success.get('status')})
 
         return jsonify({
             'ok': True,
