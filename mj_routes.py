@@ -1140,8 +1140,19 @@ mutation CreatePost($input: CreatePostInput!) {
                     'channelId': channel_id,
                     'text': caption,
                     'schedulingType': 'automatic',
-                    'mode': 'addToQueue'
+                    'mode': 'addToQueue',
+                    'metadata': {}
                 }
+                # Set channel-specific type in metadata
+                if ch_service == 'facebook':
+                    post_input['metadata']['facebook'] = {
+                        'type': 'post',
+                        'firstComment': first_comment if first_comment else None
+                    }
+                elif ch_service == 'instagram' and image_url:
+                    post_input['metadata']['instagram'] = {
+                        'type': 'post'
+                    }
                 if image_url:
                     post_input['assets'] = [{'image': {'url': image_url}}]
 
