@@ -2501,7 +2501,8 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
         <div class="day-name-d" id="short-day-d">Loading...</div>
         <p>Generates 3 x 30-second video packages with narration + 5 image prompts with captions and scene image prompts.</p>
         <div class="btn-row">
-          <button class="btn btn-gold" id="gen-short-btn">Generate 3 Short Video Packages</button>
+          <button class="btn btn-gold" id="gen-short-btn">Generate 3 Short Videos</button>
+          <button class="btn btn-dark" onclick="downloadTdmVideoPrompts('short')" style="font-size:12px;">&#8595; OpenArt Prompts</button>
           <button class="btn btn-dark" id="clear-shorts-btn">Clear</button>
         </div>
         <div id="short-prog-wrap" style="display:none;" class="prog-wrap">
@@ -2592,6 +2593,25 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
 </div>
 
 <script>
+function downloadTdmVideoPrompts(type) {
+  var arr = type === 'short' ? S.shortVideos : S.longVideos;
+  if (!arr || !arr.length) { toast('No ' + type + ' videos generated yet.', true); return; }
+  var lines = [];
+  arr.forEach(function(v) {
+    (v.images || []).forEach(function(img) { if (img.prompt) lines.push(img.prompt.trim()); });
+  });
+  if (!lines.length) { toast('No image prompts found.', true); return; }
+  var blob = new Blob([lines.join('\n')], {type: 'text/plain'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'tdm_video_' + type + '_prompts_' + lines.length + '.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Downloaded ' + lines.length + ' image prompts!');
+}
+
+
 console.log("TDM Studio v2.1 - 30s format loaded");
 const DAY_THEMES = {
   0:{name:'Monday Mayhem',focus:'chaos, taking over the week, Monday energy'},
@@ -3024,14 +3044,63 @@ function renderVideos(type) {
     const typeLabel = type === 'short' ? 'SHORT 30s' : 'LONG 60s';
     const card = document.createElement('div');
     card.className = 'content-card'; card.id = type + '-card-' + i;
+    var vImgs = v.images || [];
+    var firstPrompt = vImgs.length ? vImgs[0].prompt : (v.videoScript || '');
     card.innerHTML = buildCardHTML(type, i, v, t, typeLabel, typeCls,
-      v.videoScript, v.captionAndHashtags, v.firstComment,
-      [{label:'Narration Script', field:'videoScript'}, {label:'Caption & Hashtags', field:'captionAndHashtags'}, {label:'First Comment', field:'firstComment'}],
+      firstPrompt, v.captionAndHashtags, v.firstComment,
+      [{label:'Image Prompt 1', field:'videoScript'}, {label:'Caption & Hashtags', field:'captionAndHashtags'}, {label:'First Comment', field:'firstComment'}],
       v.mood
     );
     var wrapper = document.createElement('div');
     wrapper.style.marginBottom = '8px';
     wrapper.appendChild(card);
+    // Append remaining image prompts below card
+    var vImgs2 = (v.images || []);
+    if (vImgs2.length > 1) {
+      var imgDiv = document.createElement('div');
+      imgDiv.style.cssText = 'background:var(--dark2);border:1px solid var(--dark3);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;margin-bottom:4px;';
+      var hdr = document.createElement('div');
+      hdr.style.cssText = 'font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:10px;';
+      hdr.textContent = 'ALL ' + vImgs2.length + ' IMAGE PROMPTS - 9:16 for Seedance/Kling';
+      imgDiv.appendChild(hdr);
+      vImgs2.forEach(function(img) {
+        var row = document.createElement('div');
+        row.style.marginBottom = '10px';
+        var lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:9px;font-weight:700;color:var(--gold);margin-bottom:3px;';
+        lbl.textContent = 'IMAGE ' + img.num;
+        var txt = document.createElement('div');
+        txt.style.cssText = 'font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;margin-bottom:4px;';
+        txt.textContent = img.prompt || '';
+        var btn = document.createElement('button');
+        btn.className = 'mbtn';
+        btn.style.fontSize = '10px';
+        btn.textContent = 'Copy';
+        (function(p) {
+          btn.addEventListener('click', function() {
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(p).then(function() { btn.textContent = 'Copied!'; setTimeout(function() { btn.textContent = 'Copy'; }, 1500); });
+            }
+          });
+        })(img.prompt || '');
+        row.appendChild(lbl); row.appendChild(txt); row.appendChild(btn);
+        imgDiv.appendChild(row);
+      });
+      var allTxt = vImgs2.map(function(img) { return 'Image ' + img.num + ':\n' + (img.prompt || ''); }).join('\n\n');
+      var copyAll = document.createElement('button');
+      copyAll.className = 'mbtn';
+      copyAll.style.cssText = 'border:1px solid var(--gold-dim);color:var(--gold);font-size:10px;margin-top:4px;';
+      copyAll.textContent = 'Copy All ' + vImgs2.length + ' Prompts';
+      (function(t) {
+        copyAll.addEventListener('click', function() {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(t).then(function() { copyAll.textContent = 'Copied!'; setTimeout(function() { copyAll.textContent = 'Copy All ' + vImgs2.length + ' Prompts'; }, 1500); });
+          }
+        });
+      })(allTxt);
+      imgDiv.appendChild(copyAll);
+      wrapper.appendChild(imgDiv);
+    }
     list.appendChild(wrapper);
   });
   container.appendChild(list);
