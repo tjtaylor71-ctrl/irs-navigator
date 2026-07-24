@@ -1140,8 +1140,7 @@ mutation CreatePost($input: CreatePostInput!) {
                     'channelId': channel_id,
                     'text': caption,
                     'schedulingType': 'automatic',
-                    'mode': 'addToQueue',
-                    'type': 'post'
+                    'mode': 'addToQueue'
                 }
                 if image_url:
                     post_input['assets'] = [{'image': {'url': image_url}}]
