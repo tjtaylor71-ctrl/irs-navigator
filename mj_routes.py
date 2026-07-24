@@ -1059,9 +1059,13 @@ def buffer_queue():
         results = []
         errors = []
 
+        org_id = data.get('orgId', '697f6b9d75b8747f96f3583a')
+        channel_infos = data.get('channelInfos', [])
+
         for i, post in enumerate(posts):
             caption = post.get('caption', '')
             first_comment = post.get('firstComment', '')
+            image_url = post.get('imageUrl', '')
 
             # Create post for each channel
             # Post to each channel separately - small delay to avoid rate limits
