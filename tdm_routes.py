@@ -161,35 +161,35 @@ Dog name: {dog_name}
 
 Each package must contain:
 
-1. NARRATION SCRIPT ({word_count} — reads naturally in {duration_label} at ElevenLabs pace)
-- Written for spoken voiceover about {dog_name} the Yorkie
-- Short punchy lines with line breaks for breath and pacing
-- First line is a strong comedic or heartwarming hook
+1. VOICEOVER SCRIPT ({word_count} — reads naturally in {duration_label} at ElevenLabs pace)
+- Written purely for spoken audio — no hashtags, no social media language
+- Short punchy lines with line breaks for natural breath pauses
+- Uses {dog_name} as the subject throughout
+- Builds with rhythm and repetition — short observations that escalate
+- Stacks examples in threes for comic effect
 - Uses "..." for dramatic pauses
-- Stacks observations in threes for comic rhythm
 - Ends with a warm reflective thought
-- Include 2-3 emojis naturally within the narration
+- Include 2-3 natural emoji moments that work when spoken aloud
 - End with: Follow Tiny Dog Mafia for more Yorkie content
 
 2. {image_count} IMAGE PROMPTS (each animates to approximately 6 seconds in Seedance or Kling)
 - 9:16 vertical format for all images
-- Sequential scenes that illustrate the narration story
-- The Yorkie is the star of every image
+- Sequential scenes that illustrate the voiceover story
+- The Yorkie is the star of every image — expressive face, silky coat, alert ears
 - Vary framing: close-up face, full body, action shot, portrait, environmental
 - Each prompt: [Yorkie description and expression] + [setting] + [lighting] + [camera framing]
 - Never mix camera movement and subject movement in the same sentence
 - Never use the word "fast"
-- Include human owner in some scenes for relationship context
 
-3. CAPTION (3 paragraphs — Facebook/Instagram)
-- Paragraph 1: Punchy hook about Yorkie behavior with 2-3 emojis
+3. CAPTION (3 paragraphs — Facebook/Instagram post text)
+- Paragraph 1: Punchy Yorkie hook with 2-3 emojis
 - Paragraph 2: Relatable story development
-- Paragraph 3: CTA asking followers to tag a Yorkie owner
+- Paragraph 3: CTA asking followers to tag a Yorkie owner — relevant hashtags
 
 4. FIRST COMMENT (1-2 sentences, fellow Yorkie owner voice, relatable observation + Tag a friend CTA)
 
 JSON:
-{{"videos":[{{"videoScript":"...","images":[{{"num":1,"prompt":"..."}},{{"num":2,"prompt":"..."}},{{"num":3,"prompt":"..."}},{{"num":4,"prompt":"..."}},{{"num":5,"prompt":"..."}}{extra_images}],"captionAndHashtags":"...","firstComment":"...","pillar":"...","topics_used":"..."}}]}}"""
+{{"videos":[{{"voiceoverScript":"...","videoScript":"...","images":[{{"num":1,"prompt":"..."}},{{"num":2,"prompt":"..."}},{{"num":3,"prompt":"..."}},{{"num":4,"prompt":"..."}},{{"num":5,"prompt":"..."}}{extra_images}],"captionAndHashtags":"...","firstComment":"...","pillar":"...","topics_used":"..."}}]}}"""
 
         resp = requests.post(
             'https://api.anthropic.com/v1/messages',
@@ -1826,35 +1826,35 @@ Dog name: {dog_name}
 
 Each package must contain:
 
-1. NARRATION SCRIPT ({word_count} — reads naturally in {duration_label} at ElevenLabs pace)
-- Written for spoken voiceover about {dog_name} the Yorkie
-- Short punchy lines with line breaks for breath and pacing
-- First line is a strong comedic or heartwarming hook
+1. VOICEOVER SCRIPT ({word_count} — reads naturally in {duration_label} at ElevenLabs pace)
+- Written purely for spoken audio — no hashtags, no social media language
+- Short punchy lines with line breaks for natural breath pauses
+- Uses {dog_name} as the subject throughout
+- Builds with rhythm and repetition — short observations that escalate
+- Stacks examples in threes for comic effect
 - Uses "..." for dramatic pauses
-- Stacks observations in threes for comic rhythm
 - Ends with a warm reflective thought
-- Include 2-3 emojis naturally within the narration
+- Include 2-3 natural emoji moments that work when spoken aloud
 - End with: Follow Tiny Dog Mafia for more Yorkie content
 
 2. {image_count} IMAGE PROMPTS (each animates to approximately 6 seconds in Seedance or Kling)
 - 9:16 vertical format for all images
-- Sequential scenes that illustrate the narration story
-- The Yorkie is the star of every image
+- Sequential scenes that illustrate the voiceover story
+- The Yorkie is the star of every image — expressive face, silky coat, alert ears
 - Vary framing: close-up face, full body, action shot, portrait, environmental
 - Each prompt: [Yorkie description and expression] + [setting] + [lighting] + [camera framing]
 - Never mix camera movement and subject movement in the same sentence
 - Never use the word "fast"
-- Include human owner in some scenes for relationship context
 
-3. CAPTION (3 paragraphs — Facebook/Instagram)
-- Paragraph 1: Punchy hook about Yorkie behavior with 2-3 emojis
+3. CAPTION (3 paragraphs — Facebook/Instagram post text)
+- Paragraph 1: Punchy Yorkie hook with 2-3 emojis
 - Paragraph 2: Relatable story development
-- Paragraph 3: CTA asking followers to tag a Yorkie owner
+- Paragraph 3: CTA asking followers to tag a Yorkie owner — relevant hashtags
 
 4. FIRST COMMENT (1-2 sentences, fellow Yorkie owner voice, relatable observation + Tag a friend CTA)
 
 JSON:
-{{"videos":[{{"videoScript":"...","images":[{{"num":1,"prompt":"..."}},{{"num":2,"prompt":"..."}},{{"num":3,"prompt":"..."}},{{"num":4,"prompt":"..."}},{{"num":5,"prompt":"..."}}{extra_images}],"captionAndHashtags":"...","firstComment":"...","pillar":"...","topics_used":"..."}}]}}"""
+{{"videos":[{{"voiceoverScript":"...","videoScript":"...","images":[{{"num":1,"prompt":"..."}},{{"num":2,"prompt":"..."}},{{"num":3,"prompt":"..."}},{{"num":4,"prompt":"..."}},{{"num":5,"prompt":"..."}}{extra_images}],"captionAndHashtags":"...","firstComment":"...","pillar":"...","topics_used":"..."}}]}}"""
 
         resp = requests.post(
             'https://api.anthropic.com/v1/messages',
@@ -3044,11 +3044,10 @@ function renderVideos(type) {
     const typeLabel = type === 'short' ? 'SHORT 30s' : 'LONG 60s';
     const card = document.createElement('div');
     card.className = 'content-card'; card.id = type + '-card-' + i;
-    var vImgs = v.images || [];
-    var firstPrompt = vImgs.length ? vImgs[0].prompt : (v.videoScript || '');
+    var voiceover = v.voiceoverScript || v.videoScript || '';
     card.innerHTML = buildCardHTML(type, i, v, t, typeLabel, typeCls,
-      firstPrompt, v.captionAndHashtags, v.firstComment,
-      [{label:'Image Prompt 1', field:'videoScript'}, {label:'Caption & Hashtags', field:'captionAndHashtags'}, {label:'First Comment', field:'firstComment'}],
+      voiceover, v.captionAndHashtags, v.firstComment,
+      [{label:'Voiceover Script', field:'voiceoverScript'}, {label:'Caption & Hashtags', field:'captionAndHashtags'}, {label:'First Comment', field:'firstComment'}],
       v.mood
     );
     var wrapper = document.createElement('div');
