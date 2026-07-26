@@ -3635,7 +3635,7 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
   </div>
 </div>
 
-<script src="/mj/studio.js?v=1" defer></script>
+<script src="/mj/studio.js?v=2" defer></script>
 </body>
 </html>
 ule">
@@ -3663,7 +3663,6 @@ ule">
   </div>
 </div>
 
-<script src="/mj/studio.js?v=1" defer></script>
+<script src="/mj/studio.js?v=2" defer></script>
 </body>
 </html>'''
-
