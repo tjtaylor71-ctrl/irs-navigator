@@ -1716,15 +1716,40 @@ EMBEDDED_STORIES = [
 ]
 
 def load_stories():
-    """Load stories from volume file or fall back to embedded"""
+    """Load stories from volume file, merging any new embedded stories"""
     try:
         if os.path.exists(STORIES_FILE):
             with open(STORIES_FILE) as f:
-                stories = _json.load(f)
-            print(f"[MJ] Loaded {len(stories)} stories from volume {STORIES_FILE}")
-            return stories
+                volume_stories = _json.load(f)
+
+            # Check if volume is missing any stories from embedded list
+            volume_ids = {s['id'] for s in volume_stories}
+            new_stories = [s for s in EMBEDDED_STORIES if s['id'] not in volume_ids]
+
+            if new_stories:
+                # Merge new stories into volume file
+                merged = volume_stories + new_stories
+                try:
+                    with open(STORIES_FILE, 'w') as f:
+                        _json.dump(merged, f)
+                    print(f"[MJ] Merged {len(new_stories)} new stories into volume. Total: {len(merged)}")
+                    return merged
+                except Exception as e:
+                    print(f"[MJ] Could not save merged stories: {e}")
+                    return merged
+
+            print(f"[MJ] Loaded {len(volume_stories)} stories from volume {STORIES_FILE}")
+            return volume_stories
         else:
-            print(f"[MJ] No stories file at {STORIES_FILE} - using {len(EMBEDDED_STORIES)} embedded stories")
+            # No volume file yet - write embedded stories to volume
+            try:
+                os.makedirs(os.path.dirname(STORIES_FILE), exist_ok=True)
+                with open(STORIES_FILE, 'w') as f:
+                    _json.dump(EMBEDDED_STORIES, f)
+                print(f"[MJ] Created stories file with {len(EMBEDDED_STORIES)} stories")
+            except Exception as e:
+                print(f"[MJ] Could not create stories file: {e}")
+            return EMBEDDED_STORIES
     except Exception as e:
         print(f"[MJ] ERROR loading stories: {e}")
     return EMBEDDED_STORIES
