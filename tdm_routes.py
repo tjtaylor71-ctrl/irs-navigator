@@ -1025,12 +1025,27 @@ function showApprovalPanel(posts) {
   list.innerHTML = '';
   posts.forEach(function(p, i) {
     var hook = (p.caption || '').split('\n')[0].replace(/[#*]/g,'').trim().substring(0,70);
-    var div = document.createElement('div');
-    div.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--dark3);';
-    div.innerHTML = '<input type="checkbox" class="approve-cb" data-idx="' + i + '" checked style="accent-color:var(--gold);width:14px;height:14px;margin-top:3px;flex-shrink:0;">'
-      + '<div style="flex:1;"><div style="font-size:11px;font-weight:600;color:var(--text);">#' + (i+1) + ' ' + esc(hook) + '...</div>'
-      + '<div style="font-size:10px;color:var(--hint);margin-top:2px;">' + esc((p.imagePrompt||'').substring(0,80)) + '...</div></div>';
-    list.appendChild(div);
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--dark3);';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'approve-cb';
+    cb.setAttribute('data-idx', i);
+    cb.checked = true;
+    cb.style.cssText = 'accent-color:var(--gold);width:14px;height:14px;margin-top:3px;flex-shrink:0;';
+    var info = document.createElement('div');
+    info.style.flex = '1';
+    var title = document.createElement('div');
+    title.style.cssText = 'font-size:11px;font-weight:600;color:var(--text);';
+    title.textContent = '#' + (i+1) + ' ' + hook + '...';
+    var sub = document.createElement('div');
+    sub.style.cssText = 'font-size:10px;color:var(--hint);margin-top:2px;';
+    sub.textContent = (p.imagePrompt || '').substring(0,80) + '...';
+    info.appendChild(title);
+    info.appendChild(sub);
+    row.appendChild(cb);
+    row.appendChild(info);
+    list.appendChild(row);
   });
   panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
