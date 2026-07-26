@@ -17,7 +17,1703 @@ STORIES_FILE = os.path.join(VOLUME_PATH, 'mj_stories.json')
 USED_FILE = os.path.join(VOLUME_PATH, 'mj_used_stories.json')
 
 # Embedded baseline stories (484 angles) - used when volume file doesn't exist
-EMBEDDED_STORIES = [{"id": "song_histories_000", "category": "song_histories", "angle": "The writing and recording of Billie Jean, written entirely by MJ, and its seven-week run at number one on the Billboard Hot 100 in 1983"}, {"id": "song_histories_001", "category": "song_histories", "angle": "Beat It featuring Eddie Van Halen's guitar solo, recorded as a favor with no payment, and the song winning the Grammy for Record of the Year in 1984"}, {"id": "song_histories_002", "category": "song_histories", "angle": "The making of the Thriller short film directed by John Landis, its 13-minute runtime, and its preservation in the Library of Congress National Film Registry"}, {"id": "song_histories_003", "category": "song_histories", "angle": "Rock With You written by Rod Temperton for Off The Wall, reaching number one on the Billboard Hot 100 in early 1980"}, {"id": "song_histories_004", "category": "song_histories", "angle": "Don't Stop 'Til You Get Enough, written by MJ, becoming his first number one as an adult solo artist in 1979"}, {"id": "song_histories_005", "category": "song_histories", "angle": "Human Nature, written by Steve Porcaro of Toto, becoming a top 10 hit from Thriller in 1983"}, {"id": "song_histories_006", "category": "song_histories", "angle": "P.Y.T. (Pretty Young Thing) co-written by James Ingram and Quincy Jones for the Thriller album"}, {"id": "song_histories_007", "category": "song_histories", "angle": "The Girl Is Mine, MJ's duet with Paul McCartney, released as the first single from Thriller in 1982"}, {"id": "song_histories_008", "category": "song_histories", "angle": "Wanna Be Startin' Somethin', the opening track of Thriller, and its later use of Cameroonian artist Manu Dibango's chant which led to a settlement"}, {"id": "song_histories_009", "category": "song_histories", "angle": "Man in the Mirror, written by Siedah Garrett and Glen Ballard, becoming MJ's eleventh number one hit in 1988"}, {"id": "song_histories_010", "category": "song_histories", "angle": "The Way You Make Me Feel reaching number one on the Billboard Hot 100 in early 1988 from the Bad album"}, {"id": "song_histories_011", "category": "song_histories", "angle": "Bad, the title track written by MJ, and its music video directed by Martin Scorsese"}, {"id": "song_histories_012", "category": "song_histories", "angle": "Smooth Criminal and its famous anti-gravity lean, achieved using special shoes with a slot that locked onto pegs in the stage floor"}, {"id": "song_histories_013", "category": "song_histories", "angle": "Dirty Diana reaching number one in 1988, becoming the fifth consecutive number one single from Bad"}, {"id": "song_histories_014", "category": "song_histories", "angle": "Black or White featuring Slash on guitar, debuting at number one on the Billboard Hot 100 in 1991"}, {"id": "song_histories_015", "category": "song_histories", "angle": "Remember the Time from Dangerous, with its music video set in ancient Egypt featuring Eddie Murphy and Magic Johnson"}, {"id": "song_histories_016", "category": "song_histories", "angle": "In The Closet from Dangerous, featuring an uncredited vocal from Princess Stephanie of Monaco"}, {"id": "song_histories_017", "category": "song_histories", "angle": "Heal the World, written by MJ, released as a single in 1992 and becoming an anthem for his foundation of the same name"}, {"id": "song_histories_018", "category": "song_histories", "angle": "Jam from Dangerous, featuring a guest rap verse from Heavy D"}, {"id": "song_histories_019", "category": "song_histories", "angle": "Will You Be There, used as the theme for the film Free Willy, reaching number two on the Hot 100 in 1993"}, {"id": "song_histories_020", "category": "song_histories", "angle": "Earth Song reaching number one in the UK for six weeks in late 1995, MJ's biggest UK chart hit"}, {"id": "song_histories_021", "category": "song_histories", "angle": "You Are Not Alone, written by R Kelly, becoming the first song in history to debut at number one on the Billboard Hot 100"}, {"id": "song_histories_022", "category": "song_histories", "angle": "Scream, a duet with sister Janet Jackson, with its music video being the most expensive ever made at the time"}, {"id": "song_histories_023", "category": "song_histories", "angle": "They Don't Care About Us and its two music videos directed by Spike Lee, one filmed in Brazil and one in a prison"}, {"id": "song_histories_024", "category": "song_histories", "angle": "Stranger in Moscow, written during the Dangerous World Tour, with a music video shot in black and white in Los Angeles"}, {"id": "song_histories_025", "category": "song_histories", "angle": "Blood on the Dance Floor, the title track of the 1997 remix album which became the best-selling remix album of all time"}, {"id": "song_histories_026", "category": "song_histories", "angle": "You Rock My World from Invincible, with its short film co-starring Chris Tucker and Marlon Brando"}, {"id": "song_histories_027", "category": "song_histories", "angle": "Got To Be There, MJ's first single as a solo artist, released in 1971 when he was 13"}, {"id": "song_histories_028", "category": "song_histories", "angle": "Ben, the title song from the 1972 film, becoming MJ's first number one solo hit in the US"}, {"id": "song_histories_029", "category": "song_histories", "angle": "ABC by the Jackson 5 reaching number one on the Billboard Hot 100 in 1970, the group's second consecutive number one"}, {"id": "song_histories_030", "category": "song_histories", "angle": "I Want You Back, the Jackson 5's debut single, reaching number one in January 1970"}, {"id": "song_histories_031", "category": "song_histories", "angle": "I'll Be There by the Jackson 5 becoming Motown's best-selling single up to that point in 1970"}, {"id": "song_histories_032", "category": "song_histories", "angle": "Rockin' Robin, MJ's solo cover released in 1972, reaching number two on the Billboard Hot 100"}, {"id": "song_histories_033", "category": "song_histories", "angle": "Off The Wall, the title track written by Rod Temperton, becoming a top 10 hit in 1980"}, {"id": "song_histories_034", "category": "song_histories", "angle": "She's Out of My Life, a ballad MJ recorded for Off The Wall, with reports that he cried during the vocal take"}, {"id": "song_histories_035", "category": "song_histories", "angle": "Thriller album credits showing Quincy Jones as producer and Bruce Swedien as recording engineer across all tracks"}, {"id": "song_histories_036", "category": "song_histories", "angle": "The 1995 HIStory album being released as a double album, pairing greatest hits with new material"}, {"id": "song_histories_037", "category": "song_histories", "angle": "Dangerous, the title track, co-written and co-produced by Teddy Riley introducing the New Jack Swing sound to MJ's music"}, {"id": "song_histories_038", "category": "song_histories", "angle": "Who Is It from Dangerous, with an a cappella version highlighting MJ's vocal layering technique"}, {"id": "song_histories_039", "category": "song_histories", "angle": "Childhood, written for the Free Willy 2 soundtrack and later used in the This Is It rehearsal footage"}, {"id": "song_histories_040", "category": "song_histories", "angle": "Privacy from Invincible, addressing media intrusion, co-written by MJ and Dr Freeze"}, {"id": "song_histories_041", "category": "song_histories", "angle": "Cry from Invincible, featuring a music video showing thousands of people from around the world"}, {"id": "song_histories_042", "category": "song_histories", "angle": "Butterflies from Invincible, written by Floetry's Marsha Ambrosius and Andre Harris"}, {"id": "song_histories_043", "category": "song_histories", "angle": "2 Bad from HIStory, featuring a rap verse from Shaquille O'Neal"}, {"id": "song_histories_044", "category": "song_histories", "angle": "This Time Around from HIStory, featuring The Notorious B.I.G."}, {"id": "song_histories_045", "category": "song_histories", "angle": "Tabloid Junkie from HIStory, addressing MJ's relationship with the media"}, {"id": "song_histories_046", "category": "song_histories", "angle": "D.S. from HIStory, a track widely interpreted as a response to the 1993 allegations against MJ"}, {"id": "song_histories_047", "category": "song_histories", "angle": "Money from HIStory, addressing themes of greed and betrayal"}, {"id": "song_histories_048", "category": "song_histories", "angle": "Morphine from the HIStory album (1995), an experimental rock-influenced track that also appeared on the Blood on the Dance Floor remix album in 1997"}, {"id": "song_histories_049", "category": "song_histories", "angle": "Speed Demon from Bad, with an accompanying claymation short film"}, {"id": "song_histories_050", "category": "song_histories", "angle": "Liberian Girl from Bad, with a music video featuring numerous celebrity cameos"}, {"id": "song_histories_051", "category": "song_histories", "angle": "Just Good Friends, a duet with Stevie Wonder from the Bad album"}, {"id": "song_histories_052", "category": "song_histories", "angle": "Heaven Can Wait from Invincible, co-written with Carole Bayer Sager"}, {"id": "song_histories_053", "category": "song_histories", "angle": "Whatever Happens from Invincible, featuring guitar by Carlos Santana"}, {"id": "song_histories_054", "category": "song_histories", "angle": "The Lost Children from Invincible, dedicated to children around the world"}, {"id": "song_histories_055", "category": "song_histories", "angle": "Threatened from Invincible, with a spoken word sample from Rod Serling's Twilight Zone narration"}, {"id": "song_histories_056", "category": "song_histories", "angle": "Unbreakable from Invincible, featuring a guest verse from The Notorious B.I.G."}, {"id": "song_histories_057", "category": "song_histories", "angle": "Heartbreaker from Invincible, featuring a guest verse from Fats"}, {"id": "song_histories_058", "category": "song_histories", "angle": "We've Had Enough from Invincible, addressing themes of war"}, {"id": "song_histories_059", "category": "song_histories", "angle": "2 Bad from the HIStory album featuring a guest rap verse from NBA star Shaquille O'Neal, an unusual sports-music crossover for 1995"}, {"id": "song_histories_060", "category": "song_histories", "angle": "Why You Wanna Trip on Me from Dangerous, addressing social issues including AIDS and homelessness"}, {"id": "song_histories_061", "category": "song_histories", "angle": "Keep the Faith from Dangerous, co-written with Glen Ballard and Siedah Garrett"}, {"id": "song_histories_062", "category": "song_histories", "angle": "Gone Too Soon from Dangerous, a ballad dedicated to Ryan White's memory"}, {"id": "song_histories_063", "category": "song_histories", "angle": "Give In To Me from Dangerous, featuring a guitar solo from Slash, reaching number two in the UK"}, {"id": "song_histories_064", "category": "song_histories", "angle": "Can't Let Her Get Away from Dangerous, produced by Teddy Riley"}, {"id": "song_histories_065", "category": "song_histories", "angle": "She Drives Me Wild from Dangerous, featuring car horn and engine sound samples"}, {"id": "song_histories_066", "category": "song_histories", "angle": "Heaven Can Wait, one of multiple tracks on Invincible co-produced with Babyface"}, {"id": "song_histories_067", "category": "song_histories", "angle": "The Beatles catalog purchase in 1985, giving MJ ownership of the publishing rights to most Beatles songs"}, {"id": "song_histories_068", "category": "song_histories", "angle": "Say Say Say, MJ's second collaboration with Paul McCartney, reaching number one in 1983"}, {"id": "song_histories_069", "category": "song_histories", "angle": "The album credits of Bad listing MJ as sole producer alongside Quincy Jones for the first time"}, {"id": "song_histories_070", "category": "song_histories", "angle": "Smooth Criminal's chart performance reaching number seven on the Billboard Hot 100 in 1988"}, {"id": "song_histories_071", "category": "song_histories", "angle": "The HIStory Tour setlist featuring a medley of Jackson 5 hits performed with his brothers in some shows"}, {"id": "song_histories_072", "category": "song_histories", "angle": "Bad's title track music video, a 17-minute short film directed by Martin Scorsese set in a subway station"}, {"id": "song_histories_073", "category": "song_histories", "angle": "The Thriller album's engineering by Bruce Swedien, who used a custom-built drum sound for Billie Jean"}, {"id": "song_histories_074", "category": "song_histories", "angle": "Off The Wall becoming the first album to generate four top 10 hits in the United States by a solo artist"}, {"id": "song_histories_075", "category": "song_histories", "angle": "Rock With You's music video featuring MJ in a sparkling silver and black outfit against a starfield background"}, {"id": "song_histories_076", "category": "song_histories", "angle": "The recording of Bad taking place primarily at Westlake Recording Studios in Los Angeles"}, {"id": "song_histories_077", "category": "song_histories", "angle": "HIStory's lead single Scream debuting at number five on the Billboard Hot 100 in 1995"}, {"id": "song_histories_078", "category": "song_histories", "angle": "You Are Not Alone winning the Grammy for Best R&B Vocal Performance in 1996"}, {"id": "song_histories_079", "category": "song_histories", "angle": "Black or White's 11-minute music video including a controversial ending segment that was edited after broadcast"}, {"id": "song_histories_080", "category": "song_histories", "angle": "The 1995 MTV Video Music Awards performance of Scream/You Are Not Alone medley with Janet Jackson"}, {"id": "song_histories_081", "category": "song_histories", "angle": "Billie Jean's music video being one of the first by a Black artist played in heavy rotation on MTV"}, {"id": "song_histories_082", "category": "song_histories", "angle": "The credits for We Are the World listing MJ and Lionel Richie as co-writers and Quincy Jones as producer"}, {"id": "song_histories_083", "category": "song_histories", "angle": "Don't Stop 'Til You Get Enough winning MJ his first Grammy for Best Male R&B Vocal Performance in 1980"}, {"id": "song_histories_084", "category": "song_histories", "angle": "The 25th anniversary edition of Thriller released in 2008 featuring new remixes with contemporary artists"}, {"id": "song_histories_085", "category": "song_histories", "angle": "Will You Be There's spoken word introduction quoting Psalm 27"}, {"id": "song_histories_086", "category": "song_histories", "angle": "The album Invincible taking over $30 million to produce, making it one of the most expensive albums ever recorded"}, {"id": "family_history_000", "category": "family_history", "angle": "The Jackson family's origins in Gary Indiana, where MJ was born on August 29 1958 in a small house on Jackson Street"}, {"id": "family_history_001", "category": "family_history", "angle": "Joe Jackson forming the Jackson Brothers band in the early 1960s with his sons Jackie, Tito and Jermaine"}, {"id": "family_history_002", "category": "family_history", "angle": "Michael joining his brothers' group at age five, initially playing congas before becoming a lead singer"}, {"id": "family_history_003", "category": "family_history", "angle": "The Jackson 5 winning amateur talent contests at the Apollo Theater in Harlem in the late 1960s"}, {"id": "family_history_004", "category": "family_history", "angle": "Motown Records founder Berry Gordy signing the Jackson 5 in 1968 after seeing them perform"}, {"id": "family_history_005", "category": "family_history", "angle": "The Jackson family relocating from Gary Indiana to Los Angeles in 1969 following the Motown signing"}, {"id": "family_history_006", "category": "family_history", "angle": "Diana Ross introducing the Jackson 5 to the public, with early publicity crediting her as their discoverer"}, {"id": "family_history_007", "category": "family_history", "angle": "The Jackson 5's first four singles on Motown all reaching number one on the Billboard Hot 100 in 1969 and 1970"}, {"id": "family_history_008", "category": "family_history", "angle": "Joe Jackson's background as a steelworker in Gary Indiana before managing his sons' music career"}, {"id": "family_history_009", "category": "family_history", "angle": "Katherine Jackson's Jehovah's Witness faith and its influence on the Jackson children's upbringing"}, {"id": "family_history_010", "category": "family_history", "angle": "The Jackson 5 cartoon series airing on ABC from 1971 to 1973, based on the family band"}, {"id": "family_history_011", "category": "family_history", "angle": "Michael Jackson's early solo career beginning in 1971 while still performing with his brothers"}, {"id": "family_history_012", "category": "family_history", "angle": "The Jackson family's move from Motown to Epic Records in 1975, with the group renamed The Jacksons"}, {"id": "family_history_013", "category": "family_history", "angle": "Randy Jackson joining his older brothers in The Jacksons after Jermaine remained with Motown"}, {"id": "family_history_014", "category": "family_history", "angle": "The television miniseries The Jacksons: An American Dream, released in 1992, depicting the family's early years"}, {"id": "family_history_015", "category": "family_history", "angle": "Michael's relationship with his sister La Toya Jackson, who also pursued a music and entertainment career"}, {"id": "family_history_016", "category": "family_history", "angle": "Janet Jackson's career beginning as a child actress before becoming a recording artist in her own right"}, {"id": "family_history_017", "category": "family_history", "angle": "The Jackson family performing together on the Victory Tour in 1984, the only tour with all six brothers"}, {"id": "family_history_018", "category": "family_history", "angle": "Michael's decision to leave the Victory Tour proceeds to charity, donating his share"}, {"id": "family_history_019", "category": "family_history", "angle": "Joe Jackson's induction alongside his sons into discussions of the Jackson family's musical legacy"}, {"id": "family_history_020", "category": "family_history", "angle": "Michael Jackson's early television performances on variety shows including The Ed Sullivan Show in 1969"}, {"id": "family_history_021", "category": "family_history", "angle": "The Jackson 5's appearance on Soul Train in the early 1970s during the show's first years"}, {"id": "family_history_022", "category": "family_history", "angle": "Tito Jackson's role as guitarist for the Jackson 5 and later The Jacksons"}, {"id": "family_history_023", "category": "family_history", "angle": "Jermaine Jackson's choice to remain with Motown in 1975 while his brothers moved to Epic Records"}, {"id": "family_history_024", "category": "family_history", "angle": "The Jackson family's Encino California estate known as Hayvenhurst, purchased in the 1970s"}, {"id": "family_history_025", "category": "family_history", "angle": "Michael Jackson's description of his childhood touring schedule in his 1988 autobiography Moonwalk"}, {"id": "family_history_026", "category": "family_history", "angle": "The Jackson 5's first album Diana Ross Presents the Jackson 5, released in 1969"}, {"id": "family_history_027", "category": "family_history", "angle": "Michael's earliest known public performance, singing at age five with his brothers in Gary Indiana"}, {"id": "family_history_028", "category": "family_history", "angle": "The Jackson Five's transition into adulthood being documented through their changing sound on Epic Records"}, {"id": "family_history_029", "category": "family_history", "angle": "Rebbie Jackson, the eldest Jackson sibling, pursuing her own recording career separate from her brothers"}, {"id": "family_history_030", "category": "family_history", "angle": "Marlon Jackson's role as a dancer and vocalist in the Jackson 5 and The Jacksons"}, {"id": "family_history_031", "category": "family_history", "angle": "The Jackson family's appearance at the Motown 25th anniversary special in 1983, where MJ debuted the moonwalk"}, {"id": "family_history_032", "category": "family_history", "angle": "Michael Jackson's description of his father's strict rehearsal regimen during his childhood in multiple interviews"}, {"id": "family_history_033", "category": "family_history", "angle": "The Jacksons' 1980 album Triumph, featuring the hit single Can You Feel It with an accompanying short film"}, {"id": "family_history_034", "category": "family_history", "angle": "Michael's role in writing songs for The Jacksons' later albums including Can You Feel It and Shake Your Body"}, {"id": "family_history_035", "category": "family_history", "angle": "The Jackson family reuniting for the 30th anniversary concerts at Madison Square Garden in September 2001"}, {"id": "family_history_036", "category": "family_history", "angle": "Katherine Jackson's role in raising nine children while Joe Jackson managed their early career"}, {"id": "family_history_037", "category": "family_history", "angle": "The 2009 documentary This Is It including interview footage discussing MJ's relationship with his family"}, {"id": "family_history_038", "category": "family_history", "angle": "Michael Jackson's purchase of Hayvenhurst from his parents, which they continued to live in"}, {"id": "family_history_039", "category": "family_history", "angle": "The Jackson 5's reunion performance at the 1983 Motown 25 special, the first time in years all members performed together"}, {"id": "marriages_children_000", "category": "marriages_children", "angle": "Michael Jackson's marriage to Lisa Marie Presley in May 1994, announced publicly months after the ceremony"}, {"id": "marriages_children_001", "category": "marriages_children", "angle": "The 1995 interview with Diane Sawyer where MJ and Lisa Marie Presley discussed their marriage and denied rumors about it"}, {"id": "marriages_children_002", "category": "marriages_children", "angle": "Michael Jackson and Lisa Marie Presley's appearance together at the 1994 MTV Video Music Awards, including an on-stage kiss"}, {"id": "marriages_children_003", "category": "marriages_children", "angle": "The divorce of Michael Jackson and Lisa Marie Presley being finalized in 1996"}, {"id": "marriages_children_004", "category": "marriages_children", "angle": "Michael Jackson's marriage to Debbie Rowe in November 1996"}, {"id": "marriages_children_005", "category": "marriages_children", "angle": "Prince Michael Jackson Jr, MJ's first child, born in February 1997"}, {"id": "marriages_children_006", "category": "marriages_children", "angle": "Paris Michael Katherine Jackson, MJ's second child, born in April 1998"}, {"id": "marriages_children_007", "category": "marriages_children", "angle": "Debbie Rowe granting MJ full custody rights as part of their 2000 divorce settlement"}, {"id": "marriages_children_008", "category": "marriages_children", "angle": "Prince Michael Jackson II, known publicly as Blanket, born in 2002 via surrogate"}, {"id": "marriages_children_009", "category": "marriages_children", "angle": "MJ holding his infant son Blanket over a hotel balcony railing in Berlin in 2002, an incident that drew widespread criticism"}, {"id": "marriages_children_010", "category": "marriages_children", "angle": "Paris Jackson's public statements in later years discussing her childhood and her father"}, {"id": "marriages_children_011", "category": "marriages_children", "angle": "Prince Jackson's interviews after his father's death discussing memories of growing up with MJ"}, {"id": "marriages_children_012", "category": "marriages_children", "angle": "MJ's children appearing with him at the 2002 MTV Video Music Awards where he received the Artist of the Century-style honor"}, {"id": "marriages_children_013", "category": "marriages_children", "angle": "The custody arrangements following MJ's death in 2009, with Katherine Jackson granted guardianship of his three children"}, {"id": "marriages_children_014", "category": "marriages_children", "angle": "MJ's description in interviews of wanting to give his children a normal childhood despite his own fame"}, {"id": "marriages_children_015", "category": "marriages_children", "angle": "Prince, Paris and Blanket Jackson appearing at the Forest Lawn memorial service for their father in 2009"}, {"id": "marriages_children_016", "category": "marriages_children", "angle": "Lisa Marie Presley's public statements after MJ's death describing their relationship and friendship"}, {"id": "marriages_children_017", "category": "marriages_children", "angle": "Debbie Rowe's background as a dermatology nurse before her marriage to MJ"}, {"id": "marriages_children_018", "category": "marriages_children", "angle": "MJ's children being homeschooled for much of their early years, as later discussed by Paris Jackson in interviews"}, {"id": "marriages_children_019", "category": "marriages_children", "angle": "The Jackson family's joint statements following MJ's death regarding care of his three children"}, {"id": "marriages_children_020", "category": "marriages_children", "angle": "Paris Jackson's career as a model and musician in the years following her father's death"}, {"id": "marriages_children_021", "category": "marriages_children", "angle": "Prince Jackson's appearances at award shows and public events representing his father's estate"}, {"id": "marriages_children_022", "category": "marriages_children", "angle": "MJ's 2003 interview with Martin Bashir, Living with Michael Jackson, which included footage of him with his children wearing masks in public"}, {"id": "marriages_children_023", "category": "marriages_children", "angle": "The Bashir documentary's impact on public perception, including MJ's own statements about regretting some choices shown"}, {"id": "marriages_children_024", "category": "marriages_children", "angle": "MJ's description of choosing the names Prince and Paris for his children in interviews discussing their significance to him"}, {"id": "marriages_children_025", "category": "marriages_children", "angle": "The 1994 wedding ceremony between MJ and Lisa Marie Presley taking place in the Dominican Republic"}, {"id": "marriages_children_026", "category": "marriages_children", "angle": "MJ and Lisa Marie Presley's joint interview clips being widely replayed after their divorce was announced"}, {"id": "achievements_verified_000", "category": "achievements_verified", "angle": "Thriller becoming the best-selling album of all time worldwide, certified at over 30 million copies in the US alone by the RIAA"}, {"id": "achievements_verified_001", "category": "achievements_verified", "angle": "MJ winning eight Grammy Awards in a single night at the 1984 ceremony for the Thriller album"}, {"id": "achievements_verified_002", "category": "achievements_verified", "angle": "Billie Jean spending seven weeks at number one on the Billboard Hot 100 in 1983"}, {"id": "achievements_verified_003", "category": "achievements_verified", "angle": "MJ's induction into the Rock and Roll Hall of Fame as a solo artist in 2001"}, {"id": "achievements_verified_004", "category": "achievements_verified", "angle": "The Jackson 5's induction into the Rock and Roll Hall of Fame in 1997"}, {"id": "achievements_verified_005", "category": "achievements_verified", "angle": "Thriller spending 37 weeks at number one on the Billboard 200 album chart"}, {"id": "achievements_verified_006", "category": "achievements_verified", "angle": "MJ receiving a star on the Hollywood Walk of Fame as a solo artist in 1984"}, {"id": "achievements_verified_007", "category": "achievements_verified", "angle": "Bad becoming the first album in history to produce five number one singles on the Billboard Hot 100"}, {"id": "achievements_verified_008", "category": "achievements_verified", "angle": "You Are Not Alone becoming the first song to debut at number one on the Billboard Hot 100 in 1995"}, {"id": "achievements_verified_009", "category": "achievements_verified", "angle": "MJ's Dangerous album debuting at number one on the Billboard 200 in 1991"}, {"id": "achievements_verified_010", "category": "achievements_verified", "angle": "The Thriller short film's preservation by the Library of Congress in the National Film Registry in 2009"}, {"id": "achievements_verified_011", "category": "achievements_verified", "angle": "MJ receiving the Grammy Legend Award in 1993"}, {"id": "achievements_verified_012", "category": "achievements_verified", "angle": "Off The Wall becoming the first solo album to generate four top 10 hit singles in the United States"}, {"id": "achievements_verified_013", "category": "achievements_verified", "angle": "MJ's total of 13 Grammy Awards won over his career"}, {"id": "achievements_verified_014", "category": "achievements_verified", "angle": "The Beatles catalog acquisition by MJ's company ATV Music in 1985 for approximately $47.5 million"}, {"id": "achievements_verified_015", "category": "achievements_verified", "angle": "HIStory entering the Billboard 200 at number one in 1995 as a double album"}, {"id": "achievements_verified_016", "category": "achievements_verified", "angle": "MJ being honored at the World Music Awards multiple times throughout the 1990s and 2000s"}, {"id": "achievements_verified_017", "category": "achievements_verified", "angle": "The Bad World Tour 1987-1989 becoming one of the highest-grossing tours of its era"}, {"id": "achievements_verified_018", "category": "achievements_verified", "angle": "MJ's Dangerous World Tour 1992-1993 being the first major Western pop tour to extensively visit parts of Eastern Europe and Africa"}, {"id": "achievements_verified_019", "category": "achievements_verified", "angle": "The HIStory World Tour 1996-1997 visiting 58 cities across five continents"}, {"id": "achievements_verified_020", "category": "achievements_verified", "angle": "MJ's sales certifications across his catalog making him one of the best-selling music artists in history according to the RIAA"}, {"id": "achievements_verified_021", "category": "achievements_verified", "angle": "The 1993 Super Bowl XXVII halftime show being credited with establishing the modern model of A-list halftime performances"}, {"id": "achievements_verified_022", "category": "achievements_verified", "angle": "MJ's Motown 25 performance of Billie Jean in 1983 being cited by television historians as one of the most replayed clips in TV history"}, {"id": "achievements_verified_023", "category": "achievements_verified", "angle": "Smooth Criminal's music video featuring the gravity-defying lean that required custom shoe technology patented by MJ and his collaborators"}, {"id": "achievements_verified_024", "category": "achievements_verified", "angle": "MJ's catalog of music videos contributing to multiple inductions and honors at the MTV Video Music Awards including the Video Vanguard Award in 1988"}, {"id": "performances_verified_000", "category": "performances_verified", "angle": "MJ's performance of Billie Jean at the Motown 25: Yesterday, Today, Forever special on May 16 1983, debuting the moonwalk on television"}, {"id": "performances_verified_001", "category": "performances_verified", "angle": "MJ's Super Bowl XXVII halftime performance on January 31 1993 in Pasadena California"}, {"id": "performances_verified_002", "category": "performances_verified", "angle": "MJ performing with his brothers as the Jackson 5 on The Ed Sullivan Show in December 1969"}, {"id": "performances_verified_003", "category": "performances_verified", "angle": "MJ's performance at the 1984 Grammy Awards where Eddie Van Halen joined him on stage for Beat It"}, {"id": "performances_verified_004", "category": "performances_verified", "angle": "The Bad World Tour opening night in Tokyo Japan in September 1987"}, {"id": "performances_verified_005", "category": "performances_verified", "angle": "MJ's 10 sold-out shows at Wembley Stadium during the Bad Tour in 1988, setting a Guinness World Record"}, {"id": "performances_verified_006", "category": "performances_verified", "angle": "MJ's performance at the 1995 MTV Video Music Awards performing a medley with Janet Jackson"}, {"id": "performances_verified_007", "category": "performances_verified", "angle": "The Dangerous World Tour opening concert in Munich Germany in June 1992"}, {"id": "performances_verified_008", "category": "performances_verified", "angle": "MJ's appearance at the 1996 Brit Awards performing Earth Song, during which Jarvis Cocker of Pulp interrupted the performance"}, {"id": "performances_verified_009", "category": "performances_verified", "angle": "MJ's HIStory World Tour opening ceremony in New York with a statue unveiling in 1995"}, {"id": "performances_verified_010", "category": "performances_verified", "angle": "The Victory Tour in 1984, the only tour MJ performed with all five of his brothers as adults"}, {"id": "performances_verified_011", "category": "performances_verified", "angle": "MJ's performance at the 30th Anniversary Celebration concerts at Madison Square Garden in September 2001"}, {"id": "performances_verified_012", "category": "performances_verified", "angle": "The recording of the This Is It rehearsal footage at the Staples Center in Los Angeles in 2009"}, {"id": "performances_verified_013", "category": "performances_verified", "angle": "MJ's appearance performing Man in the Mirror at the 1988 Grammy Awards"}, {"id": "performances_verified_014", "category": "performances_verified", "angle": "The Jackson 5's first appearance on American Bandstand in the early 1970s"}, {"id": "performances_verified_015", "category": "performances_verified", "angle": "MJ's solo performance debut on Soul Train performing songs from his early solo albums"}, {"id": "performances_verified_016", "category": "performances_verified", "angle": "The Bad Tour's Yokohama Japan stop in 1987 marking the official start of the tour"}, {"id": "performances_verified_017", "category": "performances_verified", "angle": "MJ's appearance at the American Music Awards in 1984 where he won a record 8 awards in one night"}, {"id": "performances_verified_018", "category": "performances_verified", "angle": "MJ's Dangerous Tour stop in Bucharest Romania in 1992, later released as an HBO special"}, {"id": "performances_verified_019", "category": "performances_verified", "angle": "The HIStory Tour's final concert in Durban South Africa in October 1997"}, {"id": "relationships_verified_000", "category": "relationships_verified", "angle": "MJ's collaboration with Quincy Jones beginning with Off The Wall in 1979 and continuing through Bad in 1987"}, {"id": "relationships_verified_001", "category": "relationships_verified", "angle": "Quincy Jones's role as producer on Thriller, the best-selling album in history"}, {"id": "relationships_verified_002", "category": "relationships_verified", "angle": "MJ's friendship with Elizabeth Taylor, which began in the early 1980s and lasted until his death"}, {"id": "relationships_verified_003", "category": "relationships_verified", "angle": "Elizabeth Taylor introducing MJ at the 1989 Soul Train Music Awards where he received the Heritage Award"}, {"id": "relationships_verified_004", "category": "relationships_verified", "angle": "MJ's collaboration with Paul McCartney on The Girl Is Mine and Say Say Say in the early 1980s"}, {"id": "relationships_verified_005", "category": "relationships_verified", "angle": "The business relationship between MJ and Paul McCartney becoming complicated after MJ purchased the Beatles song catalog in 1985"}, {"id": "relationships_verified_006", "category": "relationships_verified", "angle": "MJ's collaboration with Eddie Van Halen on the guitar solo for Beat It in 1982"}, {"id": "relationships_verified_007", "category": "relationships_verified", "angle": "MJ's collaboration with Slash on guitar parts for Black or White and Give In To Me from the Dangerous album"}, {"id": "relationships_verified_008", "category": "relationships_verified", "angle": "MJ's friendship with Diana Ross dating back to his childhood at Motown, with Ross credited on his first solo album"}, {"id": "relationships_verified_009", "category": "relationships_verified", "angle": "Teddy Riley's production work with MJ on the Dangerous album in 1991, introducing New Jack Swing elements"}, {"id": "relationships_verified_010", "category": "relationships_verified", "angle": "MJ's collaboration with Janet Jackson on the song and video for Scream in 1995"}, {"id": "relationships_verified_011", "category": "relationships_verified", "angle": "MJ's friendship with Marlon Brando, who appeared in the short film for You Rock My World in 2001"}, {"id": "relationships_verified_012", "category": "relationships_verified", "angle": "The collaboration between MJ and director Spike Lee on the They Don't Care About Us music videos in 1996"}, {"id": "relationships_verified_013", "category": "relationships_verified", "angle": "MJ's working relationship with choreographer Vincent Paterson, who worked on the Thriller and Smooth Criminal videos"}, {"id": "relationships_verified_014", "category": "relationships_verified", "angle": "MJ's collaboration with director John Landis on the Thriller short film in 1983"}, {"id": "relationships_verified_015", "category": "relationships_verified", "angle": "MJ's collaboration with director Martin Scorsese on the Bad short film in 1987"}, {"id": "relationships_verified_016", "category": "relationships_verified", "angle": "Rod Temperton's songwriting contributions across Off The Wall and Thriller, including Thriller, Rock With You, and Off The Wall"}, {"id": "relationships_verified_017", "category": "relationships_verified", "angle": "MJ's collaboration with Siedah Garrett, who co-wrote Man in the Mirror and sang the duet I Just Can't Stop Loving You"}, {"id": "relationships_verified_018", "category": "relationships_verified", "angle": "MJ's friendship with Macaulay Culkin, who appeared in the Black or White short film in 1991"}, {"id": "relationships_verified_019", "category": "relationships_verified", "angle": "MJ's collaboration with Bruce Swedien, the recording engineer on Off The Wall, Thriller, Bad, and Dangerous"}]
+EMBEDDED_STORIES = [
+  {
+    "id": "song_histories_000",
+    "category": "song_histories",
+    "angle": "The writing and recording of Billie Jean, written entirely by MJ, and its seven-week run at number one on the Billboard Hot 100 in 1983"
+  },
+  {
+    "id": "song_histories_001",
+    "category": "song_histories",
+    "angle": "Beat It featuring Eddie Van Halen's guitar solo, recorded as a favor with no payment, and the song winning the Grammy for Record of the Year in 1984"
+  },
+  {
+    "id": "song_histories_002",
+    "category": "song_histories",
+    "angle": "The making of the Thriller short film directed by John Landis, its 13-minute runtime, and its preservation in the Library of Congress National Film Registry"
+  },
+  {
+    "id": "song_histories_003",
+    "category": "song_histories",
+    "angle": "Rock With You written by Rod Temperton for Off The Wall, reaching number one on the Billboard Hot 100 in early 1980"
+  },
+  {
+    "id": "song_histories_004",
+    "category": "song_histories",
+    "angle": "Don't Stop 'Til You Get Enough, written by MJ, becoming his first number one as an adult solo artist in 1979"
+  },
+  {
+    "id": "song_histories_005",
+    "category": "song_histories",
+    "angle": "Human Nature, written by Steve Porcaro of Toto, becoming a top 10 hit from Thriller in 1983"
+  },
+  {
+    "id": "song_histories_006",
+    "category": "song_histories",
+    "angle": "P.Y.T. (Pretty Young Thing) co-written by James Ingram and Quincy Jones for the Thriller album"
+  },
+  {
+    "id": "song_histories_007",
+    "category": "song_histories",
+    "angle": "The Girl Is Mine, MJ's duet with Paul McCartney, released as the first single from Thriller in 1982"
+  },
+  {
+    "id": "song_histories_008",
+    "category": "song_histories",
+    "angle": "Wanna Be Startin' Somethin', the opening track of Thriller, and its later use of Cameroonian artist Manu Dibango's chant which led to a settlement"
+  },
+  {
+    "id": "song_histories_009",
+    "category": "song_histories",
+    "angle": "Man in the Mirror, written by Siedah Garrett and Glen Ballard, becoming MJ's eleventh number one hit in 1988"
+  },
+  {
+    "id": "song_histories_010",
+    "category": "song_histories",
+    "angle": "The Way You Make Me Feel reaching number one on the Billboard Hot 100 in early 1988 from the Bad album"
+  },
+  {
+    "id": "song_histories_011",
+    "category": "song_histories",
+    "angle": "Bad, the title track written by MJ, and its music video directed by Martin Scorsese"
+  },
+  {
+    "id": "song_histories_012",
+    "category": "song_histories",
+    "angle": "Smooth Criminal and its famous anti-gravity lean, achieved using special shoes with a slot that locked onto pegs in the stage floor"
+  },
+  {
+    "id": "song_histories_013",
+    "category": "song_histories",
+    "angle": "Dirty Diana reaching number one in 1988, becoming the fifth consecutive number one single from Bad"
+  },
+  {
+    "id": "song_histories_014",
+    "category": "song_histories",
+    "angle": "Black or White featuring Slash on guitar, debuting at number one on the Billboard Hot 100 in 1991"
+  },
+  {
+    "id": "song_histories_015",
+    "category": "song_histories",
+    "angle": "Remember the Time from Dangerous, with its music video set in ancient Egypt featuring Eddie Murphy and Magic Johnson"
+  },
+  {
+    "id": "song_histories_016",
+    "category": "song_histories",
+    "angle": "In The Closet from Dangerous, featuring an uncredited vocal from Princess Stephanie of Monaco"
+  },
+  {
+    "id": "song_histories_017",
+    "category": "song_histories",
+    "angle": "Heal the World, written by MJ, released as a single in 1992 and becoming an anthem for his foundation of the same name"
+  },
+  {
+    "id": "song_histories_018",
+    "category": "song_histories",
+    "angle": "Jam from Dangerous, featuring a guest rap verse from Heavy D"
+  },
+  {
+    "id": "song_histories_019",
+    "category": "song_histories",
+    "angle": "Will You Be There, used as the theme for the film Free Willy, reaching number two on the Hot 100 in 1993"
+  },
+  {
+    "id": "song_histories_020",
+    "category": "song_histories",
+    "angle": "Earth Song reaching number one in the UK for six weeks in late 1995, MJ's biggest UK chart hit"
+  },
+  {
+    "id": "song_histories_021",
+    "category": "song_histories",
+    "angle": "You Are Not Alone, written by R Kelly, becoming the first song in history to debut at number one on the Billboard Hot 100"
+  },
+  {
+    "id": "song_histories_022",
+    "category": "song_histories",
+    "angle": "Scream, a duet with sister Janet Jackson, with its music video being the most expensive ever made at the time"
+  },
+  {
+    "id": "song_histories_023",
+    "category": "song_histories",
+    "angle": "They Don't Care About Us and its two music videos directed by Spike Lee, one filmed in Brazil and one in a prison"
+  },
+  {
+    "id": "song_histories_024",
+    "category": "song_histories",
+    "angle": "Stranger in Moscow, written during the Dangerous World Tour, with a music video shot in black and white in Los Angeles"
+  },
+  {
+    "id": "song_histories_025",
+    "category": "song_histories",
+    "angle": "Blood on the Dance Floor, the title track of the 1997 remix album which became the best-selling remix album of all time"
+  },
+  {
+    "id": "song_histories_026",
+    "category": "song_histories",
+    "angle": "You Rock My World from Invincible, with its short film co-starring Chris Tucker and Marlon Brando"
+  },
+  {
+    "id": "song_histories_027",
+    "category": "song_histories",
+    "angle": "Got To Be There, MJ's first single as a solo artist, released in 1971 when he was 13"
+  },
+  {
+    "id": "song_histories_028",
+    "category": "song_histories",
+    "angle": "Ben, the title song from the 1972 film, becoming MJ's first number one solo hit in the US"
+  },
+  {
+    "id": "song_histories_029",
+    "category": "song_histories",
+    "angle": "ABC by the Jackson 5 reaching number one on the Billboard Hot 100 in 1970, the group's second consecutive number one"
+  },
+  {
+    "id": "song_histories_030",
+    "category": "song_histories",
+    "angle": "I Want You Back, the Jackson 5's debut single, reaching number one in January 1970"
+  },
+  {
+    "id": "song_histories_031",
+    "category": "song_histories",
+    "angle": "I'll Be There by the Jackson 5 becoming Motown's best-selling single up to that point in 1970"
+  },
+  {
+    "id": "song_histories_032",
+    "category": "song_histories",
+    "angle": "Rockin' Robin, MJ's solo cover released in 1972, reaching number two on the Billboard Hot 100"
+  },
+  {
+    "id": "song_histories_033",
+    "category": "song_histories",
+    "angle": "Off The Wall, the title track written by Rod Temperton, becoming a top 10 hit in 1980"
+  },
+  {
+    "id": "song_histories_034",
+    "category": "song_histories",
+    "angle": "She's Out of My Life, a ballad MJ recorded for Off The Wall, with reports that he cried during the vocal take"
+  },
+  {
+    "id": "song_histories_035",
+    "category": "song_histories",
+    "angle": "Thriller album credits showing Quincy Jones as producer and Bruce Swedien as recording engineer across all tracks"
+  },
+  {
+    "id": "song_histories_036",
+    "category": "song_histories",
+    "angle": "The 1995 HIStory album being released as a double album, pairing greatest hits with new material"
+  },
+  {
+    "id": "song_histories_037",
+    "category": "song_histories",
+    "angle": "Dangerous, the title track, co-written and co-produced by Teddy Riley introducing the New Jack Swing sound to MJ's music"
+  },
+  {
+    "id": "song_histories_038",
+    "category": "song_histories",
+    "angle": "Who Is It from Dangerous, with an a cappella version highlighting MJ's vocal layering technique"
+  },
+  {
+    "id": "song_histories_039",
+    "category": "song_histories",
+    "angle": "Childhood, written for the Free Willy 2 soundtrack and later used in the This Is It rehearsal footage"
+  },
+  {
+    "id": "song_histories_040",
+    "category": "song_histories",
+    "angle": "Privacy from Invincible, addressing media intrusion, co-written by MJ and Dr Freeze"
+  },
+  {
+    "id": "song_histories_041",
+    "category": "song_histories",
+    "angle": "Cry from Invincible, featuring a music video showing thousands of people from around the world"
+  },
+  {
+    "id": "song_histories_042",
+    "category": "song_histories",
+    "angle": "Butterflies from Invincible, written by Floetry's Marsha Ambrosius and Andre Harris"
+  },
+  {
+    "id": "song_histories_043",
+    "category": "song_histories",
+    "angle": "2 Bad from HIStory, featuring a rap verse from Shaquille O'Neal"
+  },
+  {
+    "id": "song_histories_044",
+    "category": "song_histories",
+    "angle": "This Time Around from HIStory, featuring The Notorious B.I.G."
+  },
+  {
+    "id": "song_histories_045",
+    "category": "song_histories",
+    "angle": "Tabloid Junkie from HIStory, addressing MJ's relationship with the media"
+  },
+  {
+    "id": "song_histories_046",
+    "category": "song_histories",
+    "angle": "D.S. from HIStory, a track widely interpreted as a response to the 1993 allegations against MJ"
+  },
+  {
+    "id": "song_histories_047",
+    "category": "song_histories",
+    "angle": "Money from HIStory, addressing themes of greed and betrayal"
+  },
+  {
+    "id": "song_histories_048",
+    "category": "song_histories",
+    "angle": "Morphine from the HIStory album (1995), an experimental rock-influenced track that also appeared on the Blood on the Dance Floor remix album in 1997"
+  },
+  {
+    "id": "song_histories_049",
+    "category": "song_histories",
+    "angle": "Speed Demon from Bad, with an accompanying claymation short film"
+  },
+  {
+    "id": "song_histories_050",
+    "category": "song_histories",
+    "angle": "Liberian Girl from Bad, with a music video featuring numerous celebrity cameos"
+  },
+  {
+    "id": "song_histories_051",
+    "category": "song_histories",
+    "angle": "Just Good Friends, a duet with Stevie Wonder from the Bad album"
+  },
+  {
+    "id": "song_histories_052",
+    "category": "song_histories",
+    "angle": "Heaven Can Wait from Invincible, co-written with Carole Bayer Sager"
+  },
+  {
+    "id": "song_histories_053",
+    "category": "song_histories",
+    "angle": "Whatever Happens from Invincible, featuring guitar by Carlos Santana"
+  },
+  {
+    "id": "song_histories_054",
+    "category": "song_histories",
+    "angle": "The Lost Children from Invincible, dedicated to children around the world"
+  },
+  {
+    "id": "song_histories_055",
+    "category": "song_histories",
+    "angle": "Threatened from Invincible, with a spoken word sample from Rod Serling's Twilight Zone narration"
+  },
+  {
+    "id": "song_histories_056",
+    "category": "song_histories",
+    "angle": "Unbreakable from Invincible, featuring a guest verse from The Notorious B.I.G."
+  },
+  {
+    "id": "song_histories_057",
+    "category": "song_histories",
+    "angle": "Heartbreaker from Invincible, featuring a guest verse from Fats"
+  },
+  {
+    "id": "song_histories_058",
+    "category": "song_histories",
+    "angle": "We've Had Enough from Invincible, addressing themes of war"
+  },
+  {
+    "id": "song_histories_059",
+    "category": "song_histories",
+    "angle": "2 Bad from the HIStory album featuring a guest rap verse from NBA star Shaquille O'Neal, an unusual sports-music crossover for 1995"
+  },
+  {
+    "id": "song_histories_060",
+    "category": "song_histories",
+    "angle": "Why You Wanna Trip on Me from Dangerous, addressing social issues including AIDS and homelessness"
+  },
+  {
+    "id": "song_histories_061",
+    "category": "song_histories",
+    "angle": "Keep the Faith from Dangerous, co-written with Glen Ballard and Siedah Garrett"
+  },
+  {
+    "id": "song_histories_062",
+    "category": "song_histories",
+    "angle": "Gone Too Soon from Dangerous, a ballad dedicated to Ryan White's memory"
+  },
+  {
+    "id": "song_histories_063",
+    "category": "song_histories",
+    "angle": "Give In To Me from Dangerous, featuring a guitar solo from Slash, reaching number two in the UK"
+  },
+  {
+    "id": "song_histories_064",
+    "category": "song_histories",
+    "angle": "Can't Let Her Get Away from Dangerous, produced by Teddy Riley"
+  },
+  {
+    "id": "song_histories_065",
+    "category": "song_histories",
+    "angle": "She Drives Me Wild from Dangerous, featuring car horn and engine sound samples"
+  },
+  {
+    "id": "song_histories_066",
+    "category": "song_histories",
+    "angle": "Heaven Can Wait, one of multiple tracks on Invincible co-produced with Babyface"
+  },
+  {
+    "id": "song_histories_067",
+    "category": "song_histories",
+    "angle": "The Beatles catalog purchase in 1985, giving MJ ownership of the publishing rights to most Beatles songs"
+  },
+  {
+    "id": "song_histories_068",
+    "category": "song_histories",
+    "angle": "Say Say Say, MJ's second collaboration with Paul McCartney, reaching number one in 1983"
+  },
+  {
+    "id": "song_histories_069",
+    "category": "song_histories",
+    "angle": "The album credits of Bad listing MJ as sole producer alongside Quincy Jones for the first time"
+  },
+  {
+    "id": "song_histories_070",
+    "category": "song_histories",
+    "angle": "Smooth Criminal's chart performance reaching number seven on the Billboard Hot 100 in 1988"
+  },
+  {
+    "id": "song_histories_071",
+    "category": "song_histories",
+    "angle": "The HIStory Tour setlist featuring a medley of Jackson 5 hits performed with his brothers in some shows"
+  },
+  {
+    "id": "song_histories_072",
+    "category": "song_histories",
+    "angle": "Bad's title track music video, a 17-minute short film directed by Martin Scorsese set in a subway station"
+  },
+  {
+    "id": "song_histories_073",
+    "category": "song_histories",
+    "angle": "The Thriller album's engineering by Bruce Swedien, who used a custom-built drum sound for Billie Jean"
+  },
+  {
+    "id": "song_histories_074",
+    "category": "song_histories",
+    "angle": "Off The Wall becoming the first album to generate four top 10 hits in the United States by a solo artist"
+  },
+  {
+    "id": "song_histories_075",
+    "category": "song_histories",
+    "angle": "Rock With You's music video featuring MJ in a sparkling silver and black outfit against a starfield background"
+  },
+  {
+    "id": "song_histories_076",
+    "category": "song_histories",
+    "angle": "The recording of Bad taking place primarily at Westlake Recording Studios in Los Angeles"
+  },
+  {
+    "id": "song_histories_077",
+    "category": "song_histories",
+    "angle": "HIStory's lead single Scream debuting at number five on the Billboard Hot 100 in 1995"
+  },
+  {
+    "id": "song_histories_078",
+    "category": "song_histories",
+    "angle": "You Are Not Alone winning the Grammy for Best R&B Vocal Performance in 1996"
+  },
+  {
+    "id": "song_histories_079",
+    "category": "song_histories",
+    "angle": "Black or White's 11-minute music video including a controversial ending segment that was edited after broadcast"
+  },
+  {
+    "id": "song_histories_080",
+    "category": "song_histories",
+    "angle": "The 1995 MTV Video Music Awards performance of Scream/You Are Not Alone medley with Janet Jackson"
+  },
+  {
+    "id": "song_histories_081",
+    "category": "song_histories",
+    "angle": "Billie Jean's music video being one of the first by a Black artist played in heavy rotation on MTV"
+  },
+  {
+    "id": "song_histories_082",
+    "category": "song_histories",
+    "angle": "The credits for We Are the World listing MJ and Lionel Richie as co-writers and Quincy Jones as producer"
+  },
+  {
+    "id": "song_histories_083",
+    "category": "song_histories",
+    "angle": "Don't Stop 'Til You Get Enough winning MJ his first Grammy for Best Male R&B Vocal Performance in 1980"
+  },
+  {
+    "id": "song_histories_084",
+    "category": "song_histories",
+    "angle": "The 25th anniversary edition of Thriller released in 2008 featuring new remixes with contemporary artists"
+  },
+  {
+    "id": "song_histories_085",
+    "category": "song_histories",
+    "angle": "Will You Be There's spoken word introduction quoting Psalm 27"
+  },
+  {
+    "id": "song_histories_086",
+    "category": "song_histories",
+    "angle": "The album Invincible taking over $30 million to produce, making it one of the most expensive albums ever recorded"
+  },
+  {
+    "id": "family_history_000",
+    "category": "family_history",
+    "angle": "The Jackson family's origins in Gary Indiana, where MJ was born on August 29 1958 in a small house on Jackson Street"
+  },
+  {
+    "id": "family_history_001",
+    "category": "family_history",
+    "angle": "Joe Jackson forming the Jackson Brothers band in the early 1960s with his sons Jackie, Tito and Jermaine"
+  },
+  {
+    "id": "family_history_002",
+    "category": "family_history",
+    "angle": "Michael joining his brothers' group at age five, initially playing congas before becoming a lead singer"
+  },
+  {
+    "id": "family_history_003",
+    "category": "family_history",
+    "angle": "The Jackson 5 winning amateur talent contests at the Apollo Theater in Harlem in the late 1960s"
+  },
+  {
+    "id": "family_history_004",
+    "category": "family_history",
+    "angle": "Motown Records founder Berry Gordy signing the Jackson 5 in 1968 after seeing them perform"
+  },
+  {
+    "id": "family_history_005",
+    "category": "family_history",
+    "angle": "The Jackson family relocating from Gary Indiana to Los Angeles in 1969 following the Motown signing"
+  },
+  {
+    "id": "family_history_006",
+    "category": "family_history",
+    "angle": "Diana Ross introducing the Jackson 5 to the public, with early publicity crediting her as their discoverer"
+  },
+  {
+    "id": "family_history_007",
+    "category": "family_history",
+    "angle": "The Jackson 5's first four singles on Motown all reaching number one on the Billboard Hot 100 in 1969 and 1970"
+  },
+  {
+    "id": "family_history_008",
+    "category": "family_history",
+    "angle": "Joe Jackson's background as a steelworker in Gary Indiana before managing his sons' music career"
+  },
+  {
+    "id": "family_history_009",
+    "category": "family_history",
+    "angle": "Katherine Jackson's Jehovah's Witness faith and its influence on the Jackson children's upbringing"
+  },
+  {
+    "id": "family_history_010",
+    "category": "family_history",
+    "angle": "The Jackson 5 cartoon series airing on ABC from 1971 to 1973, based on the family band"
+  },
+  {
+    "id": "family_history_011",
+    "category": "family_history",
+    "angle": "Michael Jackson's early solo career beginning in 1971 while still performing with his brothers"
+  },
+  {
+    "id": "family_history_012",
+    "category": "family_history",
+    "angle": "The Jackson family's move from Motown to Epic Records in 1975, with the group renamed The Jacksons"
+  },
+  {
+    "id": "family_history_013",
+    "category": "family_history",
+    "angle": "Randy Jackson joining his older brothers in The Jacksons after Jermaine remained with Motown"
+  },
+  {
+    "id": "family_history_014",
+    "category": "family_history",
+    "angle": "The television miniseries The Jacksons: An American Dream, released in 1992, depicting the family's early years"
+  },
+  {
+    "id": "family_history_015",
+    "category": "family_history",
+    "angle": "Michael's relationship with his sister La Toya Jackson, who also pursued a music and entertainment career"
+  },
+  {
+    "id": "family_history_016",
+    "category": "family_history",
+    "angle": "Janet Jackson's career beginning as a child actress before becoming a recording artist in her own right"
+  },
+  {
+    "id": "family_history_017",
+    "category": "family_history",
+    "angle": "The Jackson family performing together on the Victory Tour in 1984, the only tour with all six brothers"
+  },
+  {
+    "id": "family_history_018",
+    "category": "family_history",
+    "angle": "Michael's decision to leave the Victory Tour proceeds to charity, donating his share"
+  },
+  {
+    "id": "family_history_019",
+    "category": "family_history",
+    "angle": "Joe Jackson's induction alongside his sons into discussions of the Jackson family's musical legacy"
+  },
+  {
+    "id": "family_history_020",
+    "category": "family_history",
+    "angle": "Michael Jackson's early television performances on variety shows including The Ed Sullivan Show in 1969"
+  },
+  {
+    "id": "family_history_021",
+    "category": "family_history",
+    "angle": "The Jackson 5's appearance on Soul Train in the early 1970s during the show's first years"
+  },
+  {
+    "id": "family_history_022",
+    "category": "family_history",
+    "angle": "Tito Jackson's role as guitarist for the Jackson 5 and later The Jacksons"
+  },
+  {
+    "id": "family_history_023",
+    "category": "family_history",
+    "angle": "Jermaine Jackson's choice to remain with Motown in 1975 while his brothers moved to Epic Records"
+  },
+  {
+    "id": "family_history_024",
+    "category": "family_history",
+    "angle": "The Jackson family's Encino California estate known as Hayvenhurst, purchased in the 1970s"
+  },
+  {
+    "id": "family_history_025",
+    "category": "family_history",
+    "angle": "Michael Jackson's description of his childhood touring schedule in his 1988 autobiography Moonwalk"
+  },
+  {
+    "id": "family_history_026",
+    "category": "family_history",
+    "angle": "The Jackson 5's first album Diana Ross Presents the Jackson 5, released in 1969"
+  },
+  {
+    "id": "family_history_027",
+    "category": "family_history",
+    "angle": "Michael's earliest known public performance, singing at age five with his brothers in Gary Indiana"
+  },
+  {
+    "id": "family_history_028",
+    "category": "family_history",
+    "angle": "The Jackson Five's transition into adulthood being documented through their changing sound on Epic Records"
+  },
+  {
+    "id": "family_history_029",
+    "category": "family_history",
+    "angle": "Rebbie Jackson, the eldest Jackson sibling, pursuing her own recording career separate from her brothers"
+  },
+  {
+    "id": "family_history_030",
+    "category": "family_history",
+    "angle": "Marlon Jackson's role as a dancer and vocalist in the Jackson 5 and The Jacksons"
+  },
+  {
+    "id": "family_history_031",
+    "category": "family_history",
+    "angle": "The Jackson family's appearance at the Motown 25th anniversary special in 1983, where MJ debuted the moonwalk"
+  },
+  {
+    "id": "family_history_032",
+    "category": "family_history",
+    "angle": "Michael Jackson's description of his father's strict rehearsal regimen during his childhood in multiple interviews"
+  },
+  {
+    "id": "family_history_033",
+    "category": "family_history",
+    "angle": "The Jacksons' 1980 album Triumph, featuring the hit single Can You Feel It with an accompanying short film"
+  },
+  {
+    "id": "family_history_034",
+    "category": "family_history",
+    "angle": "Michael's role in writing songs for The Jacksons' later albums including Can You Feel It and Shake Your Body"
+  },
+  {
+    "id": "family_history_035",
+    "category": "family_history",
+    "angle": "The Jackson family reuniting for the 30th anniversary concerts at Madison Square Garden in September 2001"
+  },
+  {
+    "id": "family_history_036",
+    "category": "family_history",
+    "angle": "Katherine Jackson's role in raising nine children while Joe Jackson managed their early career"
+  },
+  {
+    "id": "family_history_037",
+    "category": "family_history",
+    "angle": "The 2009 documentary This Is It including interview footage discussing MJ's relationship with his family"
+  },
+  {
+    "id": "family_history_038",
+    "category": "family_history",
+    "angle": "Michael Jackson's purchase of Hayvenhurst from his parents, which they continued to live in"
+  },
+  {
+    "id": "family_history_039",
+    "category": "family_history",
+    "angle": "The Jackson 5's reunion performance at the 1983 Motown 25 special, the first time in years all members performed together"
+  },
+  {
+    "id": "marriages_children_000",
+    "category": "marriages_children",
+    "angle": "Michael Jackson's marriage to Lisa Marie Presley in May 1994, announced publicly months after the ceremony"
+  },
+  {
+    "id": "marriages_children_001",
+    "category": "marriages_children",
+    "angle": "The 1995 interview with Diane Sawyer where MJ and Lisa Marie Presley discussed their marriage and denied rumors about it"
+  },
+  {
+    "id": "marriages_children_002",
+    "category": "marriages_children",
+    "angle": "Michael Jackson and Lisa Marie Presley's appearance together at the 1994 MTV Video Music Awards, including an on-stage kiss"
+  },
+  {
+    "id": "marriages_children_003",
+    "category": "marriages_children",
+    "angle": "The divorce of Michael Jackson and Lisa Marie Presley being finalized in 1996"
+  },
+  {
+    "id": "marriages_children_004",
+    "category": "marriages_children",
+    "angle": "Michael Jackson's marriage to Debbie Rowe in November 1996"
+  },
+  {
+    "id": "marriages_children_005",
+    "category": "marriages_children",
+    "angle": "Prince Michael Jackson Jr, MJ's first child, born in February 1997"
+  },
+  {
+    "id": "marriages_children_006",
+    "category": "marriages_children",
+    "angle": "Paris Michael Katherine Jackson, MJ's second child, born in April 1998"
+  },
+  {
+    "id": "marriages_children_007",
+    "category": "marriages_children",
+    "angle": "Debbie Rowe granting MJ full custody rights as part of their 2000 divorce settlement"
+  },
+  {
+    "id": "marriages_children_008",
+    "category": "marriages_children",
+    "angle": "Prince Michael Jackson II, known publicly as Blanket, born in 2002 via surrogate"
+  },
+  {
+    "id": "marriages_children_009",
+    "category": "marriages_children",
+    "angle": "MJ holding his infant son Blanket over a hotel balcony railing in Berlin in 2002, an incident that drew widespread criticism"
+  },
+  {
+    "id": "marriages_children_010",
+    "category": "marriages_children",
+    "angle": "Paris Jackson's public statements in later years discussing her childhood and her father"
+  },
+  {
+    "id": "marriages_children_011",
+    "category": "marriages_children",
+    "angle": "Prince Jackson's interviews after his father's death discussing memories of growing up with MJ"
+  },
+  {
+    "id": "marriages_children_012",
+    "category": "marriages_children",
+    "angle": "MJ's children appearing with him at the 2002 MTV Video Music Awards where he received the Artist of the Century-style honor"
+  },
+  {
+    "id": "marriages_children_013",
+    "category": "marriages_children",
+    "angle": "The custody arrangements following MJ's death in 2009, with Katherine Jackson granted guardianship of his three children"
+  },
+  {
+    "id": "marriages_children_014",
+    "category": "marriages_children",
+    "angle": "MJ's description in interviews of wanting to give his children a normal childhood despite his own fame"
+  },
+  {
+    "id": "marriages_children_015",
+    "category": "marriages_children",
+    "angle": "Prince, Paris and Blanket Jackson appearing at the Forest Lawn memorial service for their father in 2009"
+  },
+  {
+    "id": "marriages_children_016",
+    "category": "marriages_children",
+    "angle": "Lisa Marie Presley's public statements after MJ's death describing their relationship and friendship"
+  },
+  {
+    "id": "marriages_children_017",
+    "category": "marriages_children",
+    "angle": "Debbie Rowe's background as a dermatology nurse before her marriage to MJ"
+  },
+  {
+    "id": "marriages_children_018",
+    "category": "marriages_children",
+    "angle": "MJ's children being homeschooled for much of their early years, as later discussed by Paris Jackson in interviews"
+  },
+  {
+    "id": "marriages_children_019",
+    "category": "marriages_children",
+    "angle": "The Jackson family's joint statements following MJ's death regarding care of his three children"
+  },
+  {
+    "id": "marriages_children_020",
+    "category": "marriages_children",
+    "angle": "Paris Jackson's career as a model and musician in the years following her father's death"
+  },
+  {
+    "id": "marriages_children_021",
+    "category": "marriages_children",
+    "angle": "Prince Jackson's appearances at award shows and public events representing his father's estate"
+  },
+  {
+    "id": "marriages_children_022",
+    "category": "marriages_children",
+    "angle": "MJ's 2003 interview with Martin Bashir, Living with Michael Jackson, which included footage of him with his children wearing masks in public"
+  },
+  {
+    "id": "marriages_children_023",
+    "category": "marriages_children",
+    "angle": "The Bashir documentary's impact on public perception, including MJ's own statements about regretting some choices shown"
+  },
+  {
+    "id": "marriages_children_024",
+    "category": "marriages_children",
+    "angle": "MJ's description of choosing the names Prince and Paris for his children in interviews discussing their significance to him"
+  },
+  {
+    "id": "marriages_children_025",
+    "category": "marriages_children",
+    "angle": "The 1994 wedding ceremony between MJ and Lisa Marie Presley taking place in the Dominican Republic"
+  },
+  {
+    "id": "marriages_children_026",
+    "category": "marriages_children",
+    "angle": "MJ and Lisa Marie Presley's joint interview clips being widely replayed after their divorce was announced"
+  },
+  {
+    "id": "achievements_verified_000",
+    "category": "achievements_verified",
+    "angle": "Thriller becoming the best-selling album of all time worldwide, certified at over 30 million copies in the US alone by the RIAA"
+  },
+  {
+    "id": "achievements_verified_001",
+    "category": "achievements_verified",
+    "angle": "MJ winning eight Grammy Awards in a single night at the 1984 ceremony for the Thriller album"
+  },
+  {
+    "id": "achievements_verified_002",
+    "category": "achievements_verified",
+    "angle": "Billie Jean spending seven weeks at number one on the Billboard Hot 100 in 1983"
+  },
+  {
+    "id": "achievements_verified_003",
+    "category": "achievements_verified",
+    "angle": "MJ's induction into the Rock and Roll Hall of Fame as a solo artist in 2001"
+  },
+  {
+    "id": "achievements_verified_004",
+    "category": "achievements_verified",
+    "angle": "The Jackson 5's induction into the Rock and Roll Hall of Fame in 1997"
+  },
+  {
+    "id": "achievements_verified_005",
+    "category": "achievements_verified",
+    "angle": "Thriller spending 37 weeks at number one on the Billboard 200 album chart"
+  },
+  {
+    "id": "achievements_verified_006",
+    "category": "achievements_verified",
+    "angle": "MJ receiving a star on the Hollywood Walk of Fame as a solo artist in 1984"
+  },
+  {
+    "id": "achievements_verified_007",
+    "category": "achievements_verified",
+    "angle": "Bad becoming the first album in history to produce five number one singles on the Billboard Hot 100"
+  },
+  {
+    "id": "achievements_verified_008",
+    "category": "achievements_verified",
+    "angle": "You Are Not Alone becoming the first song to debut at number one on the Billboard Hot 100 in 1995"
+  },
+  {
+    "id": "achievements_verified_009",
+    "category": "achievements_verified",
+    "angle": "MJ's Dangerous album debuting at number one on the Billboard 200 in 1991"
+  },
+  {
+    "id": "achievements_verified_010",
+    "category": "achievements_verified",
+    "angle": "The Thriller short film's preservation by the Library of Congress in the National Film Registry in 2009"
+  },
+  {
+    "id": "achievements_verified_011",
+    "category": "achievements_verified",
+    "angle": "MJ receiving the Grammy Legend Award in 1993"
+  },
+  {
+    "id": "achievements_verified_012",
+    "category": "achievements_verified",
+    "angle": "Off The Wall becoming the first solo album to generate four top 10 hit singles in the United States"
+  },
+  {
+    "id": "achievements_verified_013",
+    "category": "achievements_verified",
+    "angle": "MJ's total of 13 Grammy Awards won over his career"
+  },
+  {
+    "id": "achievements_verified_014",
+    "category": "achievements_verified",
+    "angle": "The Beatles catalog acquisition by MJ's company ATV Music in 1985 for approximately $47.5 million"
+  },
+  {
+    "id": "achievements_verified_015",
+    "category": "achievements_verified",
+    "angle": "HIStory entering the Billboard 200 at number one in 1995 as a double album"
+  },
+  {
+    "id": "achievements_verified_016",
+    "category": "achievements_verified",
+    "angle": "MJ being honored at the World Music Awards multiple times throughout the 1990s and 2000s"
+  },
+  {
+    "id": "achievements_verified_017",
+    "category": "achievements_verified",
+    "angle": "The Bad World Tour 1987-1989 becoming one of the highest-grossing tours of its era"
+  },
+  {
+    "id": "achievements_verified_018",
+    "category": "achievements_verified",
+    "angle": "MJ's Dangerous World Tour 1992-1993 being the first major Western pop tour to extensively visit parts of Eastern Europe and Africa"
+  },
+  {
+    "id": "achievements_verified_019",
+    "category": "achievements_verified",
+    "angle": "The HIStory World Tour 1996-1997 visiting 58 cities across five continents"
+  },
+  {
+    "id": "achievements_verified_020",
+    "category": "achievements_verified",
+    "angle": "MJ's sales certifications across his catalog making him one of the best-selling music artists in history according to the RIAA"
+  },
+  {
+    "id": "achievements_verified_021",
+    "category": "achievements_verified",
+    "angle": "The 1993 Super Bowl XXVII halftime show being credited with establishing the modern model of A-list halftime performances"
+  },
+  {
+    "id": "achievements_verified_022",
+    "category": "achievements_verified",
+    "angle": "MJ's Motown 25 performance of Billie Jean in 1983 being cited by television historians as one of the most replayed clips in TV history"
+  },
+  {
+    "id": "achievements_verified_023",
+    "category": "achievements_verified",
+    "angle": "Smooth Criminal's music video featuring the gravity-defying lean that required custom shoe technology patented by MJ and his collaborators"
+  },
+  {
+    "id": "achievements_verified_024",
+    "category": "achievements_verified",
+    "angle": "MJ's catalog of music videos contributing to multiple inductions and honors at the MTV Video Music Awards including the Video Vanguard Award in 1988"
+  },
+  {
+    "id": "performances_verified_000",
+    "category": "performances_verified",
+    "angle": "MJ's performance of Billie Jean at the Motown 25: Yesterday, Today, Forever special on May 16 1983, debuting the moonwalk on television"
+  },
+  {
+    "id": "performances_verified_001",
+    "category": "performances_verified",
+    "angle": "MJ's Super Bowl XXVII halftime performance on January 31 1993 in Pasadena California"
+  },
+  {
+    "id": "performances_verified_002",
+    "category": "performances_verified",
+    "angle": "MJ performing with his brothers as the Jackson 5 on The Ed Sullivan Show in December 1969"
+  },
+  {
+    "id": "performances_verified_003",
+    "category": "performances_verified",
+    "angle": "MJ's performance at the 1984 Grammy Awards where Eddie Van Halen joined him on stage for Beat It"
+  },
+  {
+    "id": "performances_verified_004",
+    "category": "performances_verified",
+    "angle": "The Bad World Tour opening night in Tokyo Japan in September 1987"
+  },
+  {
+    "id": "performances_verified_005",
+    "category": "performances_verified",
+    "angle": "MJ's 10 sold-out shows at Wembley Stadium during the Bad Tour in 1988, setting a Guinness World Record"
+  },
+  {
+    "id": "performances_verified_006",
+    "category": "performances_verified",
+    "angle": "MJ's performance at the 1995 MTV Video Music Awards performing a medley with Janet Jackson"
+  },
+  {
+    "id": "performances_verified_007",
+    "category": "performances_verified",
+    "angle": "The Dangerous World Tour opening concert in Munich Germany in June 1992"
+  },
+  {
+    "id": "performances_verified_008",
+    "category": "performances_verified",
+    "angle": "MJ's appearance at the 1996 Brit Awards performing Earth Song, during which Jarvis Cocker of Pulp interrupted the performance"
+  },
+  {
+    "id": "performances_verified_009",
+    "category": "performances_verified",
+    "angle": "MJ's HIStory World Tour opening ceremony in New York with a statue unveiling in 1995"
+  },
+  {
+    "id": "performances_verified_010",
+    "category": "performances_verified",
+    "angle": "The Victory Tour in 1984, the only tour MJ performed with all five of his brothers as adults"
+  },
+  {
+    "id": "performances_verified_011",
+    "category": "performances_verified",
+    "angle": "MJ's performance at the 30th Anniversary Celebration concerts at Madison Square Garden in September 2001"
+  },
+  {
+    "id": "performances_verified_012",
+    "category": "performances_verified",
+    "angle": "The recording of the This Is It rehearsal footage at the Staples Center in Los Angeles in 2009"
+  },
+  {
+    "id": "performances_verified_013",
+    "category": "performances_verified",
+    "angle": "MJ's appearance performing Man in the Mirror at the 1988 Grammy Awards"
+  },
+  {
+    "id": "performances_verified_014",
+    "category": "performances_verified",
+    "angle": "The Jackson 5's first appearance on American Bandstand in the early 1970s"
+  },
+  {
+    "id": "performances_verified_015",
+    "category": "performances_verified",
+    "angle": "MJ's solo performance debut on Soul Train performing songs from his early solo albums"
+  },
+  {
+    "id": "performances_verified_016",
+    "category": "performances_verified",
+    "angle": "The Bad Tour's Yokohama Japan stop in 1987 marking the official start of the tour"
+  },
+  {
+    "id": "performances_verified_017",
+    "category": "performances_verified",
+    "angle": "MJ's appearance at the American Music Awards in 1984 where he won a record 8 awards in one night"
+  },
+  {
+    "id": "performances_verified_018",
+    "category": "performances_verified",
+    "angle": "MJ's Dangerous Tour stop in Bucharest Romania in 1992, later released as an HBO special"
+  },
+  {
+    "id": "performances_verified_019",
+    "category": "performances_verified",
+    "angle": "The HIStory Tour's final concert in Durban South Africa in October 1997"
+  },
+  {
+    "id": "relationships_verified_000",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Quincy Jones beginning with Off The Wall in 1979 and continuing through Bad in 1987"
+  },
+  {
+    "id": "relationships_verified_001",
+    "category": "relationships_verified",
+    "angle": "Quincy Jones's role as producer on Thriller, the best-selling album in history"
+  },
+  {
+    "id": "relationships_verified_002",
+    "category": "relationships_verified",
+    "angle": "MJ's friendship with Elizabeth Taylor, which began in the early 1980s and lasted until his death"
+  },
+  {
+    "id": "relationships_verified_003",
+    "category": "relationships_verified",
+    "angle": "Elizabeth Taylor introducing MJ at the 1989 Soul Train Music Awards where he received the Heritage Award"
+  },
+  {
+    "id": "relationships_verified_004",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Paul McCartney on The Girl Is Mine and Say Say Say in the early 1980s"
+  },
+  {
+    "id": "relationships_verified_005",
+    "category": "relationships_verified",
+    "angle": "The business relationship between MJ and Paul McCartney becoming complicated after MJ purchased the Beatles song catalog in 1985"
+  },
+  {
+    "id": "relationships_verified_006",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Eddie Van Halen on the guitar solo for Beat It in 1982"
+  },
+  {
+    "id": "relationships_verified_007",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Slash on guitar parts for Black or White and Give In To Me from the Dangerous album"
+  },
+  {
+    "id": "relationships_verified_008",
+    "category": "relationships_verified",
+    "angle": "MJ's friendship with Diana Ross dating back to his childhood at Motown, with Ross credited on his first solo album"
+  },
+  {
+    "id": "relationships_verified_009",
+    "category": "relationships_verified",
+    "angle": "Teddy Riley's production work with MJ on the Dangerous album in 1991, introducing New Jack Swing elements"
+  },
+  {
+    "id": "relationships_verified_010",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Janet Jackson on the song and video for Scream in 1995"
+  },
+  {
+    "id": "relationships_verified_011",
+    "category": "relationships_verified",
+    "angle": "MJ's friendship with Marlon Brando, who appeared in the short film for You Rock My World in 2001"
+  },
+  {
+    "id": "relationships_verified_012",
+    "category": "relationships_verified",
+    "angle": "The collaboration between MJ and director Spike Lee on the They Don't Care About Us music videos in 1996"
+  },
+  {
+    "id": "relationships_verified_013",
+    "category": "relationships_verified",
+    "angle": "MJ's working relationship with choreographer Vincent Paterson, who worked on the Thriller and Smooth Criminal videos"
+  },
+  {
+    "id": "relationships_verified_014",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with director John Landis on the Thriller short film in 1983"
+  },
+  {
+    "id": "relationships_verified_015",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with director Martin Scorsese on the Bad short film in 1987"
+  },
+  {
+    "id": "relationships_verified_016",
+    "category": "relationships_verified",
+    "angle": "Rod Temperton's songwriting contributions across Off The Wall and Thriller, including Thriller, Rock With You, and Off The Wall"
+  },
+  {
+    "id": "relationships_verified_017",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Siedah Garrett, who co-wrote Man in the Mirror and sang the duet I Just Can't Stop Loving You"
+  },
+  {
+    "id": "relationships_verified_018",
+    "category": "relationships_verified",
+    "angle": "MJ's friendship with Macaulay Culkin, who appeared in the Black or White short film in 1991"
+  },
+  {
+    "id": "relationships_verified_019",
+    "category": "relationships_verified",
+    "angle": "MJ's collaboration with Bruce Swedien, the recording engineer on Off The Wall, Thriller, Bad, and Dangerous"
+  },
+  {
+    "id": "philanthropy_001",
+    "category": "philanthropy",
+    "angle": "MJ founding the Heal the World Foundation in 1992, a nonprofit organization focused on improving the lives of children worldwide through health, education, and welfare programs"
+  },
+  {
+    "id": "philanthropy_002",
+    "category": "philanthropy",
+    "angle": "MJ donating proceeds from the Dangerous World Tour to the Heal the World Foundation, raising millions for children's charities across multiple countries"
+  },
+  {
+    "id": "philanthropy_003",
+    "category": "philanthropy",
+    "angle": "MJ's donation of $1.5 million to the United Negro College Fund, documented in the organization's records and press releases during the 1980s"
+  },
+  {
+    "id": "philanthropy_004",
+    "category": "philanthropy",
+    "angle": "MJ paying the medical bills for a young cancer patient named Ryan White, who became a friend and whose death in 1990 deeply affected him"
+  },
+  {
+    "id": "philanthropy_005",
+    "category": "philanthropy",
+    "angle": "MJ co-writing and producing We Are the World in 1985 with Lionel Richie, which raised over $63 million for African famine relief"
+  },
+  {
+    "id": "philanthropy_006",
+    "category": "philanthropy",
+    "angle": "MJ's donation of $300,000 to the Soweto Children's Choir during his visit to South Africa in 1997"
+  },
+  {
+    "id": "philanthropy_007",
+    "category": "philanthropy",
+    "angle": "MJ establishing the Michael Jackson Burn Center at the Brotman Medical Center in Culver City California using proceeds from the Victory Tour"
+  },
+  {
+    "id": "philanthropy_008",
+    "category": "philanthropy",
+    "angle": "MJ's Heal the World Foundation airlifting 46 tons of supplies to war-torn Sarajevo in 1992 and 1993 during the Bosnian War"
+  },
+  {
+    "id": "philanthropy_009",
+    "category": "philanthropy",
+    "angle": "MJ performing the History concert in Bucharest Romania in 1992 which was broadcast globally and generated charitable donations"
+  },
+  {
+    "id": "philanthropy_010",
+    "category": "philanthropy",
+    "angle": "MJ donating a portion of ticket proceeds from his Bad World Tour to children's charities in each country he visited"
+  },
+  {
+    "id": "philanthropy_011",
+    "category": "philanthropy",
+    "angle": "MJ's personal visit to a children's hospital in Munich Germany during the HIStory Tour where he spent hours with sick children"
+  },
+  {
+    "id": "philanthropy_012",
+    "category": "philanthropy",
+    "angle": "MJ's donation to the Make-A-Wish Foundation and his personal hosting of terminally ill children at Neverland Ranch throughout the 1990s"
+  },
+  {
+    "id": "philanthropy_013",
+    "category": "philanthropy",
+    "angle": "MJ's recording of What More Can I Give in 2001 as a charity single following the September 11 attacks, with proceeds going to victims' families"
+  },
+  {
+    "id": "philanthropy_014",
+    "category": "philanthropy",
+    "angle": "MJ's participation in the HandsAcrossAmerica fundraising event in 1986 alongside millions of Americans to fight hunger and homelessness"
+  },
+  {
+    "id": "philanthropy_015",
+    "category": "philanthropy",
+    "angle": "MJ's donation of $200,000 to a Cleveland Ohio school in 1988 to fund arts and music education programs"
+  },
+  {
+    "id": "philanthropy_016",
+    "category": "philanthropy",
+    "angle": "MJ visiting orphanages and children's hospitals across Asia during his 1987 Bad World Tour stops in Japan and other countries"
+  },
+  {
+    "id": "philanthropy_017",
+    "category": "philanthropy",
+    "angle": "MJ's Heal the World Foundation partnering with UNESCO to promote children's rights and education in developing nations"
+  },
+  {
+    "id": "philanthropy_018",
+    "category": "philanthropy",
+    "angle": "MJ funding the construction of a playground for children in a poor community in Los Angeles during the early 1990s"
+  },
+  {
+    "id": "philanthropy_019",
+    "category": "philanthropy",
+    "angle": "MJ's personal gift of $500,000 to the Juvenile Diabetes Research Foundation in honor of a young fan he had befriended"
+  },
+  {
+    "id": "philanthropy_020",
+    "category": "philanthropy",
+    "angle": "MJ performing a benefit concert for victims of the 1989 San Francisco earthquake through fundraising efforts organized by his management"
+  },
+  {
+    "id": "philanthropy_021",
+    "category": "philanthropy",
+    "angle": "MJ's charity work with the American Foundation for AIDS Research alongside Elizabeth Taylor during the height of the AIDS crisis in the 1980s"
+  },
+  {
+    "id": "philanthropy_022",
+    "category": "philanthropy",
+    "angle": "MJ hosting an annual Christmas party at Neverland Ranch for underprivileged children from the Santa Barbara area throughout the 1990s"
+  },
+  {
+    "id": "philanthropy_023",
+    "category": "philanthropy",
+    "angle": "MJ's Heal the World Foundation providing immunizations for 39,000 children in the United States in partnership with UNICEF"
+  },
+  {
+    "id": "philanthropy_024",
+    "category": "philanthropy",
+    "angle": "MJ's donation of memorabilia and signed items for charity auctions benefiting children's hospitals throughout his career"
+  },
+  {
+    "id": "philanthropy_025",
+    "category": "philanthropy",
+    "angle": "MJ funding scholarships for students at historically Black colleges and universities through the UNCF partnership"
+  },
+  {
+    "id": "philanthropy_026",
+    "category": "philanthropy",
+    "angle": "MJ's response to Hurricane Andrew in 1992, donating money and supplies through his foundation to affected families in Florida"
+  },
+  {
+    "id": "philanthropy_027",
+    "category": "philanthropy",
+    "angle": "MJ performing at the Concert for Los Angeles in 1992 following the LA riots to help rebuild the community"
+  },
+  {
+    "id": "philanthropy_028",
+    "category": "philanthropy",
+    "angle": "MJ's foundation work in Romania following the fall of communism, providing aid to children in state orphanages in the early 1990s"
+  },
+  {
+    "id": "philanthropy_029",
+    "category": "philanthropy",
+    "angle": "MJ recording the charity single Smile with others to benefit children's causes, building on the Charlie Chaplin original"
+  },
+  {
+    "id": "philanthropy_030",
+    "category": "philanthropy",
+    "angle": "MJ's personal donation to a family who lost their home in a fire he had read about in a newspaper, made anonymously through his management"
+  },
+  {
+    "id": "business_ventures_001",
+    "category": "business_ventures",
+    "angle": "MJ purchasing the ATV Music Publishing catalog in 1985 for $47.5 million, which included the rights to over 250 Beatles songs, outbidding Paul McCartney"
+  },
+  {
+    "id": "business_ventures_002",
+    "category": "business_ventures",
+    "angle": "MJ merging his ATV catalog with Sony's music publishing division in 1995 to form Sony/ATV Music Publishing, creating one of the largest music publishers in the world"
+  },
+  {
+    "id": "business_ventures_003",
+    "category": "business_ventures",
+    "angle": "MJ establishing Mijac Music as his personal music publishing company to hold the rights to his own compositions, including songs from the Thriller era"
+  },
+  {
+    "id": "business_ventures_004",
+    "category": "business_ventures",
+    "angle": "MJ's deal with Epic Records in 1975 when the Jackson 5 moved from Motown, which gave him significantly more creative control and a higher royalty rate than their previous contract"
+  },
+  {
+    "id": "business_ventures_005",
+    "category": "business_ventures",
+    "angle": "MJ negotiating what was at the time the most lucrative recording contract in history with Sony in 1991, reportedly worth $65 million for multiple albums"
+  },
+  {
+    "id": "business_ventures_006",
+    "category": "business_ventures",
+    "angle": "MJ's ownership of Neverland Ranch, purchased in 1988 for $19.5 million, which he developed into a private entertainment complex"
+  },
+  {
+    "id": "business_ventures_007",
+    "category": "business_ventures",
+    "angle": "MJ's partnership with Pepsi-Cola in 1983 worth $5 million at the time, one of the first major celebrity brand endorsement deals in music history"
+  },
+  {
+    "id": "business_ventures_008",
+    "category": "business_ventures",
+    "angle": "MJ's role in establishing the template for the modern music video as a commercial product through his deal with Vestron Video to release the Thriller long-form video as a home release"
+  },
+  {
+    "id": "business_ventures_009",
+    "category": "business_ventures",
+    "angle": "MJ's merchandise licensing operation which generated hundreds of millions of dollars through official MJ branded products sold globally throughout his career"
+  },
+  {
+    "id": "business_ventures_010",
+    "category": "business_ventures",
+    "angle": "MJ's Optimum Productions company which he used to develop and own his music video productions, giving him control over his visual catalog"
+  },
+  {
+    "id": "business_ventures_011",
+    "category": "business_ventures",
+    "angle": "MJ's investment in the film industry through his Neverland Valley Entertainment company, which developed the Captain EO project with George Lucas and Francis Ford Coppola"
+  },
+  {
+    "id": "business_ventures_012",
+    "category": "business_ventures",
+    "angle": "MJ's deal with MJJ Productions to control his own record label within the Sony structure, giving him the right to sign and develop other artists"
+  },
+  {
+    "id": "business_ventures_013",
+    "category": "business_ventures",
+    "angle": "MJ signing a worldwide licensing deal with Pepsi for the Dangerous era in 1992, which was reported to be worth $30 million, one of the largest at that time"
+  },
+  {
+    "id": "business_ventures_014",
+    "category": "business_ventures",
+    "angle": "MJ's complex battle with Sony over royalty rates and ownership rights in 2001 and 2002, during which he publicly accused Sony of racism in the music industry"
+  },
+  {
+    "id": "business_ventures_015",
+    "category": "business_ventures",
+    "angle": "MJ's investment in a proposed theme park in Las Vegas in the early 2000s that ultimately did not move forward after his legal difficulties"
+  },
+  {
+    "id": "business_ventures_016",
+    "category": "business_ventures",
+    "angle": "MJ's negotiations with the Sultan of Brunei for a series of concerts and business ventures in the mid-1990s"
+  },
+  {
+    "id": "business_ventures_017",
+    "category": "business_ventures",
+    "angle": "MJ's ownership stake in MJJC Productions and his insistence on retaining ownership of masters for his solo work, setting a precedent that influenced later artist contract negotiations"
+  },
+  {
+    "id": "business_ventures_018",
+    "category": "business_ventures",
+    "angle": "MJ's Neverland Ranch generating millions annually through its private operation including a full amusement park and zoo maintained for invited guests"
+  },
+  {
+    "id": "business_ventures_019",
+    "category": "business_ventures",
+    "angle": "MJ's purchase of the Sycamore Valley Ranch property which became Neverland, transforming a working ranch into an entertainment estate with a private railroad"
+  },
+  {
+    "id": "business_ventures_020",
+    "category": "business_ventures",
+    "angle": "MJ's recording of voice work and involvement in the Sonic the Hedgehog 3 video game soundtrack in 1994, though his involvement was not officially credited at the time"
+  },
+  {
+    "id": "business_ventures_021",
+    "category": "business_ventures",
+    "angle": "MJ's co-ownership of the Radio City Music Hall venue through a business deal during the 1990s"
+  },
+  {
+    "id": "business_ventures_022",
+    "category": "business_ventures",
+    "angle": "MJ's extended negotiations with Colony Capital which purchased Neverland Ranch in 2008 and kept the property from being foreclosed"
+  },
+  {
+    "id": "business_ventures_023",
+    "category": "business_ventures",
+    "angle": "MJ signing the deal for the This Is It concert residency at the O2 Arena in London in 2009 with AEG Live, originally planned as 50 sold-out shows"
+  },
+  {
+    "id": "business_ventures_024",
+    "category": "business_ventures",
+    "angle": "MJ's Sony/ATV catalog growing in value from $47.5 million at purchase to an estimated $750 million by the time of his death in 2009"
+  },
+  {
+    "id": "business_ventures_025",
+    "category": "business_ventures",
+    "angle": "MJ's estate selling a 50% stake in Sony/ATV to Sony for $750 million in 2016 after his death, completing the business arrangement he had built"
+  },
+  {
+    "id": "business_ventures_026",
+    "category": "business_ventures",
+    "angle": "MJ's personal art collection at Neverland which included works valued at tens of millions of dollars including pieces by the Impressionist masters"
+  },
+  {
+    "id": "business_ventures_027",
+    "category": "business_ventures",
+    "angle": "MJ's MJJ Music division signing various acts including the group 3T which included his nephews Taj, Taryll and TJ Jackson"
+  },
+  {
+    "id": "business_ventures_028",
+    "category": "business_ventures",
+    "angle": "MJ's deal with Barclays Bank for a $270 million loan against his Sony/ATV catalog, which became a major financial liability later in his life"
+  },
+  {
+    "id": "business_ventures_029",
+    "category": "business_ventures",
+    "angle": "MJ's participation in the Sega Genesis console launch promotion in Japan, becoming one of the first major music artists to endorse a video game system"
+  },
+  {
+    "id": "business_ventures_030",
+    "category": "business_ventures",
+    "angle": "MJ's negotiation for the rights to create a Broadway musical based on his life and music, which was in development at the time of his death"
+  },
+  {
+    "id": "fashion_style_001",
+    "category": "fashion_style",
+    "angle": "MJ working with costume designer Michael Bush and Dennis Tompkins from the Bad era onward, the duo who created hundreds of his signature stage costumes"
+  },
+  {
+    "id": "fashion_style_002",
+    "category": "fashion_style",
+    "angle": "MJ's crystal-encrusted white glove first appearing on the Motown 25 TV special in March 1983, made by costume designer Bill Whitten and encrusted with over 1,200 hand-placed rhinestones"
+  },
+  {
+    "id": "fashion_style_003",
+    "category": "fashion_style",
+    "angle": "MJ's red and black leather jacket from the Thriller music video designed by Landis and which sold at auction for $1.8 million in 2011"
+  },
+  {
+    "id": "fashion_style_004",
+    "category": "fashion_style",
+    "angle": "MJ's signature look of white socks with black loafers originating partly as a practical choice to make his ankle movements visible to audiences during the moonwalk"
+  },
+  {
+    "id": "fashion_style_005",
+    "category": "fashion_style",
+    "angle": "MJ's military-style jackets influenced by the Sgt. Pepper era Beatles aesthetic, which he began incorporating into his stage wardrobe during the Victory Tour in 1984"
+  },
+  {
+    "id": "fashion_style_006",
+    "category": "fashion_style",
+    "angle": "MJ's iconic red leather jacket from Thriller designed by John Landis collaborator Deborah Nadoolman, who also designed Indiana Jones's costume"
+  },
+  {
+    "id": "fashion_style_007",
+    "category": "fashion_style",
+    "angle": "MJ wearing a single rhinestone glove on his right hand specifically because he felt one glove was more interesting and mysterious than two"
+  },
+  {
+    "id": "fashion_style_008",
+    "category": "fashion_style",
+    "angle": "MJ's Bad era stage costumes designed by Michael Bush featuring elaborate military-inspired designs with gold chains and buckles that influenced streetwear fashion"
+  },
+  {
+    "id": "fashion_style_009",
+    "category": "fashion_style",
+    "angle": "MJ's collaboration with Versace for several of his HIStory era promotional appearances and the design of certain stage pieces"
+  },
+  {
+    "id": "fashion_style_010",
+    "category": "fashion_style",
+    "angle": "MJ's signature black fedora hat which became so associated with him that replicas sold by the millions to fans worldwide throughout the 1980s and 1990s"
+  },
+  {
+    "id": "fashion_style_011",
+    "category": "fashion_style",
+    "angle": "MJ's Dangerous era costumes designed by Dennis Tompkins and Michael Bush incorporating more elaborate architectural elements than his previous stage wear"
+  },
+  {
+    "id": "fashion_style_012",
+    "category": "fashion_style",
+    "angle": "MJ's influence on the armband trend of the 1980s, which spread from his stage look to mainstream fashion within months of his first wearing it publicly"
+  },
+  {
+    "id": "fashion_style_013",
+    "category": "fashion_style",
+    "angle": "MJ wearing a custom suit designed by Gianni Versace to the 1995 MTV Video Music Awards, one of his most photographed non-stage fashion moments"
+  },
+  {
+    "id": "fashion_style_014",
+    "category": "fashion_style",
+    "angle": "MJ's stage shoes designed with a special locking mechanism in the heel to allow the gravity-defying forward lean seen in the Smooth Criminal video"
+  },
+  {
+    "id": "fashion_style_015",
+    "category": "fashion_style",
+    "angle": "MJ's wardrobe for the Moonwalker film featuring dozens of custom-made pieces designed by Michael Bush and Dennis Tompkins"
+  },
+  {
+    "id": "fashion_style_016",
+    "category": "fashion_style",
+    "angle": "MJ's gold military jacket worn during the HIStory Tour which weighed over 50 pounds due to its metal ornamentation and required physical training to perform in"
+  },
+  {
+    "id": "fashion_style_017",
+    "category": "fashion_style",
+    "angle": "MJ's influence on the fashion industry being documented by the Victoria and Albert Museum in London which held an exhibition exploring his style impact"
+  },
+  {
+    "id": "fashion_style_018",
+    "category": "fashion_style",
+    "angle": "MJ's Off The Wall era look featuring tuxedo jackets and high-waisted pants which he styled himself drawing on classic Hollywood glamour aesthetics"
+  },
+  {
+    "id": "fashion_style_019",
+    "category": "fashion_style",
+    "angle": "MJ's use of tape on his fingers during performances which became part of his visual signature and was incorporated into his stage aesthetic"
+  },
+  {
+    "id": "fashion_style_020",
+    "category": "fashion_style",
+    "angle": "MJ's crystal gloves being so influential that they spawned an entire category of rhinestone accessories in fashion that peaked in the mid-1980s"
+  },
+  {
+    "id": "fashion_style_021",
+    "category": "fashion_style",
+    "angle": "MJ wearing a custom Swarovski crystal-encrusted jacket for the Dangerous album cover shoot that took weeks to manufacture"
+  },
+  {
+    "id": "fashion_style_022",
+    "category": "fashion_style",
+    "angle": "MJ's Thriller-era Jheri curl hairstyle being one of the most widely copied looks in the early 1980s across Black American culture"
+  },
+  {
+    "id": "fashion_style_023",
+    "category": "fashion_style",
+    "angle": "MJ's stage costumes from the Bad World Tour being documented in a book by costume designers Michael Bush and Dennis Tompkins published in 2012"
+  },
+  {
+    "id": "fashion_style_024",
+    "category": "fashion_style",
+    "angle": "MJ wearing a custom Robert Lee Morris designed pendant and jewelry pieces during the Dangerous era"
+  },
+  {
+    "id": "fashion_style_025",
+    "category": "fashion_style",
+    "angle": "MJ's signature look being named one of the most influential in fashion history by multiple publications including Vogue and GQ"
+  },
+  {
+    "id": "fashion_style_026",
+    "category": "fashion_style",
+    "angle": "MJ's This Is It rehearsal footage showing him in custom designed rehearsal wear that balanced functionality with his signature aesthetic"
+  },
+  {
+    "id": "fashion_style_027",
+    "category": "fashion_style",
+    "angle": "MJ's white socks worn deliberately three inches above the ankle specifically to ensure they were visible during his footwork and dance sequences"
+  },
+  {
+    "id": "fashion_style_028",
+    "category": "fashion_style",
+    "angle": "MJ's fashion archive containing over 200,000 items being managed by the Michael Jackson Estate and loaned to exhibitions worldwide after his death"
+  },
+  {
+    "id": "fashion_style_029",
+    "category": "fashion_style",
+    "angle": "MJ working with Japanese fashion designer Yohji Yamamoto for elements of his later stage wardrobe"
+  },
+  {
+    "id": "fashion_style_030",
+    "category": "fashion_style",
+    "angle": "MJ's Billie Jean performance outfit at Motown 25 being voted the most iconic television fashion moment of the 20th century in multiple polls"
+  },
+  {
+    "id": "recording_innovation_001",
+    "category": "recording_innovation",
+    "angle": "MJ and producer Quincy Jones using the SSL mixing console at Westlake Audio in Los Angeles for the Thriller album, one of the first major pop albums recorded on the system"
+  },
+  {
+    "id": "recording_innovation_002",
+    "category": "recording_innovation",
+    "angle": "MJ's vocal technique on Billie Jean of singing individual syllables with different timbres to create internal rhythm within the melody, a technique analyzed by musicologists"
+  },
+  {
+    "id": "recording_innovation_003",
+    "category": "recording_innovation",
+    "angle": "Bruce Swedien developing the custom mixing technique he called Acusonic Recording Process specifically for MJ's recordings starting with Off The Wall in 1979"
+  },
+  {
+    "id": "recording_innovation_004",
+    "category": "recording_innovation",
+    "angle": "MJ's use of beatboxing and vocal percussion to demonstrate drum patterns to producers and musicians in the studio, which influenced how the rhythms on Thriller were constructed"
+  },
+  {
+    "id": "recording_innovation_005",
+    "category": "recording_innovation",
+    "angle": "The Thriller album using over 24 tracks of just Michael's voice layered together in the vocal production by Bruce Swedien and Quincy Jones"
+  },
+  {
+    "id": "recording_innovation_006",
+    "category": "recording_innovation",
+    "angle": "MJ and Quincy Jones using the Linn LM-1 drum machine on Billie Jean, one of the earliest uses of this machine on a number one pop hit"
+  },
+  {
+    "id": "recording_innovation_007",
+    "category": "recording_innovation",
+    "angle": "MJ's insistence on recording his vocals live in the studio while also dancing, rather than recording stationary, because he felt physical movement improved his vocal performance"
+  },
+  {
+    "id": "recording_innovation_008",
+    "category": "recording_innovation",
+    "angle": "The use of the Synclavier digital synthesizer on the Bad album, operated by programmer Matt Forger under Quincy Jones's direction, creating sounds previously impossible in pop production"
+  },
+  {
+    "id": "recording_innovation_009",
+    "category": "recording_innovation",
+    "angle": "MJ co-writing and demoing songs by humming all the parts including basslines, drum patterns, and orchestration onto cassette tapes before bringing them to the studio"
+  },
+  {
+    "id": "recording_innovation_010",
+    "category": "recording_innovation",
+    "angle": "The recording of Smooth Criminal using a click track at an unusual tempo specifically to support MJ's choreography requirements rather than standard musical convention"
+  },
+  {
+    "id": "recording_innovation_011",
+    "category": "recording_innovation",
+    "angle": "MJ's use of the whisper register in songs like Lady in My Life on Thriller which Bruce Swedien recorded with specialized microphone placement techniques"
+  },
+  {
+    "id": "recording_innovation_012",
+    "category": "recording_innovation",
+    "angle": "The Dangerous album being produced with multiple producers simultaneously including Teddy Riley who brought New Jack Swing production techniques to MJ's sound"
+  },
+  {
+    "id": "recording_innovation_013",
+    "category": "recording_innovation",
+    "angle": "MJ and Teddy Riley recording Black or White in 1991 using digital production methods that were groundbreaking for a mainstream pop record of that scale"
+  },
+  {
+    "id": "recording_innovation_014",
+    "category": "recording_innovation",
+    "angle": "The recording of Earth Song in 1994 using a 100-piece orchestra recorded at the Hit Factory in New York, one of MJ's most complex studio productions"
+  },
+  {
+    "id": "recording_innovation_015",
+    "category": "recording_innovation",
+    "angle": "MJ's vocal producer on the HIStory album Brad Buxer working with him to develop the atmospheric sound design that differentiated the album from his earlier work"
+  },
+  {
+    "id": "recording_innovation_016",
+    "category": "recording_innovation",
+    "angle": "The use of the Fairlight CMI digital sampling instrument on MJ's Off The Wall sessions in 1978, one of the earliest uses in commercial pop recording"
+  },
+  {
+    "id": "recording_innovation_017",
+    "category": "recording_innovation",
+    "angle": "MJ recording multiple versions of each vocal take and editing between them to create composite performances, a technique he refined with Bruce Swedien over 30 years"
+  },
+  {
+    "id": "recording_innovation_018",
+    "category": "recording_innovation",
+    "angle": "The recording of Don't Stop Til You Get Enough in 1979 featuring MJ's self-produced demo as the foundation, with Quincy Jones building the arrangement around his original concept"
+  },
+  {
+    "id": "recording_innovation_019",
+    "category": "recording_innovation",
+    "angle": "MJ's studio at Neverland Ranch being equipped with a full professional recording suite where he developed demo recordings throughout the 1990s"
+  },
+  {
+    "id": "recording_innovation_020",
+    "category": "recording_innovation",
+    "angle": "The Invincible album in 2001 being one of the first major pop albums to be recorded entirely in digital formats without using analog tape at any stage"
+  },
+  {
+    "id": "recording_innovation_021",
+    "category": "recording_innovation",
+    "angle": "MJ working with producer Dr. Freeze on You Rock My World for the Invincible album, blending contemporary R&B production with MJ's classic vocal style"
+  },
+  {
+    "id": "recording_innovation_022",
+    "category": "recording_innovation",
+    "angle": "The sampling of MJ's vocals by hundreds of hip-hop producers in the 1990s being documented by Billboard as one of the most sampled voices in the genre's history"
+  },
+  {
+    "id": "recording_innovation_023",
+    "category": "recording_innovation",
+    "angle": "MJ's use of found sounds and environmental recordings in the production of Thriller's title track including the famous Vincent Price spoken word recorded in one take"
+  },
+  {
+    "id": "recording_innovation_024",
+    "category": "recording_innovation",
+    "angle": "Bruce Swedien's recording of the drum sound on Billy Jean using a single Ludwig snare drum with specific room ambience that became one of the most recognizable drum sounds in pop history"
+  },
+  {
+    "id": "recording_innovation_025",
+    "category": "recording_innovation",
+    "angle": "MJ recording his vocal for We Are the World in a single session late at night after all other artists had finished, with Quincy Jones specifically scheduling him last"
+  },
+  {
+    "id": "recording_innovation_026",
+    "category": "recording_innovation",
+    "angle": "The production of Jam on the Dangerous album featuring a sample-based foundation built by Heavy D that MJ then constructed his vocal melody around rather than the reverse"
+  },
+  {
+    "id": "recording_innovation_027",
+    "category": "recording_innovation",
+    "angle": "MJ's approach of writing songs in story form first before adapting them to music, which he described in the 1999 Oxford Union speech as his core creative process"
+  },
+  {
+    "id": "recording_innovation_028",
+    "category": "recording_innovation",
+    "angle": "The recording of Man in the Mirror in 1987 using the Andrae Crouch choir adding 30 gospel voices to a track that had been produced as a solo performance"
+  },
+  {
+    "id": "recording_innovation_029",
+    "category": "recording_innovation",
+    "angle": "MJ's collaboration with producer David Foster on songs in the early 1980s where he first developed the technique of writing melody before lyrics"
+  },
+  {
+    "id": "recording_innovation_030",
+    "category": "recording_innovation",
+    "angle": "The studio documentation of MJ's creative process during the Thriller sessions being preserved in audio recordings and notes that are part of the Michael Jackson Estate archives"
+  }
+]
 
 def load_stories():
     """Load stories from volume file or fall back to embedded"""
@@ -1190,7 +2886,7 @@ mutation CreatePost($input: CreatePostInput!) {
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
 
-MJ_STUDIO_JS = '\nconsole.log("MJ Studio v2.1 loaded");\nconst PILLAR_MAP = {\n    music_videos: "Iconic music videos - breakdowns, cultural impact, and the creative process behind Thriller, Beat It, Billie Jean, Black or White, Smooth Criminal",\n    albums: "Album deep dives - Off the Wall, Thriller, Bad, Dangerous, HIStory, Invincible: recording process, collaborators, chart performance",\n    performances: "Live performances and concert tours - Victory Tour, Bad Tour, Dangerous Tour, HIStory Tour, This Is It",\n    dance: "Dance - the moonwalk debut on Motown 25 (May 16 1983), signature moves, choreography evolution, influence on dancers",\n    fashion: "Fashion evolution - documented iconic outfits, the red jacket, military jackets, fedora, single glove, designer collaborations",\n    collaborations: "Collaborations with legendary artists - Paul McCartney, Quincy Jones, Siedah Garrett, Eddie Van Halen, and others",\n    humanitarian: "Humanitarian work - Heal the World Foundation, We Are the World, documented charity contributions",\n    rare: "Rare and lesser-known documented moments - confirmed public appearances, documented interviews, publicly recorded events",\n    influence: "Influence on modern artists - documented tributes, confirmed statements about MJ\'s influence on contemporary music",\n    fans: "Fan stories and community - the global fan community, documented fan events, enduring connection with his audience",\n    records: "Record-breaking achievements - Billboard chart records, Grammy wins, Thriller as best-selling album, Guinness World Records",\n    making_of: "The making of specific songs - documented studio stories, confirmed creative process details, iconic tracks"\n  };\n\nconst S = {\n  bufferToken: localStorage.getItem(\'mj_buffer\') || \'\',\n  profileIds: (localStorage.getItem(\'mj_profiles\') || \'\').split(\',\').filter(Boolean),\n  geminiKey: localStorage.getItem(\'mj_gemini\') || \'\',\n  tone: \'cinematic\', cta: \'engagement\',\n  imagePosts: [], banners: [], shortVideos: [], longVideos: [], carousels: []\n};\n\n// -- PERSISTENCE -------------------------------------------\nfunction savePosts() {\n  try {\n    localStorage.setItem(\'mj_imagePosts\', JSON.stringify(S.imagePosts));\n    localStorage.setItem(\'mj_banners\', JSON.stringify(S.banners));\n    localStorage.setItem(\'mj_shortVideos\', JSON.stringify(S.shortVideos));\n    localStorage.setItem(\'mj_longVideos\', JSON.stringify(S.longVideos));\n    localStorage.setItem(\'mj_carousels\', JSON.stringify(S.carousels));\n  } catch(e) { console.warn(\'Save error:\', e); }\n}\nfunction loadPosts() {\n  try {\n    const ip = localStorage.getItem(\'mj_imagePosts\');\n    const bn = localStorage.getItem(\'mj_banners\');\n    const sv = localStorage.getItem(\'mj_shortVideos\');\n    const lv = localStorage.getItem(\'mj_longVideos\');\n    const cr = localStorage.getItem(\'mj_carousels\');\n    if (ip) S.imagePosts = JSON.parse(ip);\n    if (bn) S.banners = JSON.parse(bn);\n    // Only load videos if they have new format (images array)\n    if (sv) { const svp = JSON.parse(sv); if (svp.length && svp[0].images) S.shortVideos = svp; }\n    if (lv) { const lvp = JSON.parse(lv); if (lvp.length && lvp[0].images) S.longVideos = lvp; }\n    if (cr) S.carousels = JSON.parse(cr);\n  } catch(e) { console.warn(\'Load error:\', e); }\n}\n\n// -- INIT --------------------------------------------------\ndocument.getElementById(\'settings-btn\').addEventListener(\'click\', () => {\n  document.getElementById(\'set-buffer\').value = S.bufferToken;\n  document.getElementById(\'set-profiles\').value = S.profileIds.join(\',\');\n  document.getElementById(\'set-gemini\').value = S.geminiKey;\n  document.getElementById(\'settings-modal\').style.display = \'flex\';\n  refreshStoryStats();\n  const h = getTopicHistory();\n  const el = document.getElementById(\'topic-count-display\');\n  if (el) el.textContent = h.length + \' topics tracked (\' + (60 - h.length) + \' slots remaining)\';\n});\ndocument.getElementById(\'cancel-settings-btn\').addEventListener(\'click\', () => {\n  document.getElementById(\'settings-modal\').style.display = \'none\';\n});\ndocument.getElementById(\'save-settings-btn\').addEventListener(\'click\', () => {\n  S.bufferToken = document.getElementById(\'set-buffer\').value.trim();\n  S.profileIds = document.getElementById(\'set-profiles\').value.split(\',\').map(s=>s.trim()).filter(Boolean);\n  S.geminiKey = document.getElementById(\'set-gemini\').value.trim();\n  localStorage.setItem(\'mj_buffer\', S.bufferToken);\n  localStorage.setItem(\'mj_profiles\', S.profileIds.join(\',\'));\n  localStorage.setItem(\'mj_gemini\', S.geminiKey);\n  document.getElementById(\'settings-modal\').style.display = \'none\';\n  toast(\'Settings saved!\');\n});\n\ndocument.querySelectorAll(\'.tab\').forEach(tab => {\n  tab.addEventListener(\'click\', () => {\n    try {\n      document.querySelectorAll(\'.tab\').forEach(t => t.classList.remove(\'on\'));\n      document.querySelectorAll(\'.pane\').forEach(p => p.classList.remove(\'on\'));\n      tab.classList.add(\'on\');\n      const pane = document.getElementById(\'pane-\' + tab.dataset.tab);\n      if (pane) pane.classList.add(\'on\');\n    } catch(e) { console.error(\'Tab error:\', e); }\n  });\n});\n\n\n// Tone/CTA chips\ndocument.getElementById(\'tone-chips\').addEventListener(\'click\', e => {\n  const chip = e.target.closest(\'.chip\');\n  if (!chip) return;\n  document.querySelectorAll(\'#tone-chips .chip\').forEach(c => c.classList.remove(\'on\'));\n  chip.classList.add(\'on\');\n  S.tone = chip.dataset.tone;\n});\ndocument.getElementById(\'cta-chips\').addEventListener(\'click\', e => {\n  const chip = e.target.closest(\'.chip\');\n  if (!chip) return;\n  document.querySelectorAll(\'#cta-chips .chip\').forEach(c => c.classList.remove(\'on\'));\n  chip.classList.add(\'on\');\n  S.cta = chip.dataset.cta;\n});\ndocument.getElementById(\'gen-img-btn\').addEventListener(\'click\', generateImages);\ndocument.getElementById(\'clear-images-btn\').addEventListener(\'click\', () => clearContent(\'images\'));\ndocument.getElementById(\'gen-banner-btn\').addEventListener(\'click\', generateBanners);\ndocument.getElementById(\'clear-banners-btn\').addEventListener(\'click\', () => clearContent(\'banners\'));\ndocument.getElementById(\'gen-short-btn\').addEventListener(\'click\', () => generateVideos(\'short\'));\ndocument.getElementById(\'clear-shorts-btn\').addEventListener(\'click\', () => clearContent(\'shorts\'));\ndocument.getElementById(\'gen-long-btn\').addEventListener(\'click\', () => generateVideos(\'long\'));\ndocument.getElementById(\'clear-longs-btn\').addEventListener(\'click\', () => clearContent(\'longs\'));\n\n// Event delegation\ndocument.addEventListener(\'click\', e => {\n  const btn = e.target.closest(\'[data-action]\');\n  if (!btn) return;\n  const action = btn.dataset.action;\n  const type = btn.dataset.type || \'img\';\n  const idx = parseInt(btn.dataset.idx || \'0\');\n  const field = btn.dataset.field || \'\';\n  if (action === \'upload\') document.getElementById(\'file-\' + type + \'-\' + idx).click();\n  if (action === \'regen\') genImage(type, idx);\n  if (action === \'copy\') { const item = getArr(type)[idx]; copyToClipboard(item[field]||\'\'); }\n  if (action === \'sectab\') {\n    const panes = btn.dataset.panes.split(\',\');\n    const show = btn.dataset.show;\n    panes.forEach(id => { const p = document.getElementById(id); if(p) p.classList.remove(\'on\'); });\n    const sp = document.getElementById(show); if(sp) sp.classList.add(\'on\');\n    btn.closest(\'.sec-tabs\').querySelectorAll(\'.sec-tab\').forEach(t => t.classList.remove(\'on\'));\n    btn.classList.add(\'on\');\n  }\n});\ndocument.addEventListener(\'change\', e => {\n  const input = e.target;\n  if (input.dataset.fileType) {\n    const f = input.files[0]; if (!f) return;\n    const r = new FileReader();\n    r.onload = ev => applyImage(input.dataset.fileType, parseInt(input.dataset.fileIdx), ev.target.result);\n    r.readAsDataURL(f);\n  }\n});\ndocument.addEventListener(\'dragover\', e => { if (e.target.closest(\'.drop-zone\')) e.preventDefault(); });\ndocument.addEventListener(\'dragleave\', e => { const dz = e.target.closest(\'.drop-zone\'); if(dz) dz.classList.remove(\'over\'); });\ndocument.addEventListener(\'dragenter\', e => { const dz = e.target.closest(\'.drop-zone\'); if(dz) dz.classList.add(\'over\'); });\ndocument.addEventListener(\'drop\', e => {\n  const dz = e.target.closest(\'[data-drop-type]\');\n  if (!dz) return;\n  e.preventDefault(); dz.classList.remove(\'over\');\n  const f = e.dataTransfer.files[0];\n  if (!f || !f.type.startsWith(\'image/\')) { toast(\'Drop an image file\'); return; }\n  const r = new FileReader();\n  r.onload = ev => applyImage(dz.dataset.dropType, parseInt(dz.dataset.dropIdx), ev.target.result);\n  r.readAsDataURL(f);\n});\n\n// -- HELPERS -----------------------------------------------\nfunction copyToClipboard(text, title) {\n  // On mobile, show a modal with the text for easy selection/copy\n  if (window.innerWidth <= 680) {\n    showCopyModal(text, title || \'Copy Text\');\n    return;\n  }\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => toast(\'Copied!\')).catch(() => fallbackCopy(text));\n  } else {\n    fallbackCopy(text);\n  }\n}\n\nfunction fallbackCopy(text) {\n  const ta = document.createElement(\'textarea\');\n  ta.value = text;\n  ta.style.cssText = \'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;\';\n  document.body.appendChild(ta);\n  ta.focus(); ta.select();\n  try { document.execCommand(\'copy\'); toast(\'Copied!\'); }\n  catch(e) { showCopyModal(text, \'Copy Text\'); }\n  document.body.removeChild(ta);\n}\n\nfunction showCopyModal(text, title) {\n  document.getElementById(\'copy-modal-title\').textContent = title || \'Copy Text\';\n  document.getElementById(\'copy-modal-text\').value = text;\n  document.getElementById(\'copy-modal\').style.display = \'flex\';\n  setTimeout(() => {\n    const ta = document.getElementById(\'copy-modal-text\');\n    ta.focus(); ta.select();\n    ta.setSelectionRange(0, 99999);\n  }, 100);\n}\n\nfunction closeCopyModal() {\n  document.getElementById(\'copy-modal\').style.display = \'none\';\n}\n\n\nfunction copyToClipboard(text) {\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => toast(\'Copied!\')).catch(() => fallbackCopy(text));\n  } else {\n    fallbackCopy(text);\n  }\n}\n\nfunction fallbackCopy(text) {\n  const ta = document.createElement(\'textarea\');\n  ta.value = text;\n  ta.style.cssText = \'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;\';\n  document.body.appendChild(ta);\n  ta.focus(); ta.select();\n  try { document.execCommand(\'copy\'); toast(\'Copied!\'); }\n  catch(e) { toast(\'Copy failed - long press text to copy\', true); }\n  document.body.removeChild(ta);\n}\nfunction toast(msg, isError) {\n  const t = document.getElementById(\'toast\');\n  t.textContent = msg;\n  t.style.background = isError ? \'#3A1010\' : \'var(--dark2)\';\n  t.style.borderColor = isError ? \'#AA3D3D\' : \'var(--border)\';\n  t.style.color = isError ? \'#D48A8A\' : \'var(--gold-light)\';\n  t.classList.add(\'show\');\n  clearTimeout(t._timer);\n  t._timer = setTimeout(() => t.classList.remove(\'show\'), isError ? 12000 : 3500);\n}\nfunction setP(fId, lId, pct, label) {\n  const f = document.getElementById(fId); if(f) f.style.width = pct + \'%\';\n  const l = document.getElementById(lId); if(l) l.textContent = label;\n}\nfunction updateStats() {\n  document.getElementById(\'s-images\').textContent = S.imagePosts.length;\n  document.getElementById(\'s-banners\').textContent = S.banners.length;\n  document.getElementById(\'s-videos\').textContent = S.shortVideos.length + S.longVideos.length;\n  document.getElementById(\'s-sched\').textContent = [...S.imagePosts,...S.banners,...S.shortVideos,...S.longVideos].filter(p=>p.scheduled).length;\n}\nfunction parseTime(s) {\n  const m = s.trim().toUpperCase().match(/([0-9]+):([0-9]+)[ ]*(AM|PM)?/);\n  if (!m) return {h:8,m:0};\n  let h = parseInt(m[1]), min = parseInt(m[2]);\n  if (m[3]===\'PM\'&&h<12) h+=12;\n  if (m[3]===\'AM\'&&h===12) h=0;\n  return {h, m:min};\n}\nfunction addMins(t, mins) { const total = t.h*60+t.m+mins; return {h:Math.floor(total/60)%24, m:total%60}; }\nfunction fmtTime(t) { const h=t.h%12||12, ap=t.h<12?\'AM\':\'PM\'; return h+\':\'+String(t.m).padStart(2,\'0\')+\' \'+ap; }\nfunction esc(s) { return String(s).replace(/&/g,\'&amp;\').replace(/</g,\'&lt;\').replace(/>/g,\'&gt;\'); }\nfunction getArr(type) {\n  return type===\'img\'?S.imagePosts:type===\'banner\'?S.banners:type===\'short\'?S.shortVideos:S.longVideos;\n}\n\n// -- GENERATE IMAGE POSTS ----------------------------------\n\nfunction getOverride(paneId) {\n  const pillarVal = document.getElementById(paneId + \'-pillar-select\');\n  const topicVal = document.getElementById(paneId + \'-topic-input\');\n  const pillar = pillarVal ? pillarVal.value : \'\';\n  const topic = topicVal ? topicVal.value.trim() : \'\';\n  \n  let override = \'\';\n  if (pillar && PILLAR_MAP[pillar]) {\n    override = PILLAR_MAP[pillar];\n  }\n  if (topic) {\n    override = override ? override + \' - specifically: \' + topic : topic;\n  }\n  return override;\n}\n\nasync function generateImages() {\n  const count = Math.min(parseInt(document.getElementById(\'post-count\').value) || 10, 10);\n  const override = getOverride(\'img\');\n  const btn = document.getElementById(\'gen-img-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(\'img-prog-wrap\').style.display = \'block\';\n  setP(\'img-prog-fill\',\'img-prog-label\',15,\'Selecting pillars and generating posts...\');\n  try {\n    const res = await fetch(\'/mj/api/generate\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({count, themeOverride: override, tone: S.tone, cta: S.cta, exclusions: getExclusions()})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(\'img-prog-fill\',\'img-prog-label\',100,\'Posts ready!\');\n    S.imagePosts = data.posts.map((p,i) => ({id:i, type:\'image\', ...p, imgUrl:null, scheduled:false}));\n    addTopicsToHistory(data.posts);\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(\'img-prog-wrap\').style.display = \'none\';\n      renderImagePosts(); updateStats(); renderSchedule(); refreshStoryStats();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(\'img-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate Image Posts\';\n}\n\n// -- GENERATE BANNERS --------------------------------------\nasync function generateBanners() {\n  const override = getOverride(\'banner\');\n  const btn = document.getElementById(\'gen-banner-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(\'banner-prog-wrap\').style.display = \'block\';\n  setP(\'banner-prog-fill\',\'banner-prog-label\',15,\'Creating banner concepts...\');\n  try {\n    const res = await fetch(\'/mj/api/generate-banner\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({count:3, themeOverride:override})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(\'banner-prog-fill\',\'banner-prog-label\',100,\'Banners ready!\');\n    S.banners = data.banners.map((b,i) => ({id:i, type:\'banner\', ...b, imgUrl:null, scheduled:false}));\n    addTopicsToHistory(data.banners);\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(\'banner-prog-wrap\').style.display = \'none\';\n      renderBanners(); updateStats(); renderSchedule(); refreshStoryStats();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(\'banner-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate 3 Banners\';\n}\n\n// -- GENERATE VIDEOS ---------------------------------------\nasync function generateVideos(type) {\n  const btn = document.getElementById(\'gen-\'+type+\'-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(type+\'-prog-wrap\').style.display = \'block\';\n  setP(type+\'-prog-fill\', type+\'-prog-label\', 15, \'Writing scripts...\');\n  try {\n    const res = await fetch(\'/mj/api/generate-video\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({videoType:type, count:3, themeOverride: getOverride(type), exclusions: getExclusions()})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(type+\'-prog-fill\', type+\'-prog-label\', 100, \'Scripts ready!\');\n    const arr = data.videos.map((v,i) => ({id:i, type, ...v, imgUrl:null, scheduled:false}));\n    if (type===\'short\') S.shortVideos = arr; else S.longVideos = arr;\n    addTopicsToHistory(data.videos);\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(type+\'-prog-wrap\').style.display = \'none\';\n      renderVideos(type); updateStats(); renderSchedule(); refreshStoryStats();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(type+\'-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate 3 \'+(type===\'short\'?\'Short\':\'Long\')+\' Scripts\';\n}\n\n// -- CARD BUILDER ------------------------------------------\nfunction buildCard(type, idx, item, time, typeLabel, typeCls, s1text, s2text, s3text, tab1label, tab2label) {\n  const dotCls = item.imgUrl ? (item.scheduled?\'dot-s\':\'dot-r\') : \'dot-p\';\n  const statusTxt = item.scheduled ? \'Scheduled\' : item.imgUrl ? \'Image ready\' : type===\'banner\' ? \'Paste prompt into image tool\' : \'Upload or generate image\';\n  const pane1id = type+\'-s1-\'+idx;\n  const pane2id = type+\'-s2-\'+idx;\n  const allPanes = pane1id+\',\'+pane2id;\n\n  let imgColHTML;\n  if (type === \'banner\') {\n    imgColHTML = item.imgUrl\n      ? \'<img src="\'+esc(item.imgUrl)+\'" class="img-preview" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" title="Click to replace">\'\n      : \'<div class="banner-placeholder"><span style="font-size:20px">&#127775;</span><span>Generate in<br>OpenArt or<br>Gemini</span></div>\';\n  } else {\n    imgColHTML = item.imgUrl\n      ? \'<img src="\'+esc(item.imgUrl)+\'" class="img-preview" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" title="Click to replace">\'\n      : \'<div class="drop-zone" data-drop-type="\'+type+\'" data-drop-idx="\'+idx+\'" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'"><span class="dz-icon">&#9727;</span><span>Generate or drop</span></div>\';\n  }\n\n  const copyBtnField1 = type===\'img\'?\'imagePrompt\':type===\'banner\'?\'bannerPrompt\':\'videoScript\';\n  const copyBtn1Label = type===\'img\'?\'Prompt\':type===\'banner\'?\'Banner Prompt\':\'Script\';\n  const schedDisabled = (type===\'banner\' && !item.imgUrl) || (type!==\'banner\' && !item.imgUrl) ? \' disabled\' : \'\';\n\n  return \'<div class="card-head">\'\n    +(type===\'img\' ? \'<input type="checkbox" class="post-select-cb" data-idx="\'+idx+\'" checked style="accent-color:var(--gold);width:15px;height:15px;margin-right:6px;cursor:pointer;flex-shrink:0;" title="Deselect to exclude from Buffer">\' : \'\')\n    +\'<span class="card-num">#\'+String(idx+1).padStart(2,\'0\')+\'</span>\'\n    +(item.pillar ? \'<span class="card-pillar">\'+esc(item.pillar)+\'</span>\' : \'\')\n    +\'<span class="card-type \'+typeCls+\'">\'+typeLabel+\'</span>\'\n    +\'<span class="card-time">\'+time+\'</span>\'\n    +(type===\'img\' ? \'<button class="remove-post-btn" data-remove-idx="\'+idx+\'" style="margin-left:auto;background:none;border:none;color:var(--hint);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;" title="Remove this post">x</button>\' : \'\')\n    +\'</div>\'\n    +\'<div class="card-body">\'\n    +\'<div class="card-text">\'\n    +\'<div class="sec-tabs">\'\n    +\'<div class="sec-tab on" data-action="sectab" data-panes="\'+allPanes+\'" data-show="\'+pane1id+\'">\'+tab1label+\'</div>\'\n    +\'<div class="sec-tab" data-action="sectab" data-panes="\'+allPanes+\'" data-show="\'+pane2id+\'">\'+tab2label+\'</div>\'\n    +\'</div>\'\n    +\'<div class="sec-pane on" id="\'+pane1id+\'"><div class="section-text\'+(type===\'img\'?\' prompt\':\'\')+\'">\'+esc(s1text||\'\')+\'</div></div>\'\n    +\'<div class="sec-pane" id="\'+pane2id+\'"><div class="section-text">\'+esc(s2text||\'\')+\'</div></div>\'\n    +\'<div class="first-comment-block"><div class="first-comment-label">First Comment</div><div class="first-comment-text">\'+esc(s3text||\'\')+\'</div></div>\'\n    +(item.source ? \'<div style="margin-top:6px;padding:5px 10px;background:rgba(201,168,76,.06);border-radius:4px;border-left:2px solid var(--gold-dim);"><span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);">Source </span><span style="font-size:11px;color:var(--muted);">\'+esc(item.source||\'\')+\'</span></div>\' : \'\')\n    +\'</div>\'\n    +\'<div class="card-img-col">\'\n    +\'<input type="file" id="file-\'+type+\'-\'+idx+\'" accept="image/*" data-file-type="\'+type+\'" data-file-idx="\'+idx+\'" style="display:none">\'\n    +\'<div id="img-\'+type+\'-\'+idx+\'">\'+imgColHTML+\'</div>\'\n    +(type!==\'banner\' ? \'<button class="mbtn" data-action="regen" data-type="\'+type+\'" data-idx="\'+idx+\'" style="font-size:10px;">&#8635; Regen</button>\' : \'<button class="mbtn" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" style="font-size:10px;">&#8679; Upload</button>\')\n    +\'</div>\'\n    +\'</div>\'\n    +\'<div class="card-foot">\'\n    +\'<div class="s-dot \'+dotCls+\'" id="dot-\'+type+\'-\'+idx+\'"></div>\'\n    +\'<span class="s-txt" id="stxt-\'+type+\'-\'+idx+\'">\'+statusTxt+\'</span>\'\n    +\'<button class="mbtn" data-action="copy" data-type="\'+type+\'" data-idx="\'+idx+\'" data-field="\'+copyBtnField1+\'">\'+copyBtn1Label+\'</button>\'\n    +\'<button class="mbtn" data-action="copy" data-type="\'+type+\'" data-idx="\'+idx+\'" data-field="\'+(type===\'img\'||type===\'banner\'?\'caption\':\'captionAndHashtags\')+\'">Caption</button>\'\n    +\'<button class="mbtn" data-action="copy" data-type="\'+type+\'" data-idx="\'+idx+\'" data-field="firstComment">Comment</button>\'\n    +\'</div>\';\n}\n\n// Fix caption field name for image posts\nfunction buildCardHTML(type, idx, item, time, typeLabel, typeCls) {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  if (type === \'img\') {\n    return buildCard(type, idx, item, time, typeLabel, typeCls,\n      item.imagePrompt, item.caption, item.firstComment, \'Image Prompt\', \'Caption & Hashtags\');\n  } else if (type === \'banner\') {\n    return buildCard(type, idx, item, time, typeLabel, typeCls,\n      item.bannerPrompt, item.caption, item.firstComment, \'Banner Prompt\', \'Caption & Hashtags\');\n  } else {\n    var imgs = item.images || [];\n    var voiceover = item.voiceoverScript || item.videoScript || \'\';\n    return buildCard(type, idx, item, time, typeLabel, typeCls,\n      voiceover, item.captionAndHashtags, item.firstComment, \'Voiceover Script\', \'Caption & Hashtags\');\n  }\n}\n\n// -- RENDER FUNCTIONS --------------------------------------\nfunction renderImagePosts() {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const container = document.getElementById(\'images-container\');\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  S.imagePosts.forEach((p, i) => {\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = \'img-card-\'+i;\n    card.innerHTML = buildCardHTML(\'img\', i, p, fmtTime(addMins(start, i*intv)), \'IMAGE\', \'type-image\');\n    list.appendChild(card);\n  });\n  container.appendChild(list);\n}\n\nfunction renderBanners() {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = S.imagePosts.length;\n  const container = document.getElementById(\'banners-container\');\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  S.banners.forEach((b, i) => {\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = \'banner-card-\'+i;\n    card.innerHTML = buildCardHTML(\'banner\', i, b, fmtTime(addMins(start, (baseOff+i)*intv)), \'BANNER\', \'type-banner\');\n    list.appendChild(card);\n  });\n  container.appendChild(list);\n}\n\n\nfunction renderVideos(type) {\n  const arr = type===\'short\' ? S.shortVideos : S.longVideos;\n  const container = document.getElementById(type===\'short\'?\'shorts-container\':\'longs-container\');\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = S.imagePosts.length + S.banners.length + (type===\'long\' ? 3 : 0);\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  arr.forEach((v, i) => {\n    const typeCls = type===\'short\'?\'type-short\':\'type-long\';\n    const typeLabel = type===\'short\'?\'SHORT 30s\':\'LONG 60s\';\n    const wrapper = document.createElement(\'div\');\n    wrapper.style.marginBottom = \'8px\';\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = type+\'-card-\'+i;\n    card.innerHTML = buildCardHTML(type, i, v, fmtTime(addMins(start, (baseOff+i)*intv)), typeLabel, typeCls);\n    wrapper.appendChild(card);\n    // Append all image prompts below the card\n    var imgs = (v.images || []);\n    if (imgs.length > 1) {\n      var imgDiv = document.createElement(\'div\');\n      imgDiv.style.cssText = \'background:var(--dark2);border:1px solid var(--dark3);border-top:none;border-radius:0 0 10px 10px;padding:12px 16px;margin-bottom:4px;\';\n      var hdr = document.createElement(\'div\');\n      hdr.style.cssText = \'font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:10px;\';\n      hdr.textContent = \'ALL \' + imgs.length + \' IMAGE PROMPTS - 9:16 for Seedance/Kling\';\n      imgDiv.appendChild(hdr);\n      imgs.forEach(function(img) {\n        var row = document.createElement(\'div\');\n        row.style.marginBottom = \'10px\';\n        var lbl = document.createElement(\'div\');\n        lbl.style.cssText = \'font-size:9px;font-weight:700;color:var(--gold);margin-bottom:3px;\';\n        lbl.textContent = \'IMAGE \' + img.num;\n        var txt = document.createElement(\'div\');\n        txt.style.cssText = \'font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;margin-bottom:4px;\';\n        txt.textContent = img.prompt || \'\';\n        var btn = document.createElement(\'button\');\n        btn.className = \'mbtn\';\n        btn.style.fontSize = \'10px\';\n        btn.textContent = \'Copy\';\n        (function(p) {\n          btn.addEventListener(\'click\', function() {\n            if (navigator.clipboard) {\n              navigator.clipboard.writeText(p).then(function() {\n                btn.textContent = \'Copied!\';\n                setTimeout(function() { btn.textContent = \'Copy\'; }, 1500);\n              });\n            } else { showCopyModal(p); }\n          });\n        })(img.prompt || \'\');\n        row.appendChild(lbl);\n        row.appendChild(txt);\n        row.appendChild(btn);\n        imgDiv.appendChild(row);\n      });\n      // Copy all button\n      var allText = imgs.map(function(img) { return \'Image \' + img.num + \':\\n\' + (img.prompt || \'\'); }).join(\'\\n\\n\');\n      var copyAll = document.createElement(\'button\');\n      copyAll.className = \'mbtn\';\n      copyAll.style.cssText = \'border:1px solid var(--gold-dim);color:var(--gold);font-size:10px;margin-top:4px;\';\n      copyAll.textContent = \'Copy All \' + imgs.length + \' Prompts\';\n      (function(t) {\n        copyAll.addEventListener(\'click\', function() {\n          if (navigator.clipboard) {\n            navigator.clipboard.writeText(t).then(function() {\n              copyAll.textContent = \'Copied!\';\n              setTimeout(function() { copyAll.textContent = \'Copy All \' + imgs.length + \' Prompts\'; }, 1500);\n            });\n          } else { showCopyModal(t); }\n        });\n      })(allText);\n      imgDiv.appendChild(copyAll);\n      wrapper.appendChild(imgDiv);\n    }\n    list.appendChild(wrapper);\n  });\n  container.appendChild(list);\n}\n\n// -- IMAGE UPLOAD & GENERATION -----------------------------\nfunction applyImage(type, idx, dataUrl) {\n  const arr = getArr(type);\n  arr[idx].imgUrl = dataUrl;\n  const imgDiv = document.getElementById(\'img-\'+type+\'-\'+idx);\n  if (imgDiv) imgDiv.innerHTML = \'<img src="\'+dataUrl+\'" class="img-preview" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" title="Click to replace">\';\n  const dot = document.getElementById(\'dot-\'+type+\'-\'+idx); if(dot) dot.className = \'s-dot dot-r\';\n  const stxt = document.getElementById(\'stxt-\'+type+\'-\'+idx); if(stxt) stxt.textContent = \'Image ready\';\n  savePosts(); updateStats(); renderSchedule();\n  toast(\'Image set for #\'+(idx+1));\n}\n\nasync function genImage(type, idx) {\n  const arr = getArr(type);\n  const promptField = type===\'img\' ? \'imagePrompt\' : type===\'banner\' ? \'bannerPrompt\' : \'imagePrompt\';\n  const prompt = arr[idx][promptField];\n  const imgDiv = document.getElementById(\'img-\'+type+\'-\'+idx);\n  const dot = document.getElementById(\'dot-\'+type+\'-\'+idx);\n  const stxt = document.getElementById(\'stxt-\'+type+\'-\'+idx);\n  if(dot) dot.className = \'s-dot dot-p\';\n  if(stxt) stxt.textContent = \'Generating...\';\n  if(imgDiv) imgDiv.innerHTML = \'<div class="img-gen"><div class="spinner"></div><span>Generating...</span></div>\';\n  try {\n    const res = await fetch(\'/mj/api/image\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({prompt, geminiKey: S.geminiKey})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    applyImage(type, idx, data.dataUrl);\n  } catch(e) {\n    if(imgDiv) imgDiv.innerHTML = \'<div class="drop-zone" data-drop-type="\'+type+\'" data-drop-idx="\'+idx+\'"><span style="font-size:18px">&#9888;</span><span>Error - upload manually</span></div>\';\n    if(dot) dot.className = \'s-dot\';\n    if(stxt) stxt.textContent = \'Error: \'+e.message.substring(0,60);\n    toast(\'Error: \'+e.message, true);\n  }\n}\n\n// -- CLEAR CONTENT -----------------------------------------\nfunction clearContent(type) {\n  if (type===\'images\') {\n    S.imagePosts = []; localStorage.removeItem(\'mj_imagePosts\');\n    document.getElementById(\'images-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127911;</span><h3>No Image Posts Yet</h3><p>Click Generate.</p></div>\';\n  } else if (type===\'banners\') {\n    S.banners = []; localStorage.removeItem(\'mj_banners\');\n    document.getElementById(\'banners-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127775;</span><h3>No Banners Yet</h3><p>Click Generate.</p></div>\';\n  } else if (type===\'shorts\') {\n    S.shortVideos = []; localStorage.removeItem(\'mj_shortVideos\');\n    document.getElementById(\'shorts-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127910;</span><h3>No Short Scripts Yet</h3><p>Click Generate.</p></div>\';\n  } else {\n    S.longVideos = []; localStorage.removeItem(\'mj_longVideos\');\n    document.getElementById(\'longs-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127909;</span><h3>No Long Scripts Yet</h3><p>Click Generate.</p></div>\';\n  }\n  updateStats();\n}\n\n// -- SCHEDULE VIEW -----------------------------------------\nfunction renderSchedule() {\n  const all = [\n    ...S.imagePosts.map((p,i) => ({...p, dType:\'Image\', tKey:\'img\', cap:p.caption})),\n    ...S.banners.map((b,i) => ({...b, dType:\'Banner\', tKey:\'banner\', cap:b.caption})),\n    ...S.shortVideos.map((v,i) => ({...v, dType:\'Short\', tKey:\'short\', cap:v.captionAndHashtags})),\n    ...S.longVideos.map((v,i) => ({...v, dType:\'Long\', tKey:\'long\', cap:v.captionAndHashtags}))\n  ];\n  if (!all.length) return;\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const rows = all.map((item, i) => {\n    const t = fmtTime(addMins(start, i*intv));\n    const pill = item.scheduled ? \'<span class="pill pill-s">Scheduled</span>\' : item.imgUrl ? \'<span class="pill pill-r">Ready</span>\' : \'<span class="pill pill-p">Pending</span>\';\n    const tLabel = item.dType===\'Image\' ? \'<span class="card-type type-image">IMG</span>\'\n      : item.dType===\'Banner\' ? \'<span class="card-type type-banner">BNR</span>\'\n      : item.dType===\'Short\' ? \'<span class="card-type type-short">SHORT</span>\'\n      : \'<span class="card-type type-long">LONG</span>\';\n    return \'<div class="sched-row"><span class="s-num">\'+(i+1)+\'</span>\'+tLabel+\'<span style="font-size:11px">\'+esc((item.cap||\'\').substring(0,45))+\'...</span><span style="font-size:11px;color:var(--muted)">\'+t+\'</span>\'+pill+\'</div>\';\n  }).join(\'\');\n  document.getElementById(\'sched-container\').innerHTML = \'<div class="sched-table"><div class="sched-head"><span>#</span><span>Type</span><span>Caption</span><span>Time</span><span>Status</span></div>\'+rows+\'</div>\';\n}\n\n\n// -- MOBILE MENU -------------------------------------------\ndocument.getElementById(\'mobile-menu-btn\').addEventListener(\'click\', () => {\n  const sidebar = document.querySelector(\'.sidebar\');\n  const btn = document.getElementById(\'mobile-menu-btn\');\n  sidebar.classList.toggle(\'open\');\n  btn.classList.toggle(\'on\');\n});\ndocument.querySelectorAll(\'.tab\').forEach(tab => {\n  tab.addEventListener(\'click\', () => {\n    if (window.innerWidth <= 680) {\n      document.querySelector(\'.sidebar\').classList.remove(\'open\');\n      document.getElementById(\'mobile-menu-btn\').classList.remove(\'on\');\n    }\n  });\n});\n\n\n// -- COPY MODAL --------------------------------------------\ndocument.getElementById(\'copy-modal-close\').addEventListener(\'click\', closeCopyModal);\ndocument.getElementById(\'copy-modal-close2\').addEventListener(\'click\', closeCopyModal);\ndocument.getElementById(\'copy-modal\').addEventListener(\'click\', e => {\n  if (e.target === document.getElementById(\'copy-modal\')) closeCopyModal();\n});\ndocument.getElementById(\'copy-modal-btn\').addEventListener(\'click\', () => {\n  const text = document.getElementById(\'copy-modal-text\').value;\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => { toast(\'Copied!\'); closeCopyModal(); }).catch(() => toast(\'Select all text above and copy manually\'));\n  } else {\n    const ta = document.getElementById(\'copy-modal-text\');\n    ta.select(); ta.setSelectionRange(0, 99999);\n    try { document.execCommand(\'copy\'); toast(\'Copied!\'); closeCopyModal(); }\n    catch(e) { toast(\'Select all text above and copy manually\'); }\n  }\n});\n\n\n// -- TOPIC TRACKER -----------------------------------------\nconst TOPIC_HISTORY_KEY = \'mj_topic_history\'; // shared across all content types\nconst MAX_HISTORY = 60;\n\nfunction getTopicHistory() {\n  try { return JSON.parse(localStorage.getItem(TOPIC_HISTORY_KEY) || \'[]\'); }\n  catch(e) { return []; }\n}\nfunction addTopicsToHistory(posts) {\n  if (!posts || !posts.length) return;\n  const history = getTopicHistory();\n  posts.forEach(p => {\n    const topics = (p.topics_used || p.pillar || \'\').split(\',\').map(t => t.trim()).filter(Boolean);\n    topics.forEach(t => { if (t && !history.includes(t)) history.unshift(t); });\n  });\n  localStorage.setItem(TOPIC_HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));\n}\nfunction clearTopicHistory() {\n  localStorage.removeItem(TOPIC_HISTORY_KEY);\n  toast(\'Topic history cleared!\');\n}\nfunction getExclusions() {\n  return getTopicHistory().slice(0, 40);\n}\n\n\n\n// -- CAROUSEL ----------------------------------------------\nasync function generateCarousel() {\n  const btn = document.getElementById(\'carousel-btn\');\n  const results = document.getElementById(\'carousel-results\');\n  const override = (document.getElementById(\'carousel-override\') || {}).value || \'\';\n\n  btn.disabled = true;\n  btn.textContent = \'Generating...\';\n  results.innerHTML = \'<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center;">Building your 5-slide story... ~30-60 seconds</div>\';\n\n  try {\n    const res = await fetch(\'/mj/api/generate-carousel\', {\n      method: \'POST\',\n      headers: {\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({ themeOverride: override.trim(), exclusions: getTopicHistory() })\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    const c = data.carousel;\n    if (c.topics_used) addTopicsToHistory([{topics_used: c.topics_used, pillar: c.pillar || ""}]);\n    S.carousels.unshift(c);\n    savePosts();\n    renderCarousels();\n\n    renderCarousels();\n    refreshStoryStats();\n\n  } catch(e) {\n    results.innerHTML = `<div style="color:#D48A8A;font-size:13px;padding:16px;">Error: ${esc(e.message)}</div>`;\n  } finally {\n    btn.disabled = false;\n    btn.textContent = \'Generate Carousel\';\n  }\n}\n\nfunction renderCarousels() {\n  const results = document.getElementById(\'carousel-results\');\n  if (!results) return;\n  if (!S.carousels || !S.carousels.length) {\n    results.innerHTML = \'\';\n    return;\n  }\n\n  let out = \'\';\n\n  S.carousels.forEach((c, ci) => {\n    const goldBorder = \'1px solid var(--gold-dim)\';\n    const dimBorder  = \'1px solid var(--dark3)\';\n\n    function slideCard(label, captionLabel, caption, imgPrompt, borderColor, note) {\n      return `<div style="background:var(--dark2);border:${borderColor};border-radius:10px;padding:16px;margin-bottom:10px;">\n        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:${borderColor===goldBorder?\'var(--gold)\':\'var(--hint)\'};text-transform:uppercase;margin-bottom:10px;">${label}</div>\n        <div style="margin-bottom:10px;">\n          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">${captionLabel}</div>\n          <div style="font-size:14px;color:var(--text);line-height:1.6;">${esc(caption||\'\')}</div>\n          ${note?`<div style="font-size:10px;color:var(--hint);margin-top:4px;">${note}</div>`:\'\'}\n          <button onclick="carouselCopy(this)" data-copy="${esc(caption||\'\')}" style="margin-top:6px;background:var(--dark3);border:none;border-radius:4px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Copy Caption</button>\n        </div>\n        <div>\n          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">Image Prompt</div>\n          <div style="font-size:12px;color:var(--muted);line-height:1.6;font-style:italic;">${esc(imgPrompt||\'\')}</div>\n          <button onclick="carouselCopy(this)" data-copy="${esc(imgPrompt||\'\')}" style="margin-top:6px;background:var(--dark3);border:none;border-radius:4px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Copy Image Prompt</button>\n        </div>\n      </div>`;\n    }\n\n    out += `<div style="border:1px solid var(--dark3);border-radius:12px;padding:16px;margin-bottom:20px;background:var(--dark1);">\n      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">\n        <span style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;">Carousel ${S.carousels.length - ci}</span>\n        <button onclick="deleteCarousel(${ci})" style="background:none;border:1px solid var(--dark3);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">x Remove</button>\n      </div>`;\n\n    out += slideCard(\'Slide 1 - Hook\', \'Caption (sits below image)\', c.slide1Caption||\'\', c.slide1ImagePrompt||\'\', goldBorder, \'Caption goes below/beside the image - not on top\');\n\n    (c.slides||[]).forEach(slide => {\n      const isLast = slide.slideNum === 5;\n      out += slideCard(\n        `Slide ${slide.slideNum}${isLast?\' - Payoff + CTA\':\' - Story\'}`,\n        \'Overlay Caption (sits ON TOP of image)\',\n        slide.overlayCaption||\'\', slide.imagePrompt||\'\',\n        isLast ? goldBorder : dimBorder, null\n      );\n    });\n\n    if (c.firstComment) {\n      out += `<div style="background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:8px;padding:12px;margin-bottom:8px;">\n        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">First Comment</div>\n        <div style="font-size:13px;color:var(--muted);">${esc(c.firstComment)}</div>\n        <button onclick="carouselCopy(this)" data-copy="${esc(c.firstComment)}" style="margin-top:6px;background:var(--dark3);border:none;border-radius:4px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Copy</button>\n      </div>`;\n    }\n    if (c.source) {\n      out += `<div style="padding:5px 10px;background:rgba(201,168,76,.06);border-radius:4px;border-left:2px solid var(--gold-dim);"><span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);">Source </span><span style="font-size:11px;color:var(--muted);">${esc(c.source)}</span></div>`;\n    }\n\n    out += \'</div>\';\n  });\n\n  // Add clear all button\n  out += `<div style="text-align:center;margin-top:8px;">\n    <button onclick="clearCarousels()" style="background:none;border:1px solid var(--dark3);border-radius:6px;padding:8px 20px;font-size:12px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Clear All Carousels</button>\n  </div>`;\n\n  results.innerHTML = out;\n}\n\nfunction deleteCarousel(idx) {\n  S.carousels.splice(idx, 1);\n  savePosts();\n  renderCarousels();\n}\n\nfunction clearCarousels() {\n  if (!confirm(\'Clear all saved carousels?\')) return;\n  S.carousels = [];\n  savePosts();\n  renderCarousels();\n}\n\nfunction quickCopy(btn, text) {\n  if (navigator.clipboard) {\n    navigator.clipboard.writeText(text).then(() => {\n      const orig = btn.textContent;\n      btn.textContent = \'Copied!\';\n      setTimeout(() => btn.textContent = orig, 1500);\n    }).catch(() => showCopyModal(text));\n  } else { showCopyModal(text); }\n}\n\nfunction carouselCopy(btn) {\n  const text = btn.getAttribute(\'data-copy\');\n  if (navigator.clipboard) {\n    navigator.clipboard.writeText(text).then(() => {\n      const orig = btn.textContent;\n      btn.textContent = \'Copied!\';\n      setTimeout(() => btn.textContent = orig, 1500);\n    }).catch(() => showCopyModal(text));\n  } else {\n    showCopyModal(text);\n  }\n}\n\n// -- STORY DATABASE -----------------------------------------\nasync function refreshStoryStats() {\n  const el = document.getElementById(\'story-counter\');\n  const settingsEl = document.getElementById(\'settings-story-stats\');\n  try {\n    const res = await fetch(\'/mj/api/story-stats\');\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    \n    const pct = Math.round((data.used / data.total) * 100);\n    const counterHTML = `\n      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;">\n        <div style="background:var(--dark3);border-radius:4px;padding:6px;text-align:center;">\n          <div style="font-size:20px;font-weight:700;color:var(--gold);font-family:Bebas Neue,sans-serif;">${data.total}</div>\n          <div style="font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;">Total</div>\n        </div>\n        <div style="background:var(--dark3);border-radius:4px;padding:6px;text-align:center;">\n          <div style="font-size:20px;font-weight:700;color:${data.unused < 50 ? \'#D48A8A\' : \'#1D9E75\'};font-family:Bebas Neue,sans-serif;">${data.unused}</div>\n          <div style="font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;">Unused</div>\n        </div>\n      </div>\n      <div style="height:4px;background:var(--dark3);border-radius:99px;overflow:hidden;margin-bottom:4px;">\n        <div style="height:100%;width:${pct}%;background:${pct > 75 ? \'#AA3D3D\' : pct > 50 ? \'#C9A84C\' : \'#1D9E75\'};border-radius:99px;transition:width .4s;"></div>\n      </div>\n      <div style="font-size:10px;color:var(--hint);">${pct}% used . ~${data.days_remaining} days remaining</div>\n    `;\n    if (el) el.innerHTML = counterHTML;\n    if (settingsEl) settingsEl.innerHTML = `${data.total} stories total . ${data.used} used . ${data.unused} remaining . ~${data.days_remaining} days at 15 posts/day`;\n  } catch(e) {\n    if (el) el.innerHTML = \'<span style="color:var(--hint)">Stats unavailable</span>\';\n  }\n}\n\nasync function runStoryRefresh() {\n  const btn = document.getElementById(\'refresh-stories-btn\');\n  const status = document.getElementById(\'refresh-status\');\n  if (!btn || !status) return;\n\n  const categories = [\n    {key:\'song_histories\', count:60, label:\'Song Histories\'},\n    {key:\'family_history\', count:40, label:\'Family History\'},\n    {key:\'marriages_children\', count:30, label:\'Marriages & Children\'},\n    {key:\'achievements_verified\', count:30, label:\'Achievements\'},\n    {key:\'performances_verified\', count:30, label:\'Performances\'},\n    {key:\'relationships_verified\', count:30, label:\'Relationships\'},\n  ];\n\n  btn.disabled = true;\n  status.style.display = \'block\';\n  status.style.color = \'var(--gold)\';\n\n  let totalAdded = 0;\n  let finalTotal = 0;\n  let errors = [];\n\n  for (let i = 0; i < categories.length; i++) {\n    const cat = categories[i];\n    btn.textContent = `Generating ${cat.label}... (${i+1}/${categories.length})`;\n    status.textContent = `Working on ${cat.label} (${i+1} of ${categories.length}) - this may take 30-60 seconds per category`;\n\n    try {\n      const res = await fetch(\'/mj/api/refresh-stories\', {\n        method: \'POST\',\n        headers: {\'Content-Type\': \'application/json\'},\n        body: JSON.stringify({category: cat.key, count: cat.count})\n      });\n      const data = await res.json();\n      if (data.ok) {\n        totalAdded += data.new_count;\n        finalTotal = data.total_count;\n        refreshStoryStats();\n      } else {\n        errors.push(`${cat.label}: ${data.error}`);\n      }\n    } catch(e) {\n      errors.push(`${cat.label}: ${e.message}`);\n    }\n  }\n\n  if (totalAdded > 0) {\n    status.textContent = `Added ${totalAdded} new stories. Database now has ${finalTotal} total.` + (errors.length ? ` (${errors.length} category issue(s) - check console)` : \'\');\n    status.style.color = \'#1D9E75\';\n    btn.textContent = `v ${finalTotal} stories now available`;\n    if (errors.length) console.warn(\'Refresh issues:\', errors);\n    toast(`Added ${totalAdded} new story angles`);\n  } else {\n    status.textContent = \'No new stories were added. Errors: \' + errors.join(\'; \');\n    status.style.color = \'#D48A8A\';\n    btn.disabled = false;\n    btn.textContent = \'<> Generate New Story Angles\';\n  }\n}\n\n// Load stats on page init\nsetTimeout(refreshStoryStats, 1000);\n\n// Wire up post selection checkboxes via delegation\ndocument.addEventListener(\'change\', function(e) {\n  if (e.target.classList.contains(\'post-select-cb\')) {\n    updateSelectionBar();\n  }\n});\n\ndocument.addEventListener(\'click\', function(e) {\n  if (e.target.classList.contains(\'remove-post-btn\')) {\n    var idx = parseInt(e.target.getAttribute(\'data-remove-idx\'));\n    removePost(idx);\n  }\n});\n\n// -- VIDEO IMAGE PROMPT COPY --------------------------------\ndocument.addEventListener(\'click\', function(e) {\n  if (e.target.classList.contains(\'vid-copy-prompt\')) {\n    const text = decodeURIComponent(e.target.getAttribute(\'data-prompt\') || \'\');\n    if (navigator.clipboard) {\n      navigator.clipboard.writeText(text).then(function() {\n        var orig = e.target.textContent;\n        e.target.textContent = \'Copied!\';\n        setTimeout(function() { e.target.textContent = orig; }, 1500);\n      }).catch(function() { showCopyModal(text); });\n    } else { showCopyModal(text); }\n  }\n  if (e.target.classList.contains(\'vid-copy-all\')) {\n    const text = decodeURIComponent(e.target.getAttribute(\'data-prompts\') || \'\');\n    if (navigator.clipboard) {\n      navigator.clipboard.writeText(text).then(function() {\n        var orig = e.target.textContent;\n        e.target.textContent = \'Copied!\';\n        setTimeout(function() { e.target.textContent = orig; }, 1500);\n      }).catch(function() { showCopyModal(text); });\n    } else { showCopyModal(text); }\n  }\n});\n\n\n\n// -- POST SELECTION ----------------------------------------\nfunction updateSelectionBar() {\n  var cbs = document.querySelectorAll(\'.post-select-cb\');\n  var checked = document.querySelectorAll(\'.post-select-cb:checked\');\n  var bar = document.getElementById(\'post-selection-bar\');\n  var countEl = document.getElementById(\'selection-count\');\n  if (cbs.length > 0) {\n    bar.style.display = \'flex\';\n    countEl.textContent = checked.length + \' of \' + cbs.length + \' selected for Buffer\';\n  } else {\n    bar.style.display = \'none\';\n  }\n}\n\nfunction selectAllPosts(checked) {\n  document.querySelectorAll(\'.post-select-cb\').forEach(function(cb) { cb.checked = checked; });\n  updateSelectionBar();\n}\n\nfunction getSelectedPostIndices() {\n  var indices = [];\n  document.querySelectorAll(\'.post-select-cb:checked\').forEach(function(cb) {\n    indices.push(parseInt(cb.getAttribute(\'data-idx\')));\n  });\n  return indices;\n}\n\nfunction removePost(idx) {\n  S.imagePosts.splice(idx, 1);\n  savePosts();\n  renderImagePosts();\n  updateStats();\n  renderSchedule();\n  updateSelectionBar();\n}\n\n\nfunction addMorePosts() {\n  var countEl = document.getElementById(\'add-more-count\');\n  var overrideEl = document.getElementById(\'add-more-override\');\n  var addCount = parseInt(countEl.value) || 5;\n  var override = overrideEl ? overrideEl.value.trim() : \'\';\n\n  if (addCount < 1 || addCount > 19) {\n    toast(\'Please enter a number between 1 and 19.\', true);\n    return;\n  }\n\n  toast(\'Generating \' + addCount + \' more posts...\');\n  var btn = document.querySelector(\'[onclick="addMorePosts()"]\');\n  if (btn) { btn.disabled = true; btn.textContent = \'Generating...\'; }\n\n  fetch(\'/mj/api/generate\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({\n      count: addCount,\n      themeOverride: override,\n      tone: S.tone,\n      cta: S.cta,\n      exclusions: getExclusions()\n    })\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) {\n      toast(\'Error: \' + data.error, true);\n    } else {\n      var newPosts = data.posts.map(function(p, i) {\n        return Object.assign({id: S.imagePosts.length + i, type: \'img\', imgUrl: null, scheduled: false}, p);\n      });\n      S.imagePosts = S.imagePosts.concat(newPosts);\n      addTopicsToHistory(data.posts);\n      savePosts();\n      renderImagePosts();\n      updateStats();\n      renderSchedule();\n      refreshStoryStats();\n      toast(addCount + \' posts added to your batch!\');\n    }\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  }).catch(function(e) {\n    toast(\'Error: \' + e.message, true);\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  });\n}\n\n\nfunction addMorePosts() {\n  var countEl = document.getElementById(\'add-more-count\');\n  var overrideEl = document.getElementById(\'add-more-override\');\n  var addCount = parseInt(countEl.value) || 5;\n  var override = overrideEl ? overrideEl.value.trim() : \'\';\n\n  if (addCount < 1 || addCount > 19) {\n    toast(\'Please enter a number between 1 and 19.\', true);\n    return;\n  }\n\n  toast(\'Generating \' + addCount + \' more posts...\');\n  var btn = document.querySelector(\'[onclick="addMorePosts()"]\');\n  if (btn) { btn.disabled = true; btn.textContent = \'Generating...\'; }\n\n  fetch(\'/mj/api/generate\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({\n      count: addCount,\n      themeOverride: override,\n      tone: S.tone,\n      cta: S.cta,\n      exclusions: getExclusions()\n    })\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) {\n      toast(\'Error: \' + data.error, true);\n    } else {\n      var newPosts = data.posts.map(function(p, i) {\n        return Object.assign({id: S.imagePosts.length + i, type: \'img\', imgUrl: null, scheduled: false}, p);\n      });\n      S.imagePosts = S.imagePosts.concat(newPosts);\n      addTopicsToHistory(data.posts);\n      savePosts();\n      renderImagePosts();\n      updateStats();\n      renderSchedule();\n      refreshStoryStats();\n      toast(addCount + \' posts added to your batch!\');\n    }\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  }).catch(function(e) {\n    toast(\'Error: \' + e.message, true);\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  });\n}\n\nfunction regenerateDeselected() {\n  var deselected = [];\n  document.querySelectorAll(\'.post-select-cb\').forEach(function(cb) {\n    if (!cb.checked) deselected.push(parseInt(cb.getAttribute(\'data-idx\')));\n  });\n  if (!deselected.length) { toast(\'No posts deselected - uncheck posts you want to replace first.\', true); return; }\n  if (!confirm(\'Regenerate \' + deselected.length + \' deselected post(s) with new story angles?\')) return;\n\n  var override = (document.getElementById(\'img-override\') || {}).value || \'\';\n  toast(\'Regenerating \' + deselected.length + \' post(s)...\');\n\n  fetch(\'/mj/api/generate\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({\n      count: deselected.length,\n      themeOverride: override,\n      tone: S.tone,\n      cta: S.cta,\n      exclusions: getExclusions()\n    })\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) { toast(\'Error: \' + data.error, true); return; }\n    // Replace deselected posts with new ones\n    var newPosts = data.posts.map(function(p, i) {\n      return {id: deselected[i] !== undefined ? deselected[i] : S.imagePosts.length + i, type: \'image\', ...p, imgUrl: null, scheduled: false};\n    });\n    newPosts.forEach(function(p, i) {\n      var replaceIdx = deselected[i];\n      if (replaceIdx !== undefined && replaceIdx < S.imagePosts.length) {\n        S.imagePosts[replaceIdx] = p;\n      }\n    });\n    addTopicsToHistory(data.posts);\n    savePosts();\n    renderImagePosts();\n    updateStats();\n    renderSchedule();\n    refreshStoryStats();\n    toast(deselected.length + \' post(s) regenerated!\');\n  }).catch(function(e) { toast(\'Error: \' + e.message, true); });\n}\n\n\n// -- DOWNLOAD PROMPTS AS TXT ----------------------------------------\nfunction downloadPromptsAsTxt() {\n  if (!S.imagePosts || !S.imagePosts.length) {\n    toast("No image posts to export. Generate some first.", true);\n    return;\n  }\n  var lines = S.imagePosts.map(function(p) {\n    return (p.imagePrompt || "").trim();\n  }).filter(function(p) { return p.length > 0; });\n\n  if (!lines.length) {\n    toast("No image prompts found in current posts.", true);\n    return;\n  }\n\n  var content = lines.join("\\n");\n  var blob = new Blob([content], {type: "text/plain"});\n  var url = URL.createObjectURL(blob);\n  var a = document.createElement("a");\n  a.href = url;\n  a.download = "mj_openart_prompts_" + lines.length + ".txt";\n  document.body.appendChild(a);\n  a.click();\n  document.body.removeChild(a);\n  URL.revokeObjectURL(url);\n  toast("Downloaded " + lines.length + " prompts for OpenArt Bulk Create!");\n}\n\n\n// -- DOWNLOAD VIDEO PROMPTS AS TXT --------------------------------\nfunction downloadVideoPromptsAsTxt(type) {\n  var arr = type === \'short\' ? S.shortVideos : S.longVideos;\n  if (!arr || !arr.length) { toast(\'No \' + type + \' videos generated yet.\', true); return; }\n  var lines = [];\n  arr.forEach(function(v) {\n    (v.images || []).forEach(function(img) {\n      if (img.prompt) lines.push(img.prompt.trim());\n    });\n  });\n  if (!lines.length) { toast(\'No image prompts found in videos.\', true); return; }\n  var blob = new Blob([lines.join(\'\\n\')], {type: \'text/plain\'});\n  var url = URL.createObjectURL(blob);\n  var a = document.createElement(\'a\');\n  a.href = url;\n  a.download = \'mj_video_\' + type + \'_prompts_\' + lines.length + \'.txt\';\n  document.body.appendChild(a);\n  a.click();\n  document.body.removeChild(a);\n  URL.revokeObjectURL(url);\n  toast(\'Downloaded \' + lines.length + \' image prompts for OpenArt!\');\n}\n\n// -- BUFFER INTEGRATION ----------------------------------------\nvar S_BUFFER_KEY = localStorage.getItem(\'mj_buffer_key\') || \'\';\nvar S_BUFFER_CHANNELS = JSON.parse(localStorage.getItem(\'mj_buffer_channels\') || \'[]\');\n\nfunction loadBufferChannels() {\n  var key = document.getElementById(\'set-buffer-key\').value.trim();\n  var status = document.getElementById(\'buffer-connect-status\');\n  if (!key) { status.textContent = \'Please enter your Buffer API key.\'; return; }\n  status.textContent = \'Connecting...\';\n  status.style.color = \'var(--gold)\';\n  fetch(\'/mj/api/buffer-channels\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({apiKey: key})\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) { status.textContent = \'Error: \' + data.error; status.style.color = \'#D48A8A\'; return; }\n    S_BUFFER_KEY = key;\n    localStorage.setItem(\'mj_buffer_key\', key);\n    var list = document.getElementById(\'buffer-channel-list\');\n    list.innerHTML = \'\';\n    data.channels.forEach(function(ch) {\n      var checked = S_BUFFER_CHANNELS.some(function(c) { return c.id === ch.id; });\n      var div = document.createElement(\'div\');\n      div.style.cssText = \'display:flex;align-items:center;gap:8px;\';\n      div.innerHTML = \'<input type="checkbox" id="ch-\' + ch.id + \'" value="\' + ch.id + \'" \' + (checked ? \'checked\' : \'\') + \' style="accent-color:var(--gold);width:14px;height:14px;">\'\n        + \'<label for="ch-\' + ch.id + \'" style="font-size:12px;color:var(--text);cursor:pointer;">\' + esc(ch.name) + \' <span style="color:var(--hint);font-size:10px;">(\' + ch.service + \')</span></label>\';\n      list.appendChild(div);\n    });\n    document.getElementById(\'buffer-channels-wrap\').style.display = \'block\';\n    status.textContent = \'Connected! Select channels to post to.\';\n    status.style.color = \'#1D9E75\';\n    localStorage.setItem(\'mj_buffer_channels_all\', JSON.stringify(data.channels));\n  }).catch(function(e) {\n    status.textContent = \'Connection failed: \' + e.message;\n    status.style.color = \'#D48A8A\';\n  });\n}\n\nfunction getSelectedChannelIds() {\n  var ids = [];\n  var checkboxes = document.querySelectorAll(\'#buffer-channel-list input[type="checkbox"]:checked\');\n  checkboxes.forEach(function(cb) { ids.push(cb.value); });\n  return ids;\n}\n\nfunction sendToBuffer() {\n  var key = S_BUFFER_KEY || localStorage.getItem(\'mj_buffer_key\');\n  if (!key) { toast(\'Please connect Buffer in Settings first.\', true); return; }\n  var channelIds = getSelectedChannelIds();\n  if (!channelIds.length) { toast(\'Please select at least one Buffer channel in Settings.\', true); return; }\n  if (!S.imagePosts || !S.imagePosts.length) { toast(\'No image posts to send. Generate some first.\', true); return; }\n\n  var selectedIndices = getSelectedPostIndices();\n  var postsToSend = selectedIndices.length > 0\n    ? selectedIndices.map(function(i) { return S.imagePosts[i]; }).filter(Boolean)\n    : S.imagePosts;\n  if (!postsToSend.length) { toast(\'No posts selected. Check the boxes on posts you want to send.\', true); return; }\n  var posts = postsToSend.map(function(p) {\n    return { caption: p.caption || p.captionAndHashtags || \'\', firstComment: p.firstComment || \'\' };\n  });\n\n  toast(\'Sending \' + posts.length + \' posts to Buffer...\');\n  document.getElementById(\'buffer-send-btn\').disabled = true;\n  document.getElementById(\'buffer-send-btn\').textContent = \'Sending...\';\n\n  fetch(\'/mj/api/buffer-queue\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({apiKey: key, channelIds: channelIds, channelInfos: JSON.parse(localStorage.getItem(\'mj_buffer_channels_all\') || \'[]\'), orgId: \'697f6b9d75b8747f96f3583a\', posts: posts})\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    console.log(\'Buffer response:\', JSON.stringify(data));\n    if (!data.ok) {\n      var log = document.getElementById(\'buffer-log\');\n      if (log) { log.style.display = \'block\'; log.textContent = \'Error: \' + data.error; }\n      toast(\'Buffer error: \' + data.error, true);\n    }\n    else {\n      var log = document.getElementById(\'buffer-log\');\n      var msg = data.queued + \' posts queued to Buffer!\';\n      if (data.errors && data.errors.length) {\n        msg += \' (\' + data.errors.length + \' errors)\';\n        // Show full error log\n        if (log) {\n          log.style.display = \'block\';\n          log.textContent = \'Buffer errors (\' + data.errors.length + \'):\\n\' + data.errors.join(\'\\n\');\n        }\n        toast(msg + \' - See error log below.\', true);\n      } else {\n        if (log) log.style.display = \'none\';\n        toast(msg);\n      }\n      console.log(\'Buffer response:\', data);\n    }\n    document.getElementById(\'buffer-send-btn\').disabled = false;\n    document.getElementById(\'buffer-send-btn\').textContent = \'Send to Buffer\';\n  }).catch(function(e) {\n    toast(\'Failed: \' + e.message, true);\n    document.getElementById(\'buffer-send-btn\').disabled = false;\n    document.getElementById(\'buffer-send-btn\').textContent = \'Send to Buffer\';\n  });\n}\n\n// Restore buffer key in settings when modal opens\ndocument.getElementById(\'settings-btn\').addEventListener(\'click\', function() {\n  var savedKey = localStorage.getItem(\'mj_buffer_key\');\n  if (savedKey) document.getElementById(\'set-buffer-key\').value = savedKey;\n});\n\n// -- LOAD SAVED POSTS ON INIT ------------------------------\nloadPosts();\nif (S.imagePosts.length) { renderImagePosts(); updateStats(); renderSchedule(); refreshStoryStats(); }\nif (S.banners.length) { renderBanners(); updateStats(); renderSchedule(); refreshStoryStats(); }\nif (S.shortVideos.length) renderVideos(\'short\');\nif (S.longVideos.length) renderVideos(\'long\');\nif (S.carousels && S.carousels.length) renderCarousels();\nupdateStats();\nsetTimeout(refreshStoryStats, 1000);\n'
+MJ_STUDIO_JS = '\nconsole.log("MJ Studio v2.1 loaded");\nconst PILLAR_MAP = {\n    music_videos: "Iconic music videos - breakdowns, cultural impact, and the creative process behind Thriller, Beat It, Billie Jean, Black or White, Smooth Criminal",\n    albums: "Album deep dives - Off the Wall, Thriller, Bad, Dangerous, HIStory, Invincible: recording process, collaborators, chart performance",\n    performances: "Live performances and concert tours - Victory Tour, Bad Tour, Dangerous Tour, HIStory Tour, This Is It",\n    dance: "Dance - the moonwalk debut on Motown 25 (May 16 1983), signature moves, choreography evolution, influence on dancers",\n    fashion: "Fashion evolution - documented iconic outfits, the red jacket, military jackets, fedora, single glove, designer collaborations",\n    collaborations: "Collaborations with legendary artists - Paul McCartney, Quincy Jones, Siedah Garrett, Eddie Van Halen, and others",\n    humanitarian: "Humanitarian work - Heal the World Foundation, We Are the World, documented charity contributions",\n    rare: "Rare and lesser-known documented moments - confirmed public appearances, documented interviews, publicly recorded events",\n    influence: "Influence on modern artists - documented tributes, confirmed statements about MJ\'s influence on contemporary music",\n    fans: "Fan stories and community - the global fan community, documented fan events, enduring connection with his audience",\n    records: "Record-breaking achievements - Billboard chart records, Grammy wins, Thriller as best-selling album, Guinness World Records",\n    making_of: "The making of specific songs - documented studio stories, confirmed creative process details, iconic tracks"\n  };\n\nconst S = {\n  bufferToken: localStorage.getItem(\'mj_buffer\') || \'\',\n  profileIds: (localStorage.getItem(\'mj_profiles\') || \'\').split(\',\').filter(Boolean),\n  geminiKey: localStorage.getItem(\'mj_gemini\') || \'\',\n  tone: \'cinematic\', cta: \'engagement\',\n  imagePosts: [], banners: [], shortVideos: [], longVideos: [], carousels: []\n,\n    philanthropy: "MJ\'s documented charitable work, donations, and humanitarian efforts through the Heal the World Foundation and other initiatives",\n    business_ventures: "MJ\'s business dealings including the ATV catalog purchase, Sony/ATV partnership, Mijac Music, and his entrepreneurial ventures",\n    fashion_style: "MJ\'s iconic fashion choices, costume designers, specific outfits and their cultural impact on global style",\n    recording_innovation: "MJ\'s contributions to recording techniques, studio innovations, and his collaborative work with producers and engineers"\n};\n\n// -- PERSISTENCE -------------------------------------------\nfunction savePosts() {\n  try {\n    localStorage.setItem(\'mj_imagePosts\', JSON.stringify(S.imagePosts));\n    localStorage.setItem(\'mj_banners\', JSON.stringify(S.banners));\n    localStorage.setItem(\'mj_shortVideos\', JSON.stringify(S.shortVideos));\n    localStorage.setItem(\'mj_longVideos\', JSON.stringify(S.longVideos));\n    localStorage.setItem(\'mj_carousels\', JSON.stringify(S.carousels));\n  } catch(e) { console.warn(\'Save error:\', e); }\n}\nfunction loadPosts() {\n  try {\n    const ip = localStorage.getItem(\'mj_imagePosts\');\n    const bn = localStorage.getItem(\'mj_banners\');\n    const sv = localStorage.getItem(\'mj_shortVideos\');\n    const lv = localStorage.getItem(\'mj_longVideos\');\n    const cr = localStorage.getItem(\'mj_carousels\');\n    if (ip) S.imagePosts = JSON.parse(ip);\n    if (bn) S.banners = JSON.parse(bn);\n    // Only load videos if they have new format (images array)\n    if (sv) { const svp = JSON.parse(sv); if (svp.length && svp[0].images) S.shortVideos = svp; }\n    if (lv) { const lvp = JSON.parse(lv); if (lvp.length && lvp[0].images) S.longVideos = lvp; }\n    if (cr) S.carousels = JSON.parse(cr);\n  } catch(e) { console.warn(\'Load error:\', e); }\n}\n\n// -- INIT --------------------------------------------------\ndocument.getElementById(\'settings-btn\').addEventListener(\'click\', () => {\n  document.getElementById(\'set-buffer\').value = S.bufferToken;\n  document.getElementById(\'set-profiles\').value = S.profileIds.join(\',\');\n  document.getElementById(\'set-gemini\').value = S.geminiKey;\n  document.getElementById(\'settings-modal\').style.display = \'flex\';\n  refreshStoryStats();\n  const h = getTopicHistory();\n  const el = document.getElementById(\'topic-count-display\');\n  if (el) el.textContent = h.length + \' topics tracked (\' + (60 - h.length) + \' slots remaining)\';\n});\ndocument.getElementById(\'cancel-settings-btn\').addEventListener(\'click\', () => {\n  document.getElementById(\'settings-modal\').style.display = \'none\';\n});\ndocument.getElementById(\'save-settings-btn\').addEventListener(\'click\', () => {\n  S.bufferToken = document.getElementById(\'set-buffer\').value.trim();\n  S.profileIds = document.getElementById(\'set-profiles\').value.split(\',\').map(s=>s.trim()).filter(Boolean);\n  S.geminiKey = document.getElementById(\'set-gemini\').value.trim();\n  localStorage.setItem(\'mj_buffer\', S.bufferToken);\n  localStorage.setItem(\'mj_profiles\', S.profileIds.join(\',\'));\n  localStorage.setItem(\'mj_gemini\', S.geminiKey);\n  document.getElementById(\'settings-modal\').style.display = \'none\';\n  toast(\'Settings saved!\');\n});\n\ndocument.querySelectorAll(\'.tab\').forEach(tab => {\n  tab.addEventListener(\'click\', () => {\n    try {\n      document.querySelectorAll(\'.tab\').forEach(t => t.classList.remove(\'on\'));\n      document.querySelectorAll(\'.pane\').forEach(p => p.classList.remove(\'on\'));\n      tab.classList.add(\'on\');\n      const pane = document.getElementById(\'pane-\' + tab.dataset.tab);\n      if (pane) pane.classList.add(\'on\');\n    } catch(e) { console.error(\'Tab error:\', e); }\n  });\n});\n\n\n// Tone/CTA chips\ndocument.getElementById(\'tone-chips\').addEventListener(\'click\', e => {\n  const chip = e.target.closest(\'.chip\');\n  if (!chip) return;\n  document.querySelectorAll(\'#tone-chips .chip\').forEach(c => c.classList.remove(\'on\'));\n  chip.classList.add(\'on\');\n  S.tone = chip.dataset.tone;\n});\ndocument.getElementById(\'cta-chips\').addEventListener(\'click\', e => {\n  const chip = e.target.closest(\'.chip\');\n  if (!chip) return;\n  document.querySelectorAll(\'#cta-chips .chip\').forEach(c => c.classList.remove(\'on\'));\n  chip.classList.add(\'on\');\n  S.cta = chip.dataset.cta;\n});\ndocument.getElementById(\'gen-img-btn\').addEventListener(\'click\', generateImages);\ndocument.getElementById(\'clear-images-btn\').addEventListener(\'click\', () => clearContent(\'images\'));\ndocument.getElementById(\'gen-banner-btn\').addEventListener(\'click\', generateBanners);\ndocument.getElementById(\'clear-banners-btn\').addEventListener(\'click\', () => clearContent(\'banners\'));\ndocument.getElementById(\'gen-short-btn\').addEventListener(\'click\', () => generateVideos(\'short\'));\ndocument.getElementById(\'clear-shorts-btn\').addEventListener(\'click\', () => clearContent(\'shorts\'));\ndocument.getElementById(\'gen-long-btn\').addEventListener(\'click\', () => generateVideos(\'long\'));\ndocument.getElementById(\'clear-longs-btn\').addEventListener(\'click\', () => clearContent(\'longs\'));\n\n// Event delegation\ndocument.addEventListener(\'click\', e => {\n  const btn = e.target.closest(\'[data-action]\');\n  if (!btn) return;\n  const action = btn.dataset.action;\n  const type = btn.dataset.type || \'img\';\n  const idx = parseInt(btn.dataset.idx || \'0\');\n  const field = btn.dataset.field || \'\';\n  if (action === \'upload\') document.getElementById(\'file-\' + type + \'-\' + idx).click();\n  if (action === \'regen\') genImage(type, idx);\n  if (action === \'copy\') { const item = getArr(type)[idx]; copyToClipboard(item[field]||\'\'); }\n  if (action === \'sectab\') {\n    const panes = btn.dataset.panes.split(\',\');\n    const show = btn.dataset.show;\n    panes.forEach(id => { const p = document.getElementById(id); if(p) p.classList.remove(\'on\'); });\n    const sp = document.getElementById(show); if(sp) sp.classList.add(\'on\');\n    btn.closest(\'.sec-tabs\').querySelectorAll(\'.sec-tab\').forEach(t => t.classList.remove(\'on\'));\n    btn.classList.add(\'on\');\n  }\n});\ndocument.addEventListener(\'change\', e => {\n  const input = e.target;\n  if (input.dataset.fileType) {\n    const f = input.files[0]; if (!f) return;\n    const r = new FileReader();\n    r.onload = ev => applyImage(input.dataset.fileType, parseInt(input.dataset.fileIdx), ev.target.result);\n    r.readAsDataURL(f);\n  }\n});\ndocument.addEventListener(\'dragover\', e => { if (e.target.closest(\'.drop-zone\')) e.preventDefault(); });\ndocument.addEventListener(\'dragleave\', e => { const dz = e.target.closest(\'.drop-zone\'); if(dz) dz.classList.remove(\'over\'); });\ndocument.addEventListener(\'dragenter\', e => { const dz = e.target.closest(\'.drop-zone\'); if(dz) dz.classList.add(\'over\'); });\ndocument.addEventListener(\'drop\', e => {\n  const dz = e.target.closest(\'[data-drop-type]\');\n  if (!dz) return;\n  e.preventDefault(); dz.classList.remove(\'over\');\n  const f = e.dataTransfer.files[0];\n  if (!f || !f.type.startsWith(\'image/\')) { toast(\'Drop an image file\'); return; }\n  const r = new FileReader();\n  r.onload = ev => applyImage(dz.dataset.dropType, parseInt(dz.dataset.dropIdx), ev.target.result);\n  r.readAsDataURL(f);\n});\n\n// -- HELPERS -----------------------------------------------\nfunction copyToClipboard(text, title) {\n  // On mobile, show a modal with the text for easy selection/copy\n  if (window.innerWidth <= 680) {\n    showCopyModal(text, title || \'Copy Text\');\n    return;\n  }\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => toast(\'Copied!\')).catch(() => fallbackCopy(text));\n  } else {\n    fallbackCopy(text);\n  }\n}\n\nfunction fallbackCopy(text) {\n  const ta = document.createElement(\'textarea\');\n  ta.value = text;\n  ta.style.cssText = \'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;\';\n  document.body.appendChild(ta);\n  ta.focus(); ta.select();\n  try { document.execCommand(\'copy\'); toast(\'Copied!\'); }\n  catch(e) { showCopyModal(text, \'Copy Text\'); }\n  document.body.removeChild(ta);\n}\n\nfunction showCopyModal(text, title) {\n  document.getElementById(\'copy-modal-title\').textContent = title || \'Copy Text\';\n  document.getElementById(\'copy-modal-text\').value = text;\n  document.getElementById(\'copy-modal\').style.display = \'flex\';\n  setTimeout(() => {\n    const ta = document.getElementById(\'copy-modal-text\');\n    ta.focus(); ta.select();\n    ta.setSelectionRange(0, 99999);\n  }, 100);\n}\n\nfunction closeCopyModal() {\n  document.getElementById(\'copy-modal\').style.display = \'none\';\n}\n\n\nfunction copyToClipboard(text) {\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => toast(\'Copied!\')).catch(() => fallbackCopy(text));\n  } else {\n    fallbackCopy(text);\n  }\n}\n\nfunction fallbackCopy(text) {\n  const ta = document.createElement(\'textarea\');\n  ta.value = text;\n  ta.style.cssText = \'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;\';\n  document.body.appendChild(ta);\n  ta.focus(); ta.select();\n  try { document.execCommand(\'copy\'); toast(\'Copied!\'); }\n  catch(e) { toast(\'Copy failed - long press text to copy\', true); }\n  document.body.removeChild(ta);\n}\nfunction toast(msg, isError) {\n  const t = document.getElementById(\'toast\');\n  t.textContent = msg;\n  t.style.background = isError ? \'#3A1010\' : \'var(--dark2)\';\n  t.style.borderColor = isError ? \'#AA3D3D\' : \'var(--border)\';\n  t.style.color = isError ? \'#D48A8A\' : \'var(--gold-light)\';\n  t.classList.add(\'show\');\n  clearTimeout(t._timer);\n  t._timer = setTimeout(() => t.classList.remove(\'show\'), isError ? 12000 : 3500);\n}\nfunction setP(fId, lId, pct, label) {\n  const f = document.getElementById(fId); if(f) f.style.width = pct + \'%\';\n  const l = document.getElementById(lId); if(l) l.textContent = label;\n}\nfunction updateStats() {\n  document.getElementById(\'s-images\').textContent = S.imagePosts.length;\n  document.getElementById(\'s-banners\').textContent = S.banners.length;\n  document.getElementById(\'s-videos\').textContent = S.shortVideos.length + S.longVideos.length;\n  document.getElementById(\'s-sched\').textContent = [...S.imagePosts,...S.banners,...S.shortVideos,...S.longVideos].filter(p=>p.scheduled).length;\n}\nfunction parseTime(s) {\n  const m = s.trim().toUpperCase().match(/([0-9]+):([0-9]+)[ ]*(AM|PM)?/);\n  if (!m) return {h:8,m:0};\n  let h = parseInt(m[1]), min = parseInt(m[2]);\n  if (m[3]===\'PM\'&&h<12) h+=12;\n  if (m[3]===\'AM\'&&h===12) h=0;\n  return {h, m:min};\n}\nfunction addMins(t, mins) { const total = t.h*60+t.m+mins; return {h:Math.floor(total/60)%24, m:total%60}; }\nfunction fmtTime(t) { const h=t.h%12||12, ap=t.h<12?\'AM\':\'PM\'; return h+\':\'+String(t.m).padStart(2,\'0\')+\' \'+ap; }\nfunction esc(s) { return String(s).replace(/&/g,\'&amp;\').replace(/</g,\'&lt;\').replace(/>/g,\'&gt;\'); }\nfunction getArr(type) {\n  return type===\'img\'?S.imagePosts:type===\'banner\'?S.banners:type===\'short\'?S.shortVideos:S.longVideos;\n}\n\n// -- GENERATE IMAGE POSTS ----------------------------------\n\nfunction getOverride(paneId) {\n  const pillarVal = document.getElementById(paneId + \'-pillar-select\');\n  const topicVal = document.getElementById(paneId + \'-topic-input\');\n  const pillar = pillarVal ? pillarVal.value : \'\';\n  const topic = topicVal ? topicVal.value.trim() : \'\';\n  \n  let override = \'\';\n  if (pillar && PILLAR_MAP[pillar]) {\n    override = PILLAR_MAP[pillar];\n  }\n  if (topic) {\n    override = override ? override + \' - specifically: \' + topic : topic;\n  }\n  return override;\n}\n\nasync function generateImages() {\n  const count = Math.min(parseInt(document.getElementById(\'post-count\').value) || 10, 10);\n  const override = getOverride(\'img\');\n  const btn = document.getElementById(\'gen-img-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(\'img-prog-wrap\').style.display = \'block\';\n  setP(\'img-prog-fill\',\'img-prog-label\',15,\'Selecting pillars and generating posts...\');\n  try {\n    const res = await fetch(\'/mj/api/generate\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({count, themeOverride: override, tone: S.tone, cta: S.cta, exclusions: getExclusions()})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(\'img-prog-fill\',\'img-prog-label\',100,\'Posts ready!\');\n    S.imagePosts = data.posts.map((p,i) => ({id:i, type:\'image\', ...p, imgUrl:null, scheduled:false}));\n    addTopicsToHistory(data.posts);\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(\'img-prog-wrap\').style.display = \'none\';\n      renderImagePosts(); updateStats(); renderSchedule(); refreshStoryStats();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(\'img-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate Image Posts\';\n}\n\n// -- GENERATE BANNERS --------------------------------------\nasync function generateBanners() {\n  const override = getOverride(\'banner\');\n  const btn = document.getElementById(\'gen-banner-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(\'banner-prog-wrap\').style.display = \'block\';\n  setP(\'banner-prog-fill\',\'banner-prog-label\',15,\'Creating banner concepts...\');\n  try {\n    const res = await fetch(\'/mj/api/generate-banner\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({count:3, themeOverride:override})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(\'banner-prog-fill\',\'banner-prog-label\',100,\'Banners ready!\');\n    S.banners = data.banners.map((b,i) => ({id:i, type:\'banner\', ...b, imgUrl:null, scheduled:false}));\n    addTopicsToHistory(data.banners);\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(\'banner-prog-wrap\').style.display = \'none\';\n      renderBanners(); updateStats(); renderSchedule(); refreshStoryStats();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(\'banner-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate 3 Banners\';\n}\n\n// -- GENERATE VIDEOS ---------------------------------------\nasync function generateVideos(type) {\n  const btn = document.getElementById(\'gen-\'+type+\'-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(type+\'-prog-wrap\').style.display = \'block\';\n  setP(type+\'-prog-fill\', type+\'-prog-label\', 15, \'Writing scripts...\');\n  try {\n    const res = await fetch(\'/mj/api/generate-video\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({videoType:type, count:3, themeOverride: getOverride(type), exclusions: getExclusions()})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(type+\'-prog-fill\', type+\'-prog-label\', 100, \'Scripts ready!\');\n    const arr = data.videos.map((v,i) => ({id:i, type, ...v, imgUrl:null, scheduled:false}));\n    if (type===\'short\') S.shortVideos = arr; else S.longVideos = arr;\n    addTopicsToHistory(data.videos);\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(type+\'-prog-wrap\').style.display = \'none\';\n      renderVideos(type); updateStats(); renderSchedule(); refreshStoryStats();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(type+\'-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate 3 \'+(type===\'short\'?\'Short\':\'Long\')+\' Scripts\';\n}\n\n// -- CARD BUILDER ------------------------------------------\nfunction buildCard(type, idx, item, time, typeLabel, typeCls, s1text, s2text, s3text, tab1label, tab2label) {\n  const dotCls = item.imgUrl ? (item.scheduled?\'dot-s\':\'dot-r\') : \'dot-p\';\n  const statusTxt = item.scheduled ? \'Scheduled\' : item.imgUrl ? \'Image ready\' : type===\'banner\' ? \'Paste prompt into image tool\' : \'Upload or generate image\';\n  const pane1id = type+\'-s1-\'+idx;\n  const pane2id = type+\'-s2-\'+idx;\n  const allPanes = pane1id+\',\'+pane2id;\n\n  let imgColHTML;\n  if (type === \'banner\') {\n    imgColHTML = item.imgUrl\n      ? \'<img src="\'+esc(item.imgUrl)+\'" class="img-preview" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" title="Click to replace">\'\n      : \'<div class="banner-placeholder"><span style="font-size:20px">&#127775;</span><span>Generate in<br>OpenArt or<br>Gemini</span></div>\';\n  } else {\n    imgColHTML = item.imgUrl\n      ? \'<img src="\'+esc(item.imgUrl)+\'" class="img-preview" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" title="Click to replace">\'\n      : \'<div class="drop-zone" data-drop-type="\'+type+\'" data-drop-idx="\'+idx+\'" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'"><span class="dz-icon">&#9727;</span><span>Generate or drop</span></div>\';\n  }\n\n  const copyBtnField1 = type===\'img\'?\'imagePrompt\':type===\'banner\'?\'bannerPrompt\':\'videoScript\';\n  const copyBtn1Label = type===\'img\'?\'Prompt\':type===\'banner\'?\'Banner Prompt\':\'Script\';\n  const schedDisabled = (type===\'banner\' && !item.imgUrl) || (type!==\'banner\' && !item.imgUrl) ? \' disabled\' : \'\';\n\n  return \'<div class="card-head">\'\n    +(type===\'img\' ? \'<input type="checkbox" class="post-select-cb" data-idx="\'+idx+\'" checked style="accent-color:var(--gold);width:15px;height:15px;margin-right:6px;cursor:pointer;flex-shrink:0;" title="Deselect to exclude from Buffer">\' : \'\')\n    +\'<span class="card-num">#\'+String(idx+1).padStart(2,\'0\')+\'</span>\'\n    +(item.pillar ? \'<span class="card-pillar">\'+esc(item.pillar)+\'</span>\' : \'\')\n    +\'<span class="card-type \'+typeCls+\'">\'+typeLabel+\'</span>\'\n    +\'<span class="card-time">\'+time+\'</span>\'\n    +(type===\'img\' ? \'<button class="remove-post-btn" data-remove-idx="\'+idx+\'" style="margin-left:auto;background:none;border:none;color:var(--hint);font-size:14px;cursor:pointer;padding:0 4px;line-height:1;" title="Remove this post">x</button>\' : \'\')\n    +\'</div>\'\n    +\'<div class="card-body">\'\n    +\'<div class="card-text">\'\n    +\'<div class="sec-tabs">\'\n    +\'<div class="sec-tab on" data-action="sectab" data-panes="\'+allPanes+\'" data-show="\'+pane1id+\'">\'+tab1label+\'</div>\'\n    +\'<div class="sec-tab" data-action="sectab" data-panes="\'+allPanes+\'" data-show="\'+pane2id+\'">\'+tab2label+\'</div>\'\n    +\'</div>\'\n    +\'<div class="sec-pane on" id="\'+pane1id+\'"><div class="section-text\'+(type===\'img\'?\' prompt\':\'\')+\'">\'+esc(s1text||\'\')+\'</div></div>\'\n    +\'<div class="sec-pane" id="\'+pane2id+\'"><div class="section-text">\'+esc(s2text||\'\')+\'</div></div>\'\n    +\'<div class="first-comment-block"><div class="first-comment-label">First Comment</div><div class="first-comment-text">\'+esc(s3text||\'\')+\'</div></div>\'\n    +(item.source ? \'<div style="margin-top:6px;padding:5px 10px;background:rgba(201,168,76,.06);border-radius:4px;border-left:2px solid var(--gold-dim);"><span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);">Source </span><span style="font-size:11px;color:var(--muted);">\'+esc(item.source||\'\')+\'</span></div>\' : \'\')\n    +\'</div>\'\n    +\'<div class="card-img-col">\'\n    +\'<input type="file" id="file-\'+type+\'-\'+idx+\'" accept="image/*" data-file-type="\'+type+\'" data-file-idx="\'+idx+\'" style="display:none">\'\n    +\'<div id="img-\'+type+\'-\'+idx+\'">\'+imgColHTML+\'</div>\'\n    +(type!==\'banner\' ? \'<button class="mbtn" data-action="regen" data-type="\'+type+\'" data-idx="\'+idx+\'" style="font-size:10px;">&#8635; Regen</button>\' : \'<button class="mbtn" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" style="font-size:10px;">&#8679; Upload</button>\')\n    +\'</div>\'\n    +\'</div>\'\n    +\'<div class="card-foot">\'\n    +\'<div class="s-dot \'+dotCls+\'" id="dot-\'+type+\'-\'+idx+\'"></div>\'\n    +\'<span class="s-txt" id="stxt-\'+type+\'-\'+idx+\'">\'+statusTxt+\'</span>\'\n    +\'<button class="mbtn" data-action="copy" data-type="\'+type+\'" data-idx="\'+idx+\'" data-field="\'+copyBtnField1+\'">\'+copyBtn1Label+\'</button>\'\n    +\'<button class="mbtn" data-action="copy" data-type="\'+type+\'" data-idx="\'+idx+\'" data-field="\'+(type===\'img\'||type===\'banner\'?\'caption\':\'captionAndHashtags\')+\'">Caption</button>\'\n    +\'<button class="mbtn" data-action="copy" data-type="\'+type+\'" data-idx="\'+idx+\'" data-field="firstComment">Comment</button>\'\n    +\'</div>\';\n}\n\n// Fix caption field name for image posts\nfunction buildCardHTML(type, idx, item, time, typeLabel, typeCls) {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  if (type === \'img\') {\n    return buildCard(type, idx, item, time, typeLabel, typeCls,\n      item.imagePrompt, item.caption, item.firstComment, \'Image Prompt\', \'Caption & Hashtags\');\n  } else if (type === \'banner\') {\n    return buildCard(type, idx, item, time, typeLabel, typeCls,\n      item.bannerPrompt, item.caption, item.firstComment, \'Banner Prompt\', \'Caption & Hashtags\');\n  } else {\n    var imgs = item.images || [];\n    var voiceover = item.voiceoverScript || item.videoScript || \'\';\n    return buildCard(type, idx, item, time, typeLabel, typeCls,\n      voiceover, item.captionAndHashtags, item.firstComment, \'Voiceover Script\', \'Caption & Hashtags\');\n  }\n}\n\n// -- RENDER FUNCTIONS --------------------------------------\nfunction renderImagePosts() {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const container = document.getElementById(\'images-container\');\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  S.imagePosts.forEach((p, i) => {\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = \'img-card-\'+i;\n    card.innerHTML = buildCardHTML(\'img\', i, p, fmtTime(addMins(start, i*intv)), \'IMAGE\', \'type-image\');\n    list.appendChild(card);\n  });\n  container.appendChild(list);\n}\n\nfunction renderBanners() {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = S.imagePosts.length;\n  const container = document.getElementById(\'banners-container\');\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  S.banners.forEach((b, i) => {\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = \'banner-card-\'+i;\n    card.innerHTML = buildCardHTML(\'banner\', i, b, fmtTime(addMins(start, (baseOff+i)*intv)), \'BANNER\', \'type-banner\');\n    list.appendChild(card);\n  });\n  container.appendChild(list);\n}\n\n\nfunction renderVideos(type) {\n  const arr = type===\'short\' ? S.shortVideos : S.longVideos;\n  const container = document.getElementById(type===\'short\'?\'shorts-container\':\'longs-container\');\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = S.imagePosts.length + S.banners.length + (type===\'long\' ? 3 : 0);\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  arr.forEach((v, i) => {\n    const typeCls = type===\'short\'?\'type-short\':\'type-long\';\n    const typeLabel = type===\'short\'?\'SHORT 30s\':\'LONG 60s\';\n    const wrapper = document.createElement(\'div\');\n    wrapper.style.marginBottom = \'8px\';\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = type+\'-card-\'+i;\n    card.innerHTML = buildCardHTML(type, i, v, fmtTime(addMins(start, (baseOff+i)*intv)), typeLabel, typeCls);\n    wrapper.appendChild(card);\n    // Append all image prompts below the card\n    var imgs = (v.images || []);\n    if (imgs.length > 1) {\n      var imgDiv = document.createElement(\'div\');\n      imgDiv.style.cssText = \'background:var(--dark2);border:1px solid var(--dark3);border-top:none;border-radius:0 0 10px 10px;padding:12px 16px;margin-bottom:4px;\';\n      var hdr = document.createElement(\'div\');\n      hdr.style.cssText = \'font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:10px;\';\n      hdr.textContent = \'ALL \' + imgs.length + \' IMAGE PROMPTS - 9:16 for Seedance/Kling\';\n      imgDiv.appendChild(hdr);\n      imgs.forEach(function(img) {\n        var row = document.createElement(\'div\');\n        row.style.marginBottom = \'10px\';\n        var lbl = document.createElement(\'div\');\n        lbl.style.cssText = \'font-size:9px;font-weight:700;color:var(--gold);margin-bottom:3px;\';\n        lbl.textContent = \'IMAGE \' + img.num;\n        var txt = document.createElement(\'div\');\n        txt.style.cssText = \'font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;margin-bottom:4px;\';\n        txt.textContent = img.prompt || \'\';\n        var btn = document.createElement(\'button\');\n        btn.className = \'mbtn\';\n        btn.style.fontSize = \'10px\';\n        btn.textContent = \'Copy\';\n        (function(p) {\n          btn.addEventListener(\'click\', function() {\n            if (navigator.clipboard) {\n              navigator.clipboard.writeText(p).then(function() {\n                btn.textContent = \'Copied!\';\n                setTimeout(function() { btn.textContent = \'Copy\'; }, 1500);\n              });\n            } else { showCopyModal(p); }\n          });\n        })(img.prompt || \'\');\n        row.appendChild(lbl);\n        row.appendChild(txt);\n        row.appendChild(btn);\n        imgDiv.appendChild(row);\n      });\n      // Copy all button\n      var allText = imgs.map(function(img) { return \'Image \' + img.num + \':\\n\' + (img.prompt || \'\'); }).join(\'\\n\\n\');\n      var copyAll = document.createElement(\'button\');\n      copyAll.className = \'mbtn\';\n      copyAll.style.cssText = \'border:1px solid var(--gold-dim);color:var(--gold);font-size:10px;margin-top:4px;\';\n      copyAll.textContent = \'Copy All \' + imgs.length + \' Prompts\';\n      (function(t) {\n        copyAll.addEventListener(\'click\', function() {\n          if (navigator.clipboard) {\n            navigator.clipboard.writeText(t).then(function() {\n              copyAll.textContent = \'Copied!\';\n              setTimeout(function() { copyAll.textContent = \'Copy All \' + imgs.length + \' Prompts\'; }, 1500);\n            });\n          } else { showCopyModal(t); }\n        });\n      })(allText);\n      imgDiv.appendChild(copyAll);\n      wrapper.appendChild(imgDiv);\n    }\n    list.appendChild(wrapper);\n  });\n  container.appendChild(list);\n}\n\n// -- IMAGE UPLOAD & GENERATION -----------------------------\nfunction applyImage(type, idx, dataUrl) {\n  const arr = getArr(type);\n  arr[idx].imgUrl = dataUrl;\n  const imgDiv = document.getElementById(\'img-\'+type+\'-\'+idx);\n  if (imgDiv) imgDiv.innerHTML = \'<img src="\'+dataUrl+\'" class="img-preview" data-action="upload" data-type="\'+type+\'" data-idx="\'+idx+\'" title="Click to replace">\';\n  const dot = document.getElementById(\'dot-\'+type+\'-\'+idx); if(dot) dot.className = \'s-dot dot-r\';\n  const stxt = document.getElementById(\'stxt-\'+type+\'-\'+idx); if(stxt) stxt.textContent = \'Image ready\';\n  savePosts(); updateStats(); renderSchedule();\n  toast(\'Image set for #\'+(idx+1));\n}\n\nasync function genImage(type, idx) {\n  const arr = getArr(type);\n  const promptField = type===\'img\' ? \'imagePrompt\' : type===\'banner\' ? \'bannerPrompt\' : \'imagePrompt\';\n  const prompt = arr[idx][promptField];\n  const imgDiv = document.getElementById(\'img-\'+type+\'-\'+idx);\n  const dot = document.getElementById(\'dot-\'+type+\'-\'+idx);\n  const stxt = document.getElementById(\'stxt-\'+type+\'-\'+idx);\n  if(dot) dot.className = \'s-dot dot-p\';\n  if(stxt) stxt.textContent = \'Generating...\';\n  if(imgDiv) imgDiv.innerHTML = \'<div class="img-gen"><div class="spinner"></div><span>Generating...</span></div>\';\n  try {\n    const res = await fetch(\'/mj/api/image\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({prompt, geminiKey: S.geminiKey})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    applyImage(type, idx, data.dataUrl);\n  } catch(e) {\n    if(imgDiv) imgDiv.innerHTML = \'<div class="drop-zone" data-drop-type="\'+type+\'" data-drop-idx="\'+idx+\'"><span style="font-size:18px">&#9888;</span><span>Error - upload manually</span></div>\';\n    if(dot) dot.className = \'s-dot\';\n    if(stxt) stxt.textContent = \'Error: \'+e.message.substring(0,60);\n    toast(\'Error: \'+e.message, true);\n  }\n}\n\n// -- CLEAR CONTENT -----------------------------------------\nfunction clearContent(type) {\n  if (type===\'images\') {\n    S.imagePosts = []; localStorage.removeItem(\'mj_imagePosts\');\n    document.getElementById(\'images-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127911;</span><h3>No Image Posts Yet</h3><p>Click Generate.</p></div>\';\n  } else if (type===\'banners\') {\n    S.banners = []; localStorage.removeItem(\'mj_banners\');\n    document.getElementById(\'banners-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127775;</span><h3>No Banners Yet</h3><p>Click Generate.</p></div>\';\n  } else if (type===\'shorts\') {\n    S.shortVideos = []; localStorage.removeItem(\'mj_shortVideos\');\n    document.getElementById(\'shorts-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127910;</span><h3>No Short Scripts Yet</h3><p>Click Generate.</p></div>\';\n  } else {\n    S.longVideos = []; localStorage.removeItem(\'mj_longVideos\');\n    document.getElementById(\'longs-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127909;</span><h3>No Long Scripts Yet</h3><p>Click Generate.</p></div>\';\n  }\n  updateStats();\n}\n\n// -- SCHEDULE VIEW -----------------------------------------\nfunction renderSchedule() {\n  const all = [\n    ...S.imagePosts.map((p,i) => ({...p, dType:\'Image\', tKey:\'img\', cap:p.caption})),\n    ...S.banners.map((b,i) => ({...b, dType:\'Banner\', tKey:\'banner\', cap:b.caption})),\n    ...S.shortVideos.map((v,i) => ({...v, dType:\'Short\', tKey:\'short\', cap:v.captionAndHashtags})),\n    ...S.longVideos.map((v,i) => ({...v, dType:\'Long\', tKey:\'long\', cap:v.captionAndHashtags}))\n  ];\n  if (!all.length) return;\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const rows = all.map((item, i) => {\n    const t = fmtTime(addMins(start, i*intv));\n    const pill = item.scheduled ? \'<span class="pill pill-s">Scheduled</span>\' : item.imgUrl ? \'<span class="pill pill-r">Ready</span>\' : \'<span class="pill pill-p">Pending</span>\';\n    const tLabel = item.dType===\'Image\' ? \'<span class="card-type type-image">IMG</span>\'\n      : item.dType===\'Banner\' ? \'<span class="card-type type-banner">BNR</span>\'\n      : item.dType===\'Short\' ? \'<span class="card-type type-short">SHORT</span>\'\n      : \'<span class="card-type type-long">LONG</span>\';\n    return \'<div class="sched-row"><span class="s-num">\'+(i+1)+\'</span>\'+tLabel+\'<span style="font-size:11px">\'+esc((item.cap||\'\').substring(0,45))+\'...</span><span style="font-size:11px;color:var(--muted)">\'+t+\'</span>\'+pill+\'</div>\';\n  }).join(\'\');\n  document.getElementById(\'sched-container\').innerHTML = \'<div class="sched-table"><div class="sched-head"><span>#</span><span>Type</span><span>Caption</span><span>Time</span><span>Status</span></div>\'+rows+\'</div>\';\n}\n\n\n// -- MOBILE MENU -------------------------------------------\ndocument.getElementById(\'mobile-menu-btn\').addEventListener(\'click\', () => {\n  const sidebar = document.querySelector(\'.sidebar\');\n  const btn = document.getElementById(\'mobile-menu-btn\');\n  sidebar.classList.toggle(\'open\');\n  btn.classList.toggle(\'on\');\n});\ndocument.querySelectorAll(\'.tab\').forEach(tab => {\n  tab.addEventListener(\'click\', () => {\n    if (window.innerWidth <= 680) {\n      document.querySelector(\'.sidebar\').classList.remove(\'open\');\n      document.getElementById(\'mobile-menu-btn\').classList.remove(\'on\');\n    }\n  });\n});\n\n\n// -- COPY MODAL --------------------------------------------\ndocument.getElementById(\'copy-modal-close\').addEventListener(\'click\', closeCopyModal);\ndocument.getElementById(\'copy-modal-close2\').addEventListener(\'click\', closeCopyModal);\ndocument.getElementById(\'copy-modal\').addEventListener(\'click\', e => {\n  if (e.target === document.getElementById(\'copy-modal\')) closeCopyModal();\n});\ndocument.getElementById(\'copy-modal-btn\').addEventListener(\'click\', () => {\n  const text = document.getElementById(\'copy-modal-text\').value;\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => { toast(\'Copied!\'); closeCopyModal(); }).catch(() => toast(\'Select all text above and copy manually\'));\n  } else {\n    const ta = document.getElementById(\'copy-modal-text\');\n    ta.select(); ta.setSelectionRange(0, 99999);\n    try { document.execCommand(\'copy\'); toast(\'Copied!\'); closeCopyModal(); }\n    catch(e) { toast(\'Select all text above and copy manually\'); }\n  }\n});\n\n\n// -- TOPIC TRACKER -----------------------------------------\nconst TOPIC_HISTORY_KEY = \'mj_topic_history\'; // shared across all content types\nconst MAX_HISTORY = 60;\n\nfunction getTopicHistory() {\n  try { return JSON.parse(localStorage.getItem(TOPIC_HISTORY_KEY) || \'[]\'); }\n  catch(e) { return []; }\n}\nfunction addTopicsToHistory(posts) {\n  if (!posts || !posts.length) return;\n  const history = getTopicHistory();\n  posts.forEach(p => {\n    const topics = (p.topics_used || p.pillar || \'\').split(\',\').map(t => t.trim()).filter(Boolean);\n    topics.forEach(t => { if (t && !history.includes(t)) history.unshift(t); });\n  });\n  localStorage.setItem(TOPIC_HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));\n}\nfunction clearTopicHistory() {\n  localStorage.removeItem(TOPIC_HISTORY_KEY);\n  toast(\'Topic history cleared!\');\n}\nfunction getExclusions() {\n  return getTopicHistory().slice(0, 40);\n}\n\n\n\n// -- CAROUSEL ----------------------------------------------\nasync function generateCarousel() {\n  const btn = document.getElementById(\'carousel-btn\');\n  const results = document.getElementById(\'carousel-results\');\n  const override = (document.getElementById(\'carousel-override\') || {}).value || \'\';\n\n  btn.disabled = true;\n  btn.textContent = \'Generating...\';\n  results.innerHTML = \'<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center;">Building your 5-slide story... ~30-60 seconds</div>\';\n\n  try {\n    const res = await fetch(\'/mj/api/generate-carousel\', {\n      method: \'POST\',\n      headers: {\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({ themeOverride: override.trim(), exclusions: getTopicHistory() })\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    const c = data.carousel;\n    if (c.topics_used) addTopicsToHistory([{topics_used: c.topics_used, pillar: c.pillar || ""}]);\n    S.carousels.unshift(c);\n    savePosts();\n    renderCarousels();\n\n    renderCarousels();\n    refreshStoryStats();\n\n  } catch(e) {\n    results.innerHTML = `<div style="color:#D48A8A;font-size:13px;padding:16px;">Error: ${esc(e.message)}</div>`;\n  } finally {\n    btn.disabled = false;\n    btn.textContent = \'Generate Carousel\';\n  }\n}\n\nfunction renderCarousels() {\n  const results = document.getElementById(\'carousel-results\');\n  if (!results) return;\n  if (!S.carousels || !S.carousels.length) {\n    results.innerHTML = \'\';\n    return;\n  }\n\n  let out = \'\';\n\n  S.carousels.forEach((c, ci) => {\n    const goldBorder = \'1px solid var(--gold-dim)\';\n    const dimBorder  = \'1px solid var(--dark3)\';\n\n    function slideCard(label, captionLabel, caption, imgPrompt, borderColor, note) {\n      return `<div style="background:var(--dark2);border:${borderColor};border-radius:10px;padding:16px;margin-bottom:10px;">\n        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:${borderColor===goldBorder?\'var(--gold)\':\'var(--hint)\'};text-transform:uppercase;margin-bottom:10px;">${label}</div>\n        <div style="margin-bottom:10px;">\n          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">${captionLabel}</div>\n          <div style="font-size:14px;color:var(--text);line-height:1.6;">${esc(caption||\'\')}</div>\n          ${note?`<div style="font-size:10px;color:var(--hint);margin-top:4px;">${note}</div>`:\'\'}\n          <button onclick="carouselCopy(this)" data-copy="${esc(caption||\'\')}" style="margin-top:6px;background:var(--dark3);border:none;border-radius:4px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Copy Caption</button>\n        </div>\n        <div>\n          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">Image Prompt</div>\n          <div style="font-size:12px;color:var(--muted);line-height:1.6;font-style:italic;">${esc(imgPrompt||\'\')}</div>\n          <button onclick="carouselCopy(this)" data-copy="${esc(imgPrompt||\'\')}" style="margin-top:6px;background:var(--dark3);border:none;border-radius:4px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Copy Image Prompt</button>\n        </div>\n      </div>`;\n    }\n\n    out += `<div style="border:1px solid var(--dark3);border-radius:12px;padding:16px;margin-bottom:20px;background:var(--dark1);">\n      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">\n        <span style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;">Carousel ${S.carousels.length - ci}</span>\n        <button onclick="deleteCarousel(${ci})" style="background:none;border:1px solid var(--dark3);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">x Remove</button>\n      </div>`;\n\n    out += slideCard(\'Slide 1 - Hook\', \'Caption (sits below image)\', c.slide1Caption||\'\', c.slide1ImagePrompt||\'\', goldBorder, \'Caption goes below/beside the image - not on top\');\n\n    (c.slides||[]).forEach(slide => {\n      const isLast = slide.slideNum === 5;\n      out += slideCard(\n        `Slide ${slide.slideNum}${isLast?\' - Payoff + CTA\':\' - Story\'}`,\n        \'Overlay Caption (sits ON TOP of image)\',\n        slide.overlayCaption||\'\', slide.imagePrompt||\'\',\n        isLast ? goldBorder : dimBorder, null\n      );\n    });\n\n    if (c.firstComment) {\n      out += `<div style="background:rgba(201,168,76,.06);border:1px solid var(--gold-dim);border-radius:8px;padding:12px;margin-bottom:8px;">\n        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">First Comment</div>\n        <div style="font-size:13px;color:var(--muted);">${esc(c.firstComment)}</div>\n        <button onclick="carouselCopy(this)" data-copy="${esc(c.firstComment)}" style="margin-top:6px;background:var(--dark3);border:none;border-radius:4px;padding:4px 10px;font-size:10px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Copy</button>\n      </div>`;\n    }\n    if (c.source) {\n      out += `<div style="padding:5px 10px;background:rgba(201,168,76,.06);border-radius:4px;border-left:2px solid var(--gold-dim);"><span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);">Source </span><span style="font-size:11px;color:var(--muted);">${esc(c.source)}</span></div>`;\n    }\n\n    out += \'</div>\';\n  });\n\n  // Add clear all button\n  out += `<div style="text-align:center;margin-top:8px;">\n    <button onclick="clearCarousels()" style="background:none;border:1px solid var(--dark3);border-radius:6px;padding:8px 20px;font-size:12px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;">Clear All Carousels</button>\n  </div>`;\n\n  results.innerHTML = out;\n}\n\nfunction deleteCarousel(idx) {\n  S.carousels.splice(idx, 1);\n  savePosts();\n  renderCarousels();\n}\n\nfunction clearCarousels() {\n  if (!confirm(\'Clear all saved carousels?\')) return;\n  S.carousels = [];\n  savePosts();\n  renderCarousels();\n}\n\nfunction quickCopy(btn, text) {\n  if (navigator.clipboard) {\n    navigator.clipboard.writeText(text).then(() => {\n      const orig = btn.textContent;\n      btn.textContent = \'Copied!\';\n      setTimeout(() => btn.textContent = orig, 1500);\n    }).catch(() => showCopyModal(text));\n  } else { showCopyModal(text); }\n}\n\nfunction carouselCopy(btn) {\n  const text = btn.getAttribute(\'data-copy\');\n  if (navigator.clipboard) {\n    navigator.clipboard.writeText(text).then(() => {\n      const orig = btn.textContent;\n      btn.textContent = \'Copied!\';\n      setTimeout(() => btn.textContent = orig, 1500);\n    }).catch(() => showCopyModal(text));\n  } else {\n    showCopyModal(text);\n  }\n}\n\n// -- STORY DATABASE -----------------------------------------\nasync function refreshStoryStats() {\n  const el = document.getElementById(\'story-counter\');\n  const settingsEl = document.getElementById(\'settings-story-stats\');\n  try {\n    const res = await fetch(\'/mj/api/story-stats\');\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    \n    const pct = Math.round((data.used / data.total) * 100);\n    const counterHTML = `\n      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;">\n        <div style="background:var(--dark3);border-radius:4px;padding:6px;text-align:center;">\n          <div style="font-size:20px;font-weight:700;color:var(--gold);font-family:Bebas Neue,sans-serif;">${data.total}</div>\n          <div style="font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;">Total</div>\n        </div>\n        <div style="background:var(--dark3);border-radius:4px;padding:6px;text-align:center;">\n          <div style="font-size:20px;font-weight:700;color:${data.unused < 50 ? \'#D48A8A\' : \'#1D9E75\'};font-family:Bebas Neue,sans-serif;">${data.unused}</div>\n          <div style="font-size:9px;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;">Unused</div>\n        </div>\n      </div>\n      <div style="height:4px;background:var(--dark3);border-radius:99px;overflow:hidden;margin-bottom:4px;">\n        <div style="height:100%;width:${pct}%;background:${pct > 75 ? \'#AA3D3D\' : pct > 50 ? \'#C9A84C\' : \'#1D9E75\'};border-radius:99px;transition:width .4s;"></div>\n      </div>\n      <div style="font-size:10px;color:var(--hint);">${pct}% used . ~${data.days_remaining} days remaining</div>\n    `;\n    if (el) el.innerHTML = counterHTML;\n    if (settingsEl) settingsEl.innerHTML = `${data.total} stories total . ${data.used} used . ${data.unused} remaining . ~${data.days_remaining} days at 15 posts/day`;\n  } catch(e) {\n    if (el) el.innerHTML = \'<span style="color:var(--hint)">Stats unavailable</span>\';\n  }\n}\n\nasync function runStoryRefresh() {\n  const btn = document.getElementById(\'refresh-stories-btn\');\n  const status = document.getElementById(\'refresh-status\');\n  if (!btn || !status) return;\n\n  const categories = [\n    {key:\'song_histories\', count:60, label:\'Song Histories\'},\n    {key:\'family_history\', count:40, label:\'Family History\'},\n    {key:\'marriages_children\', count:30, label:\'Marriages & Children\'},\n    {key:\'achievements_verified\', count:30, label:\'Achievements\'},\n    {key:\'performances_verified\', count:30, label:\'Performances\'},\n    {key:\'relationships_verified\', count:30, label:\'Relationships\'},\n  ];\n\n  btn.disabled = true;\n  status.style.display = \'block\';\n  status.style.color = \'var(--gold)\';\n\n  let totalAdded = 0;\n  let finalTotal = 0;\n  let errors = [];\n\n  for (let i = 0; i < categories.length; i++) {\n    const cat = categories[i];\n    btn.textContent = `Generating ${cat.label}... (${i+1}/${categories.length})`;\n    status.textContent = `Working on ${cat.label} (${i+1} of ${categories.length}) - this may take 30-60 seconds per category`;\n\n    try {\n      const res = await fetch(\'/mj/api/refresh-stories\', {\n        method: \'POST\',\n        headers: {\'Content-Type\': \'application/json\'},\n        body: JSON.stringify({category: cat.key, count: cat.count})\n      });\n      const data = await res.json();\n      if (data.ok) {\n        totalAdded += data.new_count;\n        finalTotal = data.total_count;\n        refreshStoryStats();\n      } else {\n        errors.push(`${cat.label}: ${data.error}`);\n      }\n    } catch(e) {\n      errors.push(`${cat.label}: ${e.message}`);\n    }\n  }\n\n  if (totalAdded > 0) {\n    status.textContent = `Added ${totalAdded} new stories. Database now has ${finalTotal} total.` + (errors.length ? ` (${errors.length} category issue(s) - check console)` : \'\');\n    status.style.color = \'#1D9E75\';\n    btn.textContent = `v ${finalTotal} stories now available`;\n    if (errors.length) console.warn(\'Refresh issues:\', errors);\n    toast(`Added ${totalAdded} new story angles`);\n  } else {\n    status.textContent = \'No new stories were added. Errors: \' + errors.join(\'; \');\n    status.style.color = \'#D48A8A\';\n    btn.disabled = false;\n    btn.textContent = \'<> Generate New Story Angles\';\n  }\n}\n\n// Load stats on page init\nsetTimeout(refreshStoryStats, 1000);\n\n// Wire up post selection checkboxes via delegation\ndocument.addEventListener(\'change\', function(e) {\n  if (e.target.classList.contains(\'post-select-cb\')) {\n    updateSelectionBar();\n  }\n});\n\ndocument.addEventListener(\'click\', function(e) {\n  if (e.target.classList.contains(\'remove-post-btn\')) {\n    var idx = parseInt(e.target.getAttribute(\'data-remove-idx\'));\n    removePost(idx);\n  }\n});\n\n// -- VIDEO IMAGE PROMPT COPY --------------------------------\ndocument.addEventListener(\'click\', function(e) {\n  if (e.target.classList.contains(\'vid-copy-prompt\')) {\n    const text = decodeURIComponent(e.target.getAttribute(\'data-prompt\') || \'\');\n    if (navigator.clipboard) {\n      navigator.clipboard.writeText(text).then(function() {\n        var orig = e.target.textContent;\n        e.target.textContent = \'Copied!\';\n        setTimeout(function() { e.target.textContent = orig; }, 1500);\n      }).catch(function() { showCopyModal(text); });\n    } else { showCopyModal(text); }\n  }\n  if (e.target.classList.contains(\'vid-copy-all\')) {\n    const text = decodeURIComponent(e.target.getAttribute(\'data-prompts\') || \'\');\n    if (navigator.clipboard) {\n      navigator.clipboard.writeText(text).then(function() {\n        var orig = e.target.textContent;\n        e.target.textContent = \'Copied!\';\n        setTimeout(function() { e.target.textContent = orig; }, 1500);\n      }).catch(function() { showCopyModal(text); });\n    } else { showCopyModal(text); }\n  }\n});\n\n\n\n// -- POST SELECTION ----------------------------------------\nfunction updateSelectionBar() {\n  var cbs = document.querySelectorAll(\'.post-select-cb\');\n  var checked = document.querySelectorAll(\'.post-select-cb:checked\');\n  var bar = document.getElementById(\'post-selection-bar\');\n  var countEl = document.getElementById(\'selection-count\');\n  if (cbs.length > 0) {\n    bar.style.display = \'flex\';\n    countEl.textContent = checked.length + \' of \' + cbs.length + \' selected for Buffer\';\n  } else {\n    bar.style.display = \'none\';\n  }\n}\n\nfunction selectAllPosts(checked) {\n  document.querySelectorAll(\'.post-select-cb\').forEach(function(cb) { cb.checked = checked; });\n  updateSelectionBar();\n}\n\nfunction getSelectedPostIndices() {\n  var indices = [];\n  document.querySelectorAll(\'.post-select-cb:checked\').forEach(function(cb) {\n    indices.push(parseInt(cb.getAttribute(\'data-idx\')));\n  });\n  return indices;\n}\n\nfunction removePost(idx) {\n  S.imagePosts.splice(idx, 1);\n  savePosts();\n  renderImagePosts();\n  updateStats();\n  renderSchedule();\n  updateSelectionBar();\n}\n\n\nfunction addMorePosts() {\n  var countEl = document.getElementById(\'add-more-count\');\n  var overrideEl = document.getElementById(\'add-more-override\');\n  var addCount = parseInt(countEl.value) || 5;\n  var override = overrideEl ? overrideEl.value.trim() : \'\';\n\n  if (addCount < 1 || addCount > 19) {\n    toast(\'Please enter a number between 1 and 19.\', true);\n    return;\n  }\n\n  toast(\'Generating \' + addCount + \' more posts...\');\n  var btn = document.querySelector(\'[onclick="addMorePosts()"]\');\n  if (btn) { btn.disabled = true; btn.textContent = \'Generating...\'; }\n\n  fetch(\'/mj/api/generate\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({\n      count: addCount,\n      themeOverride: override,\n      tone: S.tone,\n      cta: S.cta,\n      exclusions: getExclusions()\n    })\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) {\n      toast(\'Error: \' + data.error, true);\n    } else {\n      var newPosts = data.posts.map(function(p, i) {\n        return Object.assign({id: S.imagePosts.length + i, type: \'img\', imgUrl: null, scheduled: false}, p);\n      });\n      S.imagePosts = S.imagePosts.concat(newPosts);\n      addTopicsToHistory(data.posts);\n      savePosts();\n      renderImagePosts();\n      updateStats();\n      renderSchedule();\n      refreshStoryStats();\n      toast(addCount + \' posts added to your batch!\');\n    }\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  }).catch(function(e) {\n    toast(\'Error: \' + e.message, true);\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  });\n}\n\n\nfunction addMorePosts() {\n  var countEl = document.getElementById(\'add-more-count\');\n  var overrideEl = document.getElementById(\'add-more-override\');\n  var addCount = parseInt(countEl.value) || 5;\n  var override = overrideEl ? overrideEl.value.trim() : \'\';\n\n  if (addCount < 1 || addCount > 19) {\n    toast(\'Please enter a number between 1 and 19.\', true);\n    return;\n  }\n\n  toast(\'Generating \' + addCount + \' more posts...\');\n  var btn = document.querySelector(\'[onclick="addMorePosts()"]\');\n  if (btn) { btn.disabled = true; btn.textContent = \'Generating...\'; }\n\n  fetch(\'/mj/api/generate\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({\n      count: addCount,\n      themeOverride: override,\n      tone: S.tone,\n      cta: S.cta,\n      exclusions: getExclusions()\n    })\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) {\n      toast(\'Error: \' + data.error, true);\n    } else {\n      var newPosts = data.posts.map(function(p, i) {\n        return Object.assign({id: S.imagePosts.length + i, type: \'img\', imgUrl: null, scheduled: false}, p);\n      });\n      S.imagePosts = S.imagePosts.concat(newPosts);\n      addTopicsToHistory(data.posts);\n      savePosts();\n      renderImagePosts();\n      updateStats();\n      renderSchedule();\n      refreshStoryStats();\n      toast(addCount + \' posts added to your batch!\');\n    }\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  }).catch(function(e) {\n    toast(\'Error: \' + e.message, true);\n    if (btn) { btn.disabled = false; btn.textContent = \'Add to Batch\'; }\n  });\n}\n\nfunction regenerateDeselected() {\n  var deselected = [];\n  document.querySelectorAll(\'.post-select-cb\').forEach(function(cb) {\n    if (!cb.checked) deselected.push(parseInt(cb.getAttribute(\'data-idx\')));\n  });\n  if (!deselected.length) { toast(\'No posts deselected - uncheck posts you want to replace first.\', true); return; }\n  if (!confirm(\'Regenerate \' + deselected.length + \' deselected post(s) with new story angles?\')) return;\n\n  var override = (document.getElementById(\'img-override\') || {}).value || \'\';\n  toast(\'Regenerating \' + deselected.length + \' post(s)...\');\n\n  fetch(\'/mj/api/generate\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({\n      count: deselected.length,\n      themeOverride: override,\n      tone: S.tone,\n      cta: S.cta,\n      exclusions: getExclusions()\n    })\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) { toast(\'Error: \' + data.error, true); return; }\n    // Replace deselected posts with new ones\n    var newPosts = data.posts.map(function(p, i) {\n      return {id: deselected[i] !== undefined ? deselected[i] : S.imagePosts.length + i, type: \'image\', ...p, imgUrl: null, scheduled: false};\n    });\n    newPosts.forEach(function(p, i) {\n      var replaceIdx = deselected[i];\n      if (replaceIdx !== undefined && replaceIdx < S.imagePosts.length) {\n        S.imagePosts[replaceIdx] = p;\n      }\n    });\n    addTopicsToHistory(data.posts);\n    savePosts();\n    renderImagePosts();\n    updateStats();\n    renderSchedule();\n    refreshStoryStats();\n    toast(deselected.length + \' post(s) regenerated!\');\n  }).catch(function(e) { toast(\'Error: \' + e.message, true); });\n}\n\n\n// -- DOWNLOAD PROMPTS AS TXT ----------------------------------------\nfunction downloadPromptsAsTxt() {\n  if (!S.imagePosts || !S.imagePosts.length) {\n    toast("No image posts to export. Generate some first.", true);\n    return;\n  }\n  var lines = S.imagePosts.map(function(p) {\n    return (p.imagePrompt || "").trim();\n  }).filter(function(p) { return p.length > 0; });\n\n  if (!lines.length) {\n    toast("No image prompts found in current posts.", true);\n    return;\n  }\n\n  var content = lines.join("\\n");\n  var blob = new Blob([content], {type: "text/plain"});\n  var url = URL.createObjectURL(blob);\n  var a = document.createElement("a");\n  a.href = url;\n  a.download = "mj_openart_prompts_" + lines.length + ".txt";\n  document.body.appendChild(a);\n  a.click();\n  document.body.removeChild(a);\n  URL.revokeObjectURL(url);\n  toast("Downloaded " + lines.length + " prompts for OpenArt Bulk Create!");\n}\n\n\n// -- DOWNLOAD VIDEO PROMPTS AS TXT --------------------------------\nfunction downloadVideoPromptsAsTxt(type) {\n  var arr = type === \'short\' ? S.shortVideos : S.longVideos;\n  if (!arr || !arr.length) { toast(\'No \' + type + \' videos generated yet.\', true); return; }\n  var lines = [];\n  arr.forEach(function(v) {\n    (v.images || []).forEach(function(img) {\n      if (img.prompt) lines.push(img.prompt.trim());\n    });\n  });\n  if (!lines.length) { toast(\'No image prompts found in videos.\', true); return; }\n  var blob = new Blob([lines.join(\'\\n\')], {type: \'text/plain\'});\n  var url = URL.createObjectURL(blob);\n  var a = document.createElement(\'a\');\n  a.href = url;\n  a.download = \'mj_video_\' + type + \'_prompts_\' + lines.length + \'.txt\';\n  document.body.appendChild(a);\n  a.click();\n  document.body.removeChild(a);\n  URL.revokeObjectURL(url);\n  toast(\'Downloaded \' + lines.length + \' image prompts for OpenArt!\');\n}\n\n// -- BUFFER INTEGRATION ----------------------------------------\nvar S_BUFFER_KEY = localStorage.getItem(\'mj_buffer_key\') || \'\';\nvar S_BUFFER_CHANNELS = JSON.parse(localStorage.getItem(\'mj_buffer_channels\') || \'[]\');\n\nfunction loadBufferChannels() {\n  var key = document.getElementById(\'set-buffer-key\').value.trim();\n  var status = document.getElementById(\'buffer-connect-status\');\n  if (!key) { status.textContent = \'Please enter your Buffer API key.\'; return; }\n  status.textContent = \'Connecting...\';\n  status.style.color = \'var(--gold)\';\n  fetch(\'/mj/api/buffer-channels\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({apiKey: key})\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) { status.textContent = \'Error: \' + data.error; status.style.color = \'#D48A8A\'; return; }\n    S_BUFFER_KEY = key;\n    localStorage.setItem(\'mj_buffer_key\', key);\n    var list = document.getElementById(\'buffer-channel-list\');\n    list.innerHTML = \'\';\n    data.channels.forEach(function(ch) {\n      var checked = S_BUFFER_CHANNELS.some(function(c) { return c.id === ch.id; });\n      var div = document.createElement(\'div\');\n      div.style.cssText = \'display:flex;align-items:center;gap:8px;\';\n      div.innerHTML = \'<input type="checkbox" id="ch-\' + ch.id + \'" value="\' + ch.id + \'" \' + (checked ? \'checked\' : \'\') + \' style="accent-color:var(--gold);width:14px;height:14px;">\'\n        + \'<label for="ch-\' + ch.id + \'" style="font-size:12px;color:var(--text);cursor:pointer;">\' + esc(ch.name) + \' <span style="color:var(--hint);font-size:10px;">(\' + ch.service + \')</span></label>\';\n      list.appendChild(div);\n    });\n    document.getElementById(\'buffer-channels-wrap\').style.display = \'block\';\n    status.textContent = \'Connected! Select channels to post to.\';\n    status.style.color = \'#1D9E75\';\n    localStorage.setItem(\'mj_buffer_channels_all\', JSON.stringify(data.channels));\n  }).catch(function(e) {\n    status.textContent = \'Connection failed: \' + e.message;\n    status.style.color = \'#D48A8A\';\n  });\n}\n\nfunction getSelectedChannelIds() {\n  var ids = [];\n  var checkboxes = document.querySelectorAll(\'#buffer-channel-list input[type="checkbox"]:checked\');\n  checkboxes.forEach(function(cb) { ids.push(cb.value); });\n  return ids;\n}\n\nfunction sendToBuffer() {\n  var key = S_BUFFER_KEY || localStorage.getItem(\'mj_buffer_key\');\n  if (!key) { toast(\'Please connect Buffer in Settings first.\', true); return; }\n  var channelIds = getSelectedChannelIds();\n  if (!channelIds.length) { toast(\'Please select at least one Buffer channel in Settings.\', true); return; }\n  if (!S.imagePosts || !S.imagePosts.length) { toast(\'No image posts to send. Generate some first.\', true); return; }\n\n  var selectedIndices = getSelectedPostIndices();\n  var postsToSend = selectedIndices.length > 0\n    ? selectedIndices.map(function(i) { return S.imagePosts[i]; }).filter(Boolean)\n    : S.imagePosts;\n  if (!postsToSend.length) { toast(\'No posts selected. Check the boxes on posts you want to send.\', true); return; }\n  var posts = postsToSend.map(function(p) {\n    return { caption: p.caption || p.captionAndHashtags || \'\', firstComment: p.firstComment || \'\' };\n  });\n\n  toast(\'Sending \' + posts.length + \' posts to Buffer...\');\n  document.getElementById(\'buffer-send-btn\').disabled = true;\n  document.getElementById(\'buffer-send-btn\').textContent = \'Sending...\';\n\n  fetch(\'/mj/api/buffer-queue\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({apiKey: key, channelIds: channelIds, channelInfos: JSON.parse(localStorage.getItem(\'mj_buffer_channels_all\') || \'[]\'), orgId: \'697f6b9d75b8747f96f3583a\', posts: posts})\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    console.log(\'Buffer response:\', JSON.stringify(data));\n    if (!data.ok) {\n      var log = document.getElementById(\'buffer-log\');\n      if (log) { log.style.display = \'block\'; log.textContent = \'Error: \' + data.error; }\n      toast(\'Buffer error: \' + data.error, true);\n    }\n    else {\n      var log = document.getElementById(\'buffer-log\');\n      var msg = data.queued + \' posts queued to Buffer!\';\n      if (data.errors && data.errors.length) {\n        msg += \' (\' + data.errors.length + \' errors)\';\n        // Show full error log\n        if (log) {\n          log.style.display = \'block\';\n          log.textContent = \'Buffer errors (\' + data.errors.length + \'):\\n\' + data.errors.join(\'\\n\');\n        }\n        toast(msg + \' - See error log below.\', true);\n      } else {\n        if (log) log.style.display = \'none\';\n        toast(msg);\n      }\n      console.log(\'Buffer response:\', data);\n    }\n    document.getElementById(\'buffer-send-btn\').disabled = false;\n    document.getElementById(\'buffer-send-btn\').textContent = \'Send to Buffer\';\n  }).catch(function(e) {\n    toast(\'Failed: \' + e.message, true);\n    document.getElementById(\'buffer-send-btn\').disabled = false;\n    document.getElementById(\'buffer-send-btn\').textContent = \'Send to Buffer\';\n  });\n}\n\n// Restore buffer key in settings when modal opens\ndocument.getElementById(\'settings-btn\').addEventListener(\'click\', function() {\n  var savedKey = localStorage.getItem(\'mj_buffer_key\');\n  if (savedKey) document.getElementById(\'set-buffer-key\').value = savedKey;\n});\n\n// -- LOAD SAVED POSTS ON INIT ------------------------------\nloadPosts();\nif (S.imagePosts.length) { renderImagePosts(); updateStats(); renderSchedule(); refreshStoryStats(); }\nif (S.banners.length) { renderBanners(); updateStats(); renderSchedule(); refreshStoryStats(); }\nif (S.shortVideos.length) renderVideos(\'short\');\nif (S.longVideos.length) renderVideos(\'long\');\nif (S.carousels && S.carousels.length) renderCarousels();\nupdateStats();\nsetTimeout(refreshStoryStats, 1000);\n'
 @mj_bp.route('/studio.js')
 def studio_js():
     return Response(MJ_STUDIO_JS, mimetype='application/javascript; charset=utf-8')
@@ -1663,7 +3359,11 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
           <select id="carousel-override" style="width:100%;background:var(--dark2);border:1px solid var(--dark3);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text);font-family:DM Sans,sans-serif;margin-top:4px;box-sizing:border-box;">
             <option value="">— Random (recommended) —</option>
             <option value="on_this_day">📅 On This Day</option>
-          </select>
+                <option value="philanthropy">Philanthropy</option>
+      <option value="business_ventures">Business Ventures</option>
+      <option value="fashion_style">Fashion &amp; Style</option>
+      <option value="recording_innovation">Recording Innovation</option>
+    </select>
         </div>
         <button class="btn btn-gold" id="carousel-btn" onclick="generateCarousel()">Generate Carousel</button>
       </div>
@@ -1692,7 +3392,11 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
             <option value="making_of">Making of Specific Songs</option>
           
             <option value="on_this_day">📅 On This Day</option>
-          </select>
+                <option value="philanthropy">Philanthropy</option>
+      <option value="business_ventures">Business Ventures</option>
+      <option value="fashion_style">Fashion &amp; Style</option>
+      <option value="recording_innovation">Recording Innovation</option>
+    </select>
         </div>
         <div style="margin-bottom:10px;">
           <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase;">Specific Topic <span style="color:var(--hint);text-transform:none;font-size:10px;">(optional — e.g. "The making of Billie Jean")</span></label>
@@ -1724,7 +3428,11 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
               <option value="Performances">Performances</option>
               <option value="Relationships">Relationships</option>
               <option value="on this day">On This Day</option>
-            </select>
+                  <option value="philanthropy">Philanthropy</option>
+      <option value="business_ventures">Business Ventures</option>
+      <option value="fashion_style">Fashion &amp; Style</option>
+      <option value="recording_innovation">Recording Innovation</option>
+    </select>
             <button onclick="addMorePosts()" style="background:var(--gold);border:none;border-radius:4px;padding:5px 14px;font-size:11px;color:#000;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">Add to Batch</button>
           </div>
         </div>
@@ -1764,7 +3472,11 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
             <option value="making_of">Making of Specific Songs</option>
           
             <option value="on_this_day">📅 On This Day</option>
-          </select>
+                <option value="philanthropy">Philanthropy</option>
+      <option value="business_ventures">Business Ventures</option>
+      <option value="fashion_style">Fashion &amp; Style</option>
+      <option value="recording_innovation">Recording Innovation</option>
+    </select>
         </div>
         <div style="margin-bottom:10px;">
           <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase;">Specific Topic <span style="color:var(--hint);text-transform:none;font-size:10px;">(optional — e.g. "The making of Billie Jean")</span></label>
@@ -1806,7 +3518,11 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
             <option value="making_of">Making of Specific Songs</option>
           
             <option value="on_this_day">📅 On This Day</option>
-          </select>
+                <option value="philanthropy">Philanthropy</option>
+      <option value="business_ventures">Business Ventures</option>
+      <option value="fashion_style">Fashion &amp; Style</option>
+      <option value="recording_innovation">Recording Innovation</option>
+    </select>
         </div>
         <div style="margin-bottom:10px;">
           <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase;">Specific Topic <span style="color:var(--hint);text-transform:none;font-size:10px;">(optional)</span></label>
@@ -1849,7 +3565,11 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
             <option value="making_of">Making of Specific Songs</option>
           
             <option value="on_this_day">📅 On This Day</option>
-          </select>
+                <option value="philanthropy">Philanthropy</option>
+      <option value="business_ventures">Business Ventures</option>
+      <option value="fashion_style">Fashion &amp; Style</option>
+      <option value="recording_innovation">Recording Innovation</option>
+    </select>
         </div>
         <div style="margin-bottom:10px;">
           <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase;">Specific Topic <span style="color:var(--hint);text-transform:none;font-size:10px;">(optional)</span></label>
