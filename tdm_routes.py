@@ -1,0 +1,974 @@
+"""
+tdm_routes.py  —  Tiny Dog Mafia Content Studio
+"""
+import os, json, base64, requests, random
+from flask import Blueprint, request, jsonify, Response
+
+tdm_bp = Blueprint('tdm', __name__, url_prefix='/tdm')
+ANTHROPIC_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+GEMINI_KEY    = os.environ.get('GEMINI_API_KEY', '')
+
+PILLARS = [
+    "Tiny But Mighty — the bold fearless personality packed into their small body: charging at big dogs, guarding the house, demanding attention, refusing to back down",
+    "Grooming Goals — coat care, haircut styles, brushing routines, before/after transformations, groomer visits, the long silky coat vs puppy cut debate",
+    "Yorkie Health Watch — breed-specific health issues including dental problems, hypoglycemia, luxating patella, tracheal collapse, and what owners need to watch for",
+    "Training Terriers — housebreaking struggles, the stubborn streak, trick tutorials, crate training battles, and solutions that actually work for the breed",
+    "Yorkie Fashion — outfits, bows, accessories, seasonal looks, the diva wardrobe, matching owner and dog outfits, and the Yorkie who tolerates it all",
+    "Size Myths Debunked — teacup controversies, AKC weight standards, breeder red flags, what healthy really looks like, and why size isn't everything",
+    "Yorkie vs World — relatable moments of them barking at big dogs, guarding the house from the mailman, ruling the household, and winning every standoff",
+    "Senior Yorkies — aging care, gray faces full of wisdom, mobility tips, celebrating older dogs still full of spirit, and the irreplaceable bond with a long-time companion",
+    "Foodie Yorkies — safe treats, picky eater hacks, diet tips for sensitive stomachs, foods to avoid, and the drama of introducing a new food",
+    "Cuddle Chronicles — the velcro dog bond, lap life, separation anxiety, sleeping habits, and the emotional connection that makes Yorkie owners say they could never have another breed",
+]
+
+import random as _random
+
+@tdm_bp.route('/', methods=['GET'])
+def studio():
+    return Response(STUDIO_HTML.encode('utf-8'), mimetype='text/html; charset=utf-8')
+
+@tdm_bp.route('/api/generate', methods=['POST'])
+def generate():
+    data       = request.get_json()
+    theme      = data.get('theme', '').strip()
+    count      = int(data.get('count', 19))
+    tone       = data.get('tone', 'funny')
+    cta        = data.get('cta', 'engagement')
+    dog_name   = data.get('dogName', 'the Yorkie')
+    exclusions = data.get('exclusions', [])  # recently used topics to avoid
+    tone_map = {'funny':'comedic and deadpan','cinematic':'dramatic and cinematic','savage':'hilariously savage','wholesome':'charming and wholesome','relatable':'laugh-out-loud relatable'}
+    cta_map  = {'engagement':'end with a funny question that drives comments','tag':'tell followers to tag someone who acts like this','save':'encourage saving or sharing','follow':'invite people to follow the page'}
+
+    # Select random pillars for variety
+    selected = PILLARS.copy()
+    random.shuffle(selected)
+    while len(selected) < count:
+        selected.extend(PILLARS)
+    selected = selected[:count]
+    system_prompt = ('You are the creative director for "Tiny Dog Mafia," a viral Yorkie Facebook and Instagram page. '
+        'The brand voice is: tiny dog, big attitude, mafia/boss persona. Every post treats the Yorkie as if '
+        'it runs a crime family division operating inside everyday domestic situations. The humor is deadpan, '
+        'cinematic, and absurdist. '
+        'CRITICAL ANTI-REPETITION: Every post MUST cover a completely different situation, setting, and comedic angle. '
+        'No two posts should reference the same activity, location, or scenario. '
+        'Spread content across ALL provided pillars. '
+        'Respond ONLY with valid JSON. No markdown. No code fences. No preamble.')
+    user_prompt = f"""Generate exactly {count} unique Tiny Dog Mafia social media image posts.
+
+{"MANDATORY THEME OVERRIDE — focus ALL posts on: " + theme + ". Every post must directly address this theme. Do not deviate." if theme else "Draw from these content pillars — spread posts across as many pillars as possible:"}
+{chr(10).join([f"{i+1}. {p}" for i, p in enumerate(selected[:count])]) if not theme else ""}
+
+{"TOPICS YOU MUST COMPLETELY AVOID — used recently, must not appear in any form:" + chr(10) + chr(10).join(["- " + e for e in exclusions]) + chr(10) + "Do not use these situations, locations, or Yorkie behaviors. Find completely different angles." if exclusions else ""}
+
+STRICT ANTI-REPETITION RULES:
+- Every post MUST have a completely different situation, setting, room, activity, and scenario
+- Vary locations: kitchen, living room, bedroom, backyard, car, front door, bathroom, office, yard, etc.
+- Vary comedic angles: supervising, claiming territory, demanding attention, causing chaos, refusing orders
+
+CAPTION STYLE — "your Yorkie" voice, short punchy lines building an observation:
+- 3 full paragraphs: Para 1 = scroll-stopping hook with emojis, Para 2 = build the scene, Para 3 = CTA
+- Exactly 5 hashtags on final line
+- Tone: {tone_map[tone]}
+- CTA style: {cta_map[cta]}
+
+IMAGE PROMPT: Photorealistic cinematic 4:5 Yorkie scene. Steel-blue and tan fur. Specific situation, tiny outfit, bold gold text overlay with headline, Tiny Dog Mafia division subtitle. Warm cinematic lighting.
+
+FIRST COMMENT: 1-2 sentences, warm owner-to-owner voice. Funny extra observation + "Tag a friend." Never hashtags.
+
+For each post include: "headline" (2-6 word ALL CAPS), "division" (fake TDM division name),
+"topics_used" (comma-separated specific situations/locations used, e.g. "laundry supervision, bedroom, Monday chaos")
+
+JSON: {{"posts":[{{"headline":"...","division":"...","imagePrompt":"...","caption":"...","firstComment":"...","topics_used":"..."}}]}}"""
+    try:
+        resp = requests.post('https://api.anthropic.com/v1/messages',
+            headers={'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'},
+            json={'model':'claude-sonnet-4-6','max_tokens':8000,'system':system_prompt,'messages':[{'role':'user','content':user_prompt}]},
+            timeout=180)
+        try:
+            result = resp.json()
+        except Exception:
+            return jsonify({'ok':False,'error':'Server timeout — please try again'}), 500
+        if 'error' in result:
+            return jsonify({'ok':False,'error':'API error: ' + str(result['error'].get('message', result['error']))}), 500
+        if 'content' not in result:
+            return jsonify({'ok':False,'error':'Unexpected API response: ' + str(result)[:200]}), 500
+        raw = result['content'][0]['text'].strip().replace('```json','').replace('```','').strip()
+        posts = json.loads(raw)
+        return jsonify({'ok':True,'posts':posts['posts'],'themeName':theme or 'Tiny Dog Mafia'})
+    except Exception as e:
+        return jsonify({'ok':False,'error':str(e)}), 500
+
+@tdm_bp.route('/api/generate-video', methods=['POST'])
+def generate_video():
+    try:
+        data       = request.get_json()
+        video_type = data.get('videoType', 'short')
+        count      = int(data.get('count', 3))
+        dog_name   = data.get('dogName', 'the Yorkie')
+        override   = data.get('themeOverride', '').strip()
+
+        # Pick pillars for each video
+        selected_pillars = [random.choice(PILLARS) for _ in range(count)]
+
+        if video_type == 'short':
+            image_count = 5
+            word_count = "75-90 words"
+            duration_label = "30-second"
+        else:
+            image_count = 10
+            word_count = "150-170 words"
+            duration_label = "60-second"
+
+        extra_images = ''
+        if image_count == 10:
+            extra_images = (
+                ',{"num":6,"prompt":"..."},'
+                '{"num":7,"prompt":"..."},'
+                '{"num":8,"prompt":"..."},'
+                '{"num":9,"prompt":"..."},'
+                '{"num":10,"prompt":"..."}'
+            )
+
+        system_prompt = (
+            'You are the creative director for Tiny Dog Mafia, a viral Yorkie content page. '
+            'You generate complete video production packages: narration scripts for ElevenLabs voiceover '
+            'and sequential image prompts for OpenArt/Seedance/Kling animation. '
+            'VOICE: Warm, witty, observational humor. The Yorkie is the main character — '
+            'confident, dramatic, slightly delusional about their own importance. '
+            'NARRATION STYLE: Short punchy lines. Rhythm and repetition. Stack examples in threes. '
+            'Pauses marked with "..." for dramatic effect. Ends warm and affectionate. '
+            'IMAGE PROMPT RULES: '
+            'All images are 9:16 vertical format optimized for Seedance or Kling animation. '
+            'Each image is a distinct scene - sequential images tell a visual story together. '
+            'Describe subject, setting, lighting, and camera framing as separate elements. '
+            'Never mix camera movement and subject movement in the same sentence. '
+            'Avoid the word "fast" - it degrades AI video quality. '
+            'The Yorkie should be the clear subject of every image - expressive face, '
+            'silky tan and black or golden coat, alert upright ears, small confident stance. '
+            'Respond ONLY with valid JSON. No markdown. No code fences. No preamble.'
+        )
+
+        if override:
+            topic_block = "MANDATORY TOPIC: " + override + "  -  ALL videos must be about this topic."
+        else:
+            pillar_list = "\n".join(["Video %d: %s" % (i+1, p) for i, p in enumerate(selected_pillars)])
+            topic_block = "Each video uses a DIFFERENT content pillar:\n" + pillar_list
+
+        user_prompt = f"""Generate exactly {count} unique Tiny Dog Mafia {duration_label} video production packages.
+Dog name: {dog_name}
+
+{topic_block}
+
+Each package must contain:
+
+1. VOICEOVER SCRIPT ({word_count} — reads naturally in {duration_label} at ElevenLabs pace)
+- Written purely for spoken audio — no hashtags, no social media language
+- Short punchy lines with line breaks for natural breath pauses
+- Uses {dog_name} as the subject throughout
+- Builds with rhythm and repetition — short observations that escalate
+- Stacks examples in threes for comic effect
+- Uses "..." for dramatic pauses
+- Ends with a warm reflective thought
+- Include 2-3 natural emoji moments that work when spoken aloud
+- End with: Follow Tiny Dog Mafia for more Yorkie content
+
+2. {image_count} IMAGE PROMPTS (each animates to approximately 6 seconds in Seedance or Kling)
+- 9:16 vertical format for all images
+- Sequential scenes that illustrate the voiceover story
+- The Yorkie is the star of every image — expressive face, silky coat, alert ears
+- Vary framing: close-up face, full body, action shot, portrait, environmental
+- Each prompt: [Yorkie description and expression] + [setting] + [lighting] + [camera framing]
+- Never mix camera movement and subject movement in the same sentence
+- Never use the word "fast"
+
+3. CAPTION (3 paragraphs — Facebook/Instagram post text)
+- Paragraph 1: Punchy Yorkie hook with 2-3 emojis
+- Paragraph 2: Relatable story development
+- Paragraph 3: CTA asking followers to tag a Yorkie owner — relevant hashtags
+
+4. FIRST COMMENT (1-2 sentences, fellow Yorkie owner voice, relatable observation + Tag a friend CTA)
+
+JSON:
+{{"videos":[{{"voiceoverScript":"...","videoScript":"...","images":[{{"num":1,"prompt":"..."}},{{"num":2,"prompt":"..."}},{{"num":3,"prompt":"..."}},{{"num":4,"prompt":"..."}},{{"num":5,"prompt":"..."}}{extra_images}],"captionAndHashtags":"...","firstComment":"...","pillar":"...","topics_used":"..."}}]}}"""
+
+        resp = requests.post(
+            'https://api.anthropic.com/v1/messages',
+            headers={{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'}},
+            json={{'model':'claude-sonnet-4-6','max_tokens':16000,'system':system_prompt,
+                  'messages':[{{'role':'user','content':user_prompt}}]}},
+            timeout=180
+        )
+
+        try:
+            result = resp.json()
+        except Exception:
+            return jsonify({{'ok':False,'error':'Server timeout - please try again'}}), 500
+        if 'error' in result:
+            return jsonify({{'ok':False,'error':'API error: ' + str(result['error'].get('message', result['error']))}}), 500
+        if 'content' not in result:
+            return jsonify({{'ok':False,'error':'Unexpected API response: ' + str(result)[:200]}}), 500
+
+        raw = result['content'][0]['text'].strip().replace('```json','').replace('```','').strip()
+        data_out = json.loads(raw)
+        videos = data_out.get('videos', [])
+        return jsonify({{'ok':True,'videos':videos,'videoType':video_type}})
+
+    except Exception as e:
+        return jsonify({{'ok':False,'error':str(e)}}), 500
+
+@tdm_bp.route('/api/generate-banner', methods=['POST'])
+def generate_banner():
+    data     = request.get_json()
+    count    = int(data.get('count', 3))
+    override = data.get('theme', '')
+
+    pillar = random.choice(PILLARS)
+
+    system_prompt = ('You are the creative director for Tiny Dog Mafia, a viral Yorkie Facebook page. '
+        'Generate typographic banner concepts — no people, no photography, text on gradient background only. '
+        'Banners must be vibrant, scroll-stopping, and use the Tiny Dog Mafia mafia/boss voice. '
+        'The banner text must always be a QUESTION that invites comments. '
+        'Respond ONLY with valid JSON. No markdown. No code fences. No preamble.')
+
+    theme_note = f'Theme override: "{override}". ' if override else ''
+
+    user_prompt = f"""Generate exactly {count} unique Tiny Dog Mafia typographic banner concepts.
+{theme_note}Draw from this content pillar: {pillar}
+
+BANNER FORMAT — typographic only, no people or photography:
+- Vibrant saturated color gradients — electric blues, deep purples, fiery oranges, warm golds, hot pinks
+- Strong contrast between lettering and background required
+- Soft glow or radial burst behind text for energy
+- The sole visual element is bold centered text — a QUESTION that invites comments
+- Heavy condensed sans-serif font, bright lettering with glow effect
+- Stack text across 2-3 lines for visual rhythm
+- Tiny Dog Mafia brand energy — bold, funny, mafia-boss attitude in the question
+- End with: "No people, no photography, no illustrations. Text on gradient background only. Optimized for 1080x1350 format."
+
+CAPTION: 3 full paragraphs. Para 1: scroll-stopping hook with 2-3 emojis tied to the banner question. Para 2: funny relatable Yorkie context. Para 3: CTA inviting followers to answer in comments and follow. Exactly 5 hashtags on final line.
+
+FIRST COMMENT: 1-2 sentences, warm owner-to-owner voice, funny Yorkie observation + "Tag a friend" CTA. Never hashtags.
+
+JSON: {{"banners":[{{"bannerPrompt":"...","caption":"...","firstComment":"...","pillar":"..."}}]}}"""
+
+    try:
+        resp = requests.post('https://api.anthropic.com/v1/messages',
+            headers={'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'},
+            json={'model':'claude-sonnet-4-6','max_tokens':6000,'system':system_prompt,
+                  'messages':[{'role':'user','content':user_prompt}]},
+            timeout=180)
+        try:
+            result = resp.json()
+        except Exception:
+            return jsonify({'ok':False,'error':'Server timeout — please try again'}), 500
+        if 'error' in result:
+            return jsonify({'ok':False,'error':'API error: ' + str(result['error'].get('message', result['error']))}), 500
+        if 'content' not in result:
+            return jsonify({'ok':False,'error':'Unexpected API response: ' + str(result)[:200]}), 500
+        raw = result['content'][0]['text'].strip().replace('```json','').replace('```','').strip()
+        banners = json.loads(raw)
+        return jsonify({'ok':True,'banners':banners['banners']})
+    except Exception as e:
+        return jsonify({'ok':False,'error':str(e)}), 500
+
+
+@tdm_bp.route('/api/image', methods=['POST'])
+def generate_image():
+    data = request.get_json()
+    prompt = data.get('prompt', '')
+    key = data.get('geminiKey') or GEMINI_KEY
+    if not key:
+        return jsonify({'ok':False,'error':'No Gemini API key configured'}), 400
+    models = ['gemini-2.5-flash-image','gemini-2.0-flash-preview-image-generation']
+    last_error = ''
+    for model in models:
+        try:
+            url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}'
+            r = requests.post(url, json={'contents':[{'parts':[{'text':prompt}],'role':'user'}],'generationConfig':{'responseModalities':['TEXT','IMAGE']}}, timeout=60)
+            d = r.json()
+            if 'error' in d: last_error = f"{model}: {d['error']['message']}"; continue
+            parts = d.get('candidates',[{}])[0].get('content',{}).get('parts',[])
+            img_part = next((p for p in parts if 'inlineData' in p), None)
+            if not img_part: last_error = f'{model}: No image'; continue
+            return jsonify({'ok':True,'dataUrl':f"data:{img_part['inlineData']['mimeType']};base64,{img_part['inlineData']['data']}",'model':model})
+        except Exception as e:
+            last_error = f'{model}: {str(e)}'; continue
+    return jsonify({'ok':False,'error':last_error}), 500
+
+@tdm_bp.route('/api/schedule', methods=['POST'])
+def schedule_post():
+    data = request.get_json()
+    page_id = data.get('pageId',''); token = data.get('token','')
+    caption = data.get('caption',''); image_b64 = data.get('imageB64','')
+    sched_time = int(data.get('scheduledTime'))
+    if not all([page_id, token, caption, image_b64]):
+        return jsonify({'ok':False,'error':'Missing required fields'}), 400
+    try:
+        header, encoded = image_b64.split(',', 1)
+        img_bytes = base64.b64decode(encoded)
+        upload_resp = requests.post(f'https://graph.facebook.com/v19.0/{page_id}/photos',
+            data={'published':'false','access_token':token},
+            files={'source':('image.jpg',img_bytes,'image/jpeg')}, timeout=30)
+        upload_data = upload_resp.json()
+        if 'error' in upload_data:
+            return jsonify({'ok':False,'error':upload_data['error']['message']}), 400
+        photo_id = upload_data['id']
+        post_resp = requests.post(f'https://graph.facebook.com/v19.0/{page_id}/feed',
+            data={'message':caption,'attached_media':json.dumps([{'media_fbid':photo_id}]),
+                  'scheduled_publish_time':sched_time,'published':'false','access_token':token}, timeout=30)
+        post_data = post_resp.json()
+        if 'error' in post_data:
+            return jsonify({'ok':False,'error':post_data['error']['message']}), 400
+        return jsonify({'ok':True,'postId':post_data.get('id','')})
+    except Exception as e:
+        return jsonify({'ok':False,'error':str(e)}), 500
+
+@tdm_bp.route('/api/schedule-buffer', methods=['POST'])
+def schedule_buffer():
+    data = request.get_json()
+    buffer_token = data.get('bufferToken',''); profile_ids = data.get('profileIds',[])
+    caption = data.get('caption',''); image_b64 = data.get('imageB64','')
+    sched_time = int(data.get('scheduledTime',0))
+    if not buffer_token or not profile_ids or not caption:
+        return jsonify({'ok':False,'error':'Missing required fields'}), 400
+    try:
+        media_id = None
+        if image_b64:
+            header, encoded = image_b64.split(',', 1)
+            img_bytes = base64.b64decode(encoded)
+            up = requests.post('https://api.bufferapp.com/1/media/upload.json',
+                headers={'Authorization':f'Bearer {buffer_token}'},
+                files={'file':('image.jpg',img_bytes,'image/jpeg')}, timeout=30)
+            if up.json().get('id'): media_id = up.json()['id']
+        results = []
+        for pid in profile_ids:
+            payload = {'text':caption,'profile_ids[]':pid,'scheduled_at':sched_time}
+            if media_id: payload['media[id]'] = media_id
+            pr = requests.post('https://api.bufferapp.com/1/updates/create.json',
+                headers={'Authorization':f'Bearer {buffer_token}'}, data=payload, timeout=30)
+            pd = pr.json()
+            results.append({'profileId':pid,'updateId':pd.get('updates',[{}])[0].get('id','') if pd.get('success') else pd})
+        return jsonify({'ok':True,'results':results})
+    except Exception as e:
+        return jsonify({'ok':False,'error':str(e)}), 500
+
+
+# HTML is loaded from a separate template to avoid Python/JS escaping conflicts
+import os as _os
+_html_path = _os.path.join(_os.path.dirname(__file__), 'tdm_studio.html')
+try:
+    with open(_html_path) as _f:
+        STUDIO_HTML = _f.read()
+except:
+    STUDIO_HTML = '<h1>Studio HTML not found. Ensure tdm_studio.html is in the app directory.</h1>'
+
+TDM_STUDIO_JS = 'console.log("TDM script starting v3");\n\n// -- DAILY RUN AUTOMATION ----------------------------------\n(function initAutoApprove() {\n  var saved = localStorage.getItem(\'tdm_auto_approve\') === \'true\';\n  var toggle = document.getElementById(\'auto-approve-toggle\');\n  var slider = document.getElementById(\'auto-approve-slider\');\n  var dot = document.getElementById(\'auto-approve-dot\');\n  if (toggle && saved) {\n    toggle.checked = true;\n    if (slider) slider.style.background = \'var(--gold)\';\n    if (dot) dot.style.left = \'18px\';\n  }\n})();\n\nvar dailyRunPosts = [];\n\nasync function startDailyRun() {\n  var btn = document.getElementById(\'daily-run-btn\');\n  var status = document.getElementById(\'daily-run-status\');\n  var count = parseInt(document.getElementById(\'post-count\').value) || 15;\n  var theme = document.getElementById(\'theme-input\').value.trim();\n  var autoApprove = document.getElementById(\'auto-approve-toggle\').checked;\n  btn.disabled = true;\n  btn.textContent = \'Running...\';\n  status.style.display = \'block\';\n  status.style.color = \'var(--gold)\';\n  status.textContent = \'Step 1/2: Generating \' + count + \' posts...\';\n  try {\n    var res = await fetch(\'/tdm/api/generate\', {\n      method: \'POST\', headers: {\'Content-Type\': \'application/json\'},\n      body: JSON.stringify({theme, count, tone: S.tone, cta: S.cta, dogName: S.name || \'the Yorkie\', exclusions: getExclusions()})\n    });\n    var data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    S.imagePosts = data.posts.map(function(p, i) { return Object.assign({id: i, type: \'img\', imgUrl: null, scheduled: false}, p); });\n    addTopicsToHistory(data.posts);\n    savePosts();\n    renderImagePosts();\n    updateStats();\n    dailyRunPosts = data.posts;\n    if (autoApprove) {\n      status.textContent = \'Step 2/2: Auto-approving and sending to Buffer...\';\n      await sendDailyToBuffer(dailyRunPosts);\n    } else {\n      showApprovalPanel(dailyRunPosts);\n      status.style.color = \'#1D9E75\';\n      status.textContent = count + \' posts ready. Review and approve below.\';\n    }\n  } catch(e) {\n    status.style.color = \'#D48A8A\';\n    status.textContent = \'Error: \' + e.message;\n  }\n  btn.disabled = false;\n  btn.textContent = \'\\u25b6 Run TDM Daily\';\n}\n\nfunction showApprovalPanel(posts) {\n  var panel = document.getElementById(\'approval-panel\');\n  var list = document.getElementById(\'approval-list\');\n  panel.style.display = \'block\';\n  list.innerHTML = \'\';\n  posts.forEach(function(p, i) {\n    var hook = (p.caption || \'\').split(\'\\n\')[0].replace(/[#*]/g,\'\').trim().substring(0,70);\n    var row = document.createElement(\'div\');\n    row.style.cssText = \'display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--dark3);\';\n    var cb = document.createElement(\'input\');\n    cb.type = \'checkbox\';\n    cb.className = \'approve-cb\';\n    cb.setAttribute(\'data-idx\', i);\n    cb.checked = true;\n    cb.style.cssText = \'accent-color:var(--gold);width:14px;height:14px;margin-top:3px;flex-shrink:0;\';\n    var info = document.createElement(\'div\');\n    info.style.flex = \'1\';\n    var title = document.createElement(\'div\');\n    title.style.cssText = \'font-size:11px;font-weight:600;color:var(--text);\';\n    title.textContent = \'#\' + (i+1) + \' \' + hook + \'...\';\n    var sub = document.createElement(\'div\');\n    sub.style.cssText = \'font-size:10px;color:var(--hint);margin-top:2px;\';\n    sub.textContent = (p.imagePrompt || \'\').substring(0,80) + \'...\';\n    info.appendChild(title);\n    info.appendChild(sub);\n    row.appendChild(cb);\n    row.appendChild(info);\n    list.appendChild(row);\n  });\n  panel.scrollIntoView({behavior:\'smooth\',block:\'nearest\'});\n}\n\nfunction approveAll() {\n  document.querySelectorAll(\'.approve-cb\').forEach(function(cb) { cb.checked = true; });\n  approveSelected();\n}\n\nasync function approveSelected() {\n  var selected = [];\n  document.querySelectorAll(\'.approve-cb:checked\').forEach(function(cb) {\n    var idx = parseInt(cb.getAttribute(\'data-idx\'));\n    if (dailyRunPosts[idx]) selected.push(dailyRunPosts[idx]);\n  });\n  if (!selected.length) { alert(\'No posts selected.\'); return; }\n  document.getElementById(\'approval-panel\').style.display = \'none\';\n  await sendDailyToBuffer(selected);\n}\n\nasync function sendDailyToBuffer(posts) {\n  var status = document.getElementById(\'daily-run-status\');\n  var key = localStorage.getItem(\'tdm_buffer_key\') || \'\';\n  if (!key) { status.style.color=\'#D48A8A\'; status.textContent=\'Buffer API key not set. Go to Settings to connect.\'; return; }\n  var channelIds = JSON.parse(localStorage.getItem(\'tdm_buffer_channel_ids\') || \'[]\');\n  if (!channelIds.length) { status.style.color=\'#D48A8A\'; status.textContent=\'No Buffer channels selected. Go to Settings to connect.\'; return; }\n  status.style.color = \'var(--gold)\';\n  status.textContent = \'Sending \' + posts.length + \' posts to Buffer...\';\n  var payload = posts.map(function(p) { return {caption: p.caption||\'\', firstComment: p.firstComment||\'\'}; });\n  try {\n    var res = await fetch(\'/tdm/api/buffer-queue\', {\n      method: \'POST\', headers: {\'Content-Type\': \'application/json\'},\n      body: JSON.stringify({apiKey: key, channelIds: channelIds, channelInfos: JSON.parse(localStorage.getItem(\'tdm_buffer_channels_all\')||\'[]\'), posts: payload})\n    });\n    var data = await res.json();\n    if (!data.ok) { status.style.color=\'#D48A8A\'; status.textContent=\'Buffer error: \'+data.error; return; }\n    status.style.color = \'#1D9E75\';\n    status.textContent = \'Done! \' + data.queued + \' posts queued to Buffer.\' + (data.errors&&data.errors.length?\' (\'+data.errors.length+\' errors)\':\'\');\n    if (data.errors&&data.errors.length) console.log(\'Buffer errors:\', data.errors);\n  } catch(e) {\n    status.style.color = \'#D48A8A\';\n    status.textContent = \'Error: \' + e.message;\n  }\n}\n\n// -- BUFFER SETTINGS --------------------------------------\n\n// Auto-approve toggle\nvar autoApproveToggle = document.getElementById(\'auto-approve-toggle\');\nif (autoApproveToggle) {\n  autoApproveToggle.addEventListener(\'change\', function() {\n    var slider = document.getElementById(\'auto-approve-slider\');\n    var dot = document.getElementById(\'auto-approve-dot\');\n    localStorage.setItem(\'tdm_auto_approve\', this.checked);\n    if (slider) slider.style.background = this.checked ? \'var(--gold)\' : \'var(--dark2)\';\n    if (dot) dot.style.left = this.checked ? \'18px\' : \'2px\';\n  });\n}\n\nfunction loadTdmBufferChannels() {\n  var key = document.getElementById(\'tdm-set-buffer-key\').value.trim();\n  var status = document.getElementById(\'tdm-buffer-status\');\n  if (!key) { status.textContent = \'Please enter your Buffer API key.\'; return; }\n  status.textContent = \'Connecting...\';\n  status.style.color = \'var(--gold)\';\n  fetch(\'/tdm/api/buffer-channels\', {\n    method: \'POST\',\n    headers: {\'Content-Type\': \'application/json\'},\n    body: JSON.stringify({apiKey: key})\n  }).then(function(r) { return r.json(); }).then(function(data) {\n    if (!data.ok) { status.textContent = \'Error: \' + data.error; status.style.color = \'#D48A8A\'; return; }\n    localStorage.setItem(\'tdm_buffer_key\', key);\n    localStorage.setItem(\'tdm_buffer_channels_all\', JSON.stringify(data.channels));\n    var list = document.getElementById(\'tdm-buffer-channel-list\');\n    list.innerHTML = \'\';\n    var savedIds = JSON.parse(localStorage.getItem(\'tdm_buffer_channel_ids\') || \'[]\');\n    data.channels.forEach(function(ch) {\n      var checked = savedIds.includes(ch.id);\n      var div = document.createElement(\'div\');\n      div.style.cssText = \'display:flex;align-items:center;gap:8px;\';\n      div.innerHTML = \'<input type="checkbox" class="tdm-ch-cb" id="tdm-ch-\' + ch.id + \'" value="\' + ch.id + \'" \' + (checked ? \'checked\' : \'\') + \' style="accent-color:var(--gold);width:14px;height:14px;">\'\n        + \'<label for="tdm-ch-\' + ch.id + \'" style="font-size:12px;color:var(--text);cursor:pointer;">\' + esc(ch.name) + \' <span style="color:var(--hint);font-size:10px;">(\' + ch.service + \')</span></label>\';\n      list.appendChild(div);\n    });\n    document.getElementById(\'tdm-buffer-channels-wrap\').style.display = \'block\';\n    status.textContent = \'Connected! Select channels and save settings.\';\n    status.style.color = \'#1D9E75\';\n  }).catch(function(e) {\n    status.textContent = \'Error: \' + e.message;\n    status.style.color = \'#D48A8A\';\n  });\n}\n\nfunction saveTdmBufferChannels() {\n  var ids = [];\n  document.querySelectorAll(\'.tdm-ch-cb:checked\').forEach(function(cb) { ids.push(cb.value); });\n  localStorage.setItem(\'tdm_buffer_channel_ids\', JSON.stringify(ids));\n}\n\n\nfunction downloadTdmVideoPrompts(type) {\n  var arr = type === \'short\' ? S.shortVideos : S.longVideos;\n  if (!arr || !arr.length) { toast(\'No \' + type + \' videos generated yet.\', true); return; }\n  var lines = [];\n  arr.forEach(function(v) {\n    (v.images || []).forEach(function(img) { if (img.prompt) lines.push(img.prompt.trim()); });\n  });\n  if (!lines.length) { toast(\'No image prompts found.\', true); return; }\n  var blob = new Blob([lines.join(\'\\n\')], {type: \'text/plain\'});\n  var url = URL.createObjectURL(blob);\n  var a = document.createElement(\'a\');\n  a.href = url;\n  a.download = \'tdm_video_\' + type + \'_prompts_\' + lines.length + \'.txt\';\n  document.body.appendChild(a); a.click(); document.body.removeChild(a);\n  URL.revokeObjectURL(url);\n  toast(\'Downloaded \' + lines.length + \' image prompts!\');\n}\n\n\nconsole.log("TDM Studio v2.1 - 30s format loaded");\nconst DAY_THEMES = {\n  0:{name:\'Monday Mayhem\',focus:\'chaos, taking over the week, Monday energy\'},\n  1:{name:\'Tiny Boss Tuesday\',focus:\'authority, running things, executive decisions\'},\n  2:{name:\'Hump Day Heist\',focus:\'mid-week operations, Wednesday chaos\'},\n  3:{name:\'Throwback Thursday\',focus:\'origin stories, nostalgic moments\'},\n  4:{name:\'Friday Operations\',focus:\'weekend prep, letting loose, Friday energy\'},\n  5:{name:\'Saturday Takeover\',focus:\'leisure, supervising the weekend, pool days\'},\n  6:{name:\'Sunday Surveillance\',focus:\'relaxing but still watching everything\'}\n};\n\nconst S = {\n  name: localStorage.getItem(\'tdm_name\') || \'\',\n  geminiKey: localStorage.getItem(\'tdm_gemini\') || \'\',\n  bufferToken: localStorage.getItem(\'tdm_buffer\') || \'\',\n  tone: \'funny\', cta: \'engagement\',\n  imagePosts: [], banners: [], shortVideos: [], longVideos: []\n};\n\n// ?? PERSISTENCE ???????????????????????????????????????????\nfunction savePosts() {\n  try {\n    localStorage.setItem(\'tdm_imagePosts\', JSON.stringify(S.imagePosts));\n    localStorage.setItem(\'tdm_banners\', JSON.stringify(S.banners));\n    localStorage.setItem(\'tdm_shortVideos\', JSON.stringify(S.shortVideos));\n    localStorage.setItem(\'tdm_longVideos\', JSON.stringify(S.longVideos));\n  } catch(e) { console.warn(\'Could not save posts:\', e); }\n}\n\nfunction loadPosts() {\n  try {\n    const ip = localStorage.getItem(\'tdm_imagePosts\');\n    const sv = localStorage.getItem(\'tdm_shortVideos\');\n    const lv = localStorage.getItem(\'tdm_longVideos\');\n    const bn = localStorage.getItem(\'tdm_banners\');\n    if (ip) S.imagePosts = JSON.parse(ip);\n    if (bn) S.banners = JSON.parse(bn);\n    if (sv) { var svp2 = JSON.parse(sv); if (!svp2.length || svp2[0].images) S.shortVideos = svp2; }\n    if (lv) { var lvp2 = JSON.parse(lv); if (!lvp2.length || lvp2[0].images) S.longVideos = lvp2; }\n  } catch(e) { console.warn(\'Could not load posts:\', e); }\n}\n\nfunction clearSavedPosts() {\n  localStorage.removeItem(\'tdm_imagePosts\');\n  localStorage.removeItem(\'tdm_shortVideos\');\n  localStorage.removeItem(\'tdm_longVideos\');\n  S.imagePosts = []; S.shortVideos = []; S.longVideos = [];\n}\n\n\n// ?? INIT ?????????????????????????????????????????????????\nfunction initTheme() {\n  // Pillars are randomly selected server-side on each generation\n  const el = document.getElementById(\'day-badge\');\n  if (el) el.textContent = \'Tiny Dog Mafia\';\n  const tn = document.getElementById(\'theme-name-d\');\n  if (tn) tn.textContent = \'Tiny Dog Mafia Content Studio\';\n  const tf = document.getElementById(\'theme-focus-d\');\n  if (tf) tf.textContent = \'Pillars randomly selected for maximum variety across all 10 Yorkie topics\';\n  const sd = document.getElementById(\'short-day-d\');\n  if (sd) sd.textContent = \'Short Video Scripts\';\n  const ld = document.getElementById(\'long-day-d\');\n  if (ld) ld.textContent = \'Long Video Scripts\';\n}\ninitTheme();\n\n\n// ?? MOBILE MENU ???????????????????????????????????????????\ndocument.getElementById(\'mobile-menu-btn\').addEventListener(\'click\', () => {\n  const sidebar = document.querySelector(\'.sidebar\');\n  const btn = document.getElementById(\'mobile-menu-btn\');\n  sidebar.classList.toggle(\'open\');\n  btn.classList.toggle(\'on\');\n});\n// Close sidebar when tab is clicked on mobile\ndocument.querySelectorAll(\'.tab\').forEach(tab => {\n  tab.addEventListener(\'click\', () => {\n    if (window.innerWidth <= 680) {\n      document.querySelector(\'.sidebar\').classList.remove(\'open\');\n      document.getElementById(\'mobile-menu-btn\').classList.remove(\'on\');\n    }\n  });\n});\n\n\n// ?? COPY MODAL ????????????????????????????????????????????\ndocument.getElementById(\'copy-modal-close\').addEventListener(\'click\', closeCopyModal);\ndocument.getElementById(\'copy-modal-close2\').addEventListener(\'click\', closeCopyModal);\ndocument.getElementById(\'copy-modal\').addEventListener(\'click\', e => {\n  if (e.target === document.getElementById(\'copy-modal\')) closeCopyModal();\n});\ndocument.getElementById(\'copy-modal-btn\').addEventListener(\'click\', () => {\n  const text = document.getElementById(\'copy-modal-text\').value;\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => { toast(\'Copied!\'); closeCopyModal(); }).catch(() => toast(\'Select all text above and copy manually\'));\n  } else {\n    const ta = document.getElementById(\'copy-modal-text\');\n    ta.select(); ta.setSelectionRange(0, 99999);\n    try { document.execCommand(\'copy\'); toast(\'Copied!\'); closeCopyModal(); }\n    catch(e) { toast(\'Select all text above and copy manually\'); }\n  }\n});\n\n\n// ?? TOPIC TRACKER ?????????????????????????????????????????\nconst TOPIC_HISTORY_KEY = \'tdm_topic_history\';\nconst MAX_HISTORY = 60;\n\nfunction getTopicHistory() {\n  try { return JSON.parse(localStorage.getItem(TOPIC_HISTORY_KEY) || \'[]\'); }\n  catch(e) { return []; }\n}\nfunction addTopicsToHistory(posts) {\n  if (!posts || !posts.length) return;\n  const history = getTopicHistory();\n  posts.forEach(p => {\n    const topics = (p.topics_used || p.pillar || \'\').split(\',\').map(t => t.trim()).filter(Boolean);\n    topics.forEach(t => { if (t && !history.includes(t)) history.unshift(t); });\n  });\n  localStorage.setItem(TOPIC_HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));\n}\nfunction clearTopicHistory() {\n  localStorage.removeItem(TOPIC_HISTORY_KEY);\n  toast(\'Topic history cleared!\');\n}\nfunction getExclusions() {\n  return getTopicHistory().slice(0, 40);\n}\n\n// Load any saved posts\nloadPosts();\nif (S.banners.length) { renderBanners(); updateStats(); renderSchedule(); }\nif (S.imagePosts.length) { renderImagePosts(); updateStats(); document.getElementById(\'img-batch-bar\') && document.getElementById(\'img-batch-bar\').classList.add(\'show\'); renderSchedule(); }\nif (S.shortVideos.length) renderVideos(\'short\');\nif (S.longVideos.length) renderVideos(\'long\');\n\n// ?? EVENT LISTENERS (no inline handlers) ?????????????????\ndocument.getElementById(\'settings-btn\').addEventListener(\'click\', () => {\n  document.getElementById(\'set-name\').value = S.name;\n  document.getElementById(\'set-gemini\').value = S.geminiKey;\n  document.getElementById(\'set-buffer\').value = S.bufferToken;\n  document.getElementById(\'settings-modal\').style.display = \'flex\';\n  const h = getTopicHistory();\n  const el = document.getElementById(\'topic-count-display\');\n  if (el) el.textContent = h.length + \' topics tracked (\' + (60 - h.length) + \' slots remaining)\';\n});\ndocument.getElementById(\'cancel-settings-btn\').addEventListener(\'click\', () => {\n  document.getElementById(\'settings-modal\').style.display = \'none\';\n});\ndocument.getElementById(\'save-settings-btn\').addEventListener(\'click\', () => {\n  S.name = document.getElementById(\'set-name\').value.trim();\n  S.geminiKey = document.getElementById(\'set-gemini\').value.trim();\n  S.bufferToken = document.getElementById(\'set-buffer\').value.trim();\n  localStorage.setItem(\'tdm_name\', S.name);\n  localStorage.setItem(\'tdm_gemini\', S.geminiKey);\n  localStorage.setItem(\'tdm_buffer\', S.bufferToken);\n  document.getElementById(\'settings-modal\').style.display = \'none\';\n  toast(\'Settings saved!\');\n});\n\n// Tabs\ndocument.querySelectorAll(\'.tab\').forEach(tab => {\n  tab.addEventListener(\'click\', () => {\n    try {\n      document.querySelectorAll(\'.tab\').forEach(t => t.classList.remove(\'on\'));\n      document.querySelectorAll(\'.pane\').forEach(p => p.classList.remove(\'on\'));\n      tab.classList.add(\'on\');\n      const pane = document.getElementById(\'pane-\' + tab.dataset.tab);\n      if (pane) pane.classList.add(\'on\');\n    } catch(e) { console.error(\'Tab error:\', e); }\n  });\n});\n\n// Tone/CTA chips\ndocument.getElementById(\'tone-chips\').addEventListener(\'click\', e => {\n  const chip = e.target.closest(\'.chip\');\n  if (!chip) return;\n  document.querySelectorAll(\'#tone-chips .chip\').forEach(c => c.classList.remove(\'on\'));\n  chip.classList.add(\'on\');\n  S.tone = chip.dataset.tone;\n});\ndocument.getElementById(\'cta-chips\').addEventListener(\'click\', e => {\n  const chip = e.target.closest(\'.chip\');\n  if (!chip) return;\n  document.querySelectorAll(\'#cta-chips .chip\').forEach(c => c.classList.remove(\'on\'));\n  chip.classList.add(\'on\');\n  S.cta = chip.dataset.cta;\n});\n\n// Quick chips\ndocument.querySelectorAll(\'.qchip\').forEach(chip => {\n  chip.addEventListener(\'click\', () => {\n    document.getElementById(\'theme-input\').value = chip.dataset.theme;\n  });\n});\n\n// Buttons\ndocument.getElementById(\'gen-img-btn\').addEventListener(\'click\', generateImages);\ndocument.getElementById(\'gen-all-imgs-btn\').addEventListener(\'click\', generateAllImages);\ndocument.getElementById(\'copy-all-captions-btn\').addEventListener(\'click\', () => {\n  const txt = S.imagePosts.map((p, i) => \'POST \' + (i+1) + \':\' + String.fromCharCode(10) + p.caption).join(String.fromCharCode(10,10) + \'---\' + String.fromCharCode(10,10));\n  copyToClipboard(txt); toast(\'All captions copied!\');\n});\ndocument.getElementById(\'sched-all-btn\').addEventListener(\'click\', () => scheduleAll(\'img\'));\ndocument.getElementById(\'clear-images-btn\').addEventListener(\'click\', () => clearContent(\'images\'));\ndocument.getElementById(\'gen-banner-btn\').addEventListener(\'click\', generateBanners);\ndocument.getElementById(\'clear-banners-btn\').addEventListener(\'click\', () => clearContent(\'banners\'));\ndocument.getElementById(\'gen-short-btn\').addEventListener(\'click\', () => generateVideos(\'short\'));\ndocument.getElementById(\'clear-shorts-btn\').addEventListener(\'click\', () => clearContent(\'shorts\'));\ndocument.getElementById(\'gen-long-btn\').addEventListener(\'click\', () => generateVideos(\'long\'));\ndocument.getElementById(\'clear-longs-btn\').addEventListener(\'click\', () => clearContent(\'longs\'));\ndocument.getElementById(\'test-fb-btn\').addEventListener(\'click\', testFB);\n\n// Event delegation for dynamically created cards\ndocument.addEventListener(\'click\', e => {\n  const btn = e.target.closest(\'[data-action]\');\n  if (!btn) return;\n  const action = btn.dataset.action;\n  const type = btn.dataset.type || \'img\';\n  const idx = parseInt(btn.dataset.idx || \'0\');\n  const field = btn.dataset.field || \'\';\n\n  if (action === \'upload\') document.getElementById(\'file-\' + type + \'-\' + idx).click();\n  if (action === \'regen\') genImage(type, idx);\n  if (action === \'copy\') { copyField(type, idx, field); }\n  if (action === \'schedule\') scheduleItem(type, idx);\n  if (action === \'sectab\') {\n    const panes = btn.dataset.panes.split(\',\');\n    const show = btn.dataset.show;\n    panes.forEach(id => { const p = document.getElementById(id); if (p) p.classList.remove(\'on\'); });\n    const sp = document.getElementById(show); if (sp) sp.classList.add(\'on\');\n    btn.closest(\'.sec-tabs\').querySelectorAll(\'.sec-tab\').forEach(t => t.classList.remove(\'on\'));\n    btn.classList.add(\'on\');\n  }\n});\n\ndocument.addEventListener(\'change\', e => {\n  const input = e.target;\n  if (input.dataset.fileType) {\n    const type = input.dataset.fileType;\n    const idx = parseInt(input.dataset.fileIdx);\n    const f = input.files[0];\n    if (!f) return;\n    const r = new FileReader();\n    r.onload = ev => applyImage(type, idx, ev.target.result);\n    r.readAsDataURL(f);\n  }\n});\n\ndocument.addEventListener(\'dragover\', e => {\n  if (e.target.closest(\'.drop-zone\')) e.preventDefault();\n});\ndocument.addEventListener(\'dragleave\', e => {\n  const dz = e.target.closest(\'.drop-zone\');\n  if (dz) dz.classList.remove(\'over\');\n});\ndocument.addEventListener(\'drop\', e => {\n  const dz = e.target.closest(\'[data-drop-type]\');\n  if (!dz) return;\n  e.preventDefault();\n  dz.classList.remove(\'over\');\n  const type = dz.dataset.dropType;\n  const idx = parseInt(dz.dataset.dropIdx);\n  const f = e.dataTransfer.files[0];\n  if (!f || !f.type.startsWith(\'image/\')) { toast(\'Drop an image file\'); return; }\n  const r = new FileReader();\n  r.onload = ev => applyImage(type, idx, ev.target.result);\n  r.readAsDataURL(f);\n});\n\ndocument.addEventListener(\'dragenter\', e => {\n  const dz = e.target.closest(\'.drop-zone\');\n  if (dz) dz.classList.add(\'over\');\n});\n\n// ?? HELPERS ???????????????????????????????????????????????\nfunction toast(msg, isError) {\n  const t = document.getElementById(\'toast\');\n  t.textContent = msg;\n  t.style.background = isError ? \'#3A1010\' : \'var(--dark2)\';\n  t.style.borderColor = isError ? \'#AA3D3D\' : \'var(--border)\';\n  t.style.color = isError ? \'#D48A8A\' : \'var(--gold-light)\';\n  t.classList.add(\'show\');\n  clearTimeout(t._timer);\n  t._timer = setTimeout(() => t.classList.remove(\'show\'), isError ? 12000 : 3500);\n}\nfunction setP(fillId, labelId, pct, label) {\n  const f = document.getElementById(fillId); if (f) f.style.width = pct + \'%\';\n  const l = document.getElementById(labelId); if (l) l.textContent = label;\n}\nfunction updateStats() {\n  document.getElementById(\'s-images\').textContent = S.imagePosts.length;\n  document.getElementById(\'s-videos\').textContent = S.shortVideos.length + S.longVideos.length;\n  document.getElementById(\'s-ready\').textContent = S.imagePosts.filter(p => p.imgUrl).length;\n  document.getElementById(\'s-sched\').textContent = [...S.imagePosts, ...S.shortVideos, ...S.longVideos].filter(p => p.scheduled).length;\n}\nfunction parseTime(s) {\n  const m = s.trim().toUpperCase().match(/([0-9]+):([0-9]+)[ ]*(AM|PM)?/);\n  if (!m) return {h:8,m:0};\n  let h = parseInt(m[1]), min = parseInt(m[2]);\n  if (m[3]===\'PM\' && h<12) h+=12;\n  if (m[3]===\'AM\' && h===12) h=0;\n  return {h, m:min};\n}\nfunction addMins(t, mins) {\n  const total = t.h*60 + t.m + mins;\n  return {h: Math.floor(total/60)%24, m: total%60};\n}\nfunction fmtTime(t) {\n  const h = t.h%12||12, ap = t.h<12?\'AM\':\'PM\';\n  return h + \':\' + String(t.m).padStart(2,\'0\') + \' \' + ap;\n}\nfunction esc(s) {\n  return String(s).replace(/&/g,\'&amp;\').replace(/</g,\'&lt;\').replace(/>/g,\'&gt;\');\n}\nfunction getArr(type) {\n  return type === \'img\' ? S.imagePosts : type === \'banner\' ? S.banners : type === \'short\' ? S.shortVideos : S.longVideos;\n}\nfunction copyField(type, idx, field) {\n  const item = getArr(type)[idx];\n  const text = item[field] || \'\';\n  const titles = {imagePrompt:\'Image Prompt\', bannerPrompt:\'Banner Prompt\', caption:\'Caption & Hashtags\', captionAndHashtags:\'Caption & Hashtags\', videoScript:\'Video Script\', firstComment:\'First Comment\'};\n  copyToClipboard(text, titles[field] || \'Copy\');\n}\n\nfunction copyToClipboard(text, title) {\n  // On mobile, show a modal with the text for easy selection/copy\n  if (window.innerWidth <= 680) {\n    showCopyModal(text, title || \'Copy Text\');\n    return;\n  }\n  if (navigator.clipboard && window.isSecureContext) {\n    navigator.clipboard.writeText(text).then(() => toast(\'Copied!\')).catch(() => fallbackCopy(text));\n  } else {\n    fallbackCopy(text);\n  }\n}\n\nfunction fallbackCopy(text) {\n  const ta = document.createElement(\'textarea\');\n  ta.value = text;\n  ta.style.cssText = \'position:fixed;top:0;left:0;width:2px;height:2px;opacity:0;\';\n  document.body.appendChild(ta);\n  ta.focus(); ta.select();\n  try { document.execCommand(\'copy\'); toast(\'Copied!\'); }\n  catch(e) { showCopyModal(text, \'Copy Text\'); }\n  document.body.removeChild(ta);\n}\n\nfunction showCopyModal(text, title) {\n  document.getElementById(\'copy-modal-title\').textContent = title || \'Copy Text\';\n  document.getElementById(\'copy-modal-text\').value = text;\n  document.getElementById(\'copy-modal\').style.display = \'flex\';\n  setTimeout(() => {\n    const ta = document.getElementById(\'copy-modal-text\');\n    ta.focus(); ta.select();\n    ta.setSelectionRange(0, 99999);\n  }, 100);\n}\n\nfunction closeCopyModal() {\n  document.getElementById(\'copy-modal\').style.display = \'none\';\n}\n\n// ?? GENERATE IMAGE POSTS ??????????????????????????????????\nasync function generateImages() {\n  const theme = document.getElementById(\'theme-input\').value.trim();\n  const count = parseInt(document.getElementById(\'post-count\').value);\n  const btn = document.getElementById(\'gen-img-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(\'img-prog-wrap\').style.display = \'block\';\n  setP(\'img-prog-fill\',\'img-prog-label\',15,\'Briefing the crew...\');\n  try {\n    const res = await fetch(\'/tdm/api/generate\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({theme, count, tone:S.tone, cta:S.cta, dogName:S.name||\'the Yorkie\', exclusions: getExclusions()})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(\'img-prog-fill\',\'img-prog-label\',100,\'Posts ready!\');\n    S.imagePosts = data.posts.map((p,i) => ({id:i, type:\'image\', ...p, imgUrl:null, status:\'draft\', scheduled:false})); addTopicsToHistory(data.posts); savePosts();\n    setTimeout(() => {\n      document.getElementById(\'img-prog-wrap\').style.display = \'none\';\n      renderImagePosts(); updateStats();\n      document.getElementById(\'img-batch-bar\').classList.add(\'show\');\n      document.getElementById(\'img-batch-msg\').textContent = S.imagePosts.length + \' posts ready\';\n      renderSchedule();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(\'img-prog-wrap\').style.display = \'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate Image Posts\';\n}\n\n// ?? RENDER IMAGE POSTS ????????????????????????????????????\nfunction renderImagePosts() {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const container = document.getElementById(\'images-container\');\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\');\n  list.className = \'content-list\';\n\n  S.imagePosts.forEach((p, i) => {\n    const t = fmtTime(addMins(start, i * intv));\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = \'img-card-\' + i;\n    card.innerHTML = buildCardHTML(\'img\', i, p, t, \'IMAGE\', \'type-image\',\n      p.imagePrompt, p.caption, p.firstComment,\n      [{label:\'Image Prompt\', field:\'imagePrompt\'}, {label:\'Caption & Hashtags\', field:\'caption\'}, {label:\'First Comment\', field:\'firstComment\'}]\n    );\n    list.appendChild(card);\n  });\n  container.appendChild(list);\n}\n\n// ?? RENDER VIDEO CARDS ????????????????????????????????????\n\nfunction renderVideos(type) {\n  const arr = getArr(type);\n  const container = document.getElementById(type === \'short\' ? \'shorts-container\' : \'longs-container\');\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = type === \'long\' ? S.imagePosts.length + 3 : S.imagePosts.length;\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\');\n  list.className = \'content-list\';\n\n  arr.forEach((v, i) => {\n    const t = fmtTime(addMins(start, (baseOff + i) * intv));\n    const typeCls = type === \'short\' ? \'type-short\' : \'type-long\';\n    const typeLabel = type === \'short\' ? \'SHORT 30s\' : \'LONG 60s\';\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = type + \'-card-\' + i;\n    var voiceover = v.voiceoverScript || v.videoScript || \'\';\n    card.innerHTML = buildCardHTML(type, i, v, t, typeLabel, typeCls,\n      voiceover, v.captionAndHashtags, v.firstComment,\n      [{label:\'Voiceover Script\', field:\'voiceoverScript\'}, {label:\'Caption & Hashtags\', field:\'captionAndHashtags\'}, {label:\'First Comment\', field:\'firstComment\'}],\n      v.mood\n    );\n    var wrapper = document.createElement(\'div\');\n    wrapper.style.marginBottom = \'8px\';\n    wrapper.appendChild(card);\n    // Append remaining image prompts below card\n    var vImgs2 = (v.images || []);\n    if (vImgs2.length > 1) {\n      var imgDiv = document.createElement(\'div\');\n      imgDiv.style.cssText = \'background:var(--dark2);border:1px solid var(--dark3);border-top:none;border-radius:0 0 10px 10px;padding:12px 14px;margin-bottom:4px;\';\n      var hdr = document.createElement(\'div\');\n      hdr.style.cssText = \'font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:10px;\';\n      hdr.textContent = \'ALL \' + vImgs2.length + \' IMAGE PROMPTS - 9:16 for Seedance/Kling\';\n      imgDiv.appendChild(hdr);\n      vImgs2.forEach(function(img) {\n        var row = document.createElement(\'div\');\n        row.style.marginBottom = \'10px\';\n        var lbl = document.createElement(\'div\');\n        lbl.style.cssText = \'font-size:9px;font-weight:700;color:var(--gold);margin-bottom:3px;\';\n        lbl.textContent = \'IMAGE \' + img.num;\n        var txt = document.createElement(\'div\');\n        txt.style.cssText = \'font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;margin-bottom:4px;\';\n        txt.textContent = img.prompt || \'\';\n        var btn = document.createElement(\'button\');\n        btn.className = \'mbtn\';\n        btn.style.fontSize = \'10px\';\n        btn.textContent = \'Copy\';\n        (function(p) {\n          btn.addEventListener(\'click\', function() {\n            if (navigator.clipboard) {\n              navigator.clipboard.writeText(p).then(function() { btn.textContent = \'Copied!\'; setTimeout(function() { btn.textContent = \'Copy\'; }, 1500); });\n            }\n          });\n        })(img.prompt || \'\');\n        row.appendChild(lbl); row.appendChild(txt); row.appendChild(btn);\n        imgDiv.appendChild(row);\n      });\n      var allTxt = vImgs2.map(function(img) { return \'Image \' + img.num + \':\\n\' + (img.prompt || \'\'); }).join(\'\\n\\n\');\n      var copyAll = document.createElement(\'button\');\n      copyAll.className = \'mbtn\';\n      copyAll.style.cssText = \'border:1px solid var(--gold-dim);color:var(--gold);font-size:10px;margin-top:4px;\';\n      copyAll.textContent = \'Copy All \' + vImgs2.length + \' Prompts\';\n      (function(t) {\n        copyAll.addEventListener(\'click\', function() {\n          if (navigator.clipboard) {\n            navigator.clipboard.writeText(t).then(function() { copyAll.textContent = \'Copied!\'; setTimeout(function() { copyAll.textContent = \'Copy All \' + vImgs2.length + \' Prompts\'; }, 1500); });\n          }\n        });\n      })(allTxt);\n      imgDiv.appendChild(copyAll);\n      wrapper.appendChild(imgDiv);\n    }\n    list.appendChild(wrapper);\n  });\n  container.appendChild(list);\n}\n\n// ?? CARD HTML BUILDER ?????????????????????????????????????\nfunction buildCardHTML(type, idx, item, time, typeLabel, typeCls, s1text, s2text, s3text, tabs, metaExtra) {\n  const dotCls = item.imgUrl ? (item.scheduled ? \'dot-s\' : \'dot-r\') : \'dot-p\';\n  const statusTxt = item.scheduled ? \'Scheduled\' : item.imgUrl ? \'Image ready - click Schedule\' : \'Upload image or generate\';\n  const schedBtnCls = item.imgUrl ? \'mbtn mbtn-gold\' : \'mbtn\';\n  const imgContent = item.imgUrl\n    ? \'<img src="\' + esc(item.imgUrl) + \'" class="img-preview" data-action="upload" data-type="\' + type + \'" data-idx="\' + idx + \'" title="Click to replace">\'\n    : \'<div class="drop-zone" data-drop-type="\' + type + \'" data-drop-idx="\' + idx + \'" data-action="upload" data-type="\' + type + \'" data-idx="\' + idx + \'"><span class="dz-icon">&#9727;</span><span>Generate or drop</span></div>\';\n\n  const tabsHTML = tabs.slice(0,2).map((tab, ti) => {\n    const paneId = type + \'-s\' + (ti+1) + \'-\' + idx;\n    const allPanes = tabs.slice(0,2).map((_, tii) => type + \'-s\' + (tii+1) + \'-\' + idx).join(\',\');\n    return \'<div class="sec-tab \' + (ti===1?\'on\':\'\') + \'" data-action="sectab" data-panes="\' + allPanes + \'" data-show="\' + paneId + \'">\' + tab.label + \'</div>\';\n  }).join(\'\');\n\n  const panesHTML = tabs.slice(0,2).map((tab, ti) => {\n    const paneId = type + \'-s\' + (ti+1) + \'-\' + idx;\n    const text = ti===0 ? s1text : s2text;\n    const cls = ti===0 && (type===\'img\') ? \'section-text prompt\' : \'section-text\';\n    return \'<div class="sec-pane \' + (ti===1?\'on\':\'\') + \'" id="\' + paneId + \'"><div class="\' + cls + \'">\' + esc(text||\'\') + \'</div></div>\';\n  }).join(\'\') + \'<div style="margin-top:8px;padding:8px 10px;background:var(--dark3);border-radius:5px;border-left:2px solid var(--gold-dim);"><div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;">First Comment</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">\' + esc(s3text||\'\') + \'</div></div>\';\n\n  const copyBtns = tabs.map(tab =>\n    \'<button class="mbtn" data-action="copy" data-type="\' + type + \'" data-idx="\' + idx + \'" data-field="\' + tab.field + \'">\' + tab.label.split(\' \')[0] + \'</button>\'\n  ).join(\'\');\n\n  return \'<div class="card-head">\' +\n    \'<span class="card-num">#\' + String(idx+1).padStart(2,\'0\') + \'</span>\' +\n    \'<span class="card-meta">\' + esc(item.division||item.mood||metaExtra||\'\') + \'</span>\' +\n    \'<span class="card-type \' + typeCls + \'">\' + typeLabel + \'</span>\' +\n    \'<span class="card-time">\' + time + \'</span>\' +\n    \'</div>\' +\n    \'<div class="card-body">\' +\n    \'<div class="card-text">\' +\n    \'<div class="sec-tabs">\' + tabsHTML + \'</div>\' +\n    panesHTML +\n    \'</div>\' +\n    \'<div class="card-img-col">\' +\n    \'<input type="file" id="file-\' + type + \'-\' + idx + \'" accept="image/*" data-file-type="\' + type + \'" data-file-idx="\' + idx + \'" style="display:none">\' +\n    \'<div id="img-\' + type + \'-\' + idx + \'">\' + imgContent + \'</div>\' +\n    \'<button class="mbtn" data-action="regen" data-type="\' + type + \'" data-idx="\' + idx + \'" style="font-size:10px;">&#8635; Regen</button>\' +\n    \'</div>\' +\n    \'</div>\' +\n    \'<div class="card-foot">\' +\n    \'<div class="s-dot \' + dotCls + \'" id="dot-\' + type + \'-\' + idx + \'"></div>\' +\n    \'<span class="s-txt" id="stxt-\' + type + \'-\' + idx + \'">\' + statusTxt + \'</span>\' +\n    copyBtns +\n    \'<button class="\' + schedBtnCls + \'" id="sched-\' + type + \'-\' + idx + \'" data-action="schedule" data-type="\' + type + \'" data-idx="\' + idx + \'"\' + (item.imgUrl?\'\':\' disabled\') + \'>Schedule</button>\' +\n    \'</div>\';\n}\n\n// Video image prompt copy via event delegation\ndocument.addEventListener(\'click\', function(e) {\n  var text = null;\n  if (e.target.classList.contains(\'tdm-copy-prompt\')) {\n    text = decodeURIComponent(e.target.getAttribute(\'data-prompt\') || \'\');\n  } else if (e.target.classList.contains(\'tdm-copy-all\')) {\n    text = decodeURIComponent(e.target.getAttribute(\'data-prompts\') || \'\');\n  }\n  if (text !== null) {\n    if (navigator.clipboard) {\n      navigator.clipboard.writeText(text).then(function() {\n        var orig = e.target.textContent;\n        e.target.textContent = \'Copied!\';\n        setTimeout(function() { e.target.textContent = orig; }, 1500);\n      });\n    }\n  }\n});\n\n// ?? IMAGE GENERATION ??????????????????????????????????????\nfunction applyImage(type, idx, dataUrl) {\n  const arr = getArr(type);\n  arr[idx].imgUrl = dataUrl; arr[idx].status = \'ready\';\n  const imgDiv = document.getElementById(\'img-\' + type + \'-\' + idx);\n  if (imgDiv) imgDiv.innerHTML = \'<img src="\' + dataUrl + \'" class="img-preview" data-action="upload" data-type="\' + type + \'" data-idx="\' + idx + \'" title="Click to replace">\';\n  const dot = document.getElementById(\'dot-\' + type + \'-\' + idx);\n  if (dot) dot.className = \'s-dot dot-r\';\n  const stxt = document.getElementById(\'stxt-\' + type + \'-\' + idx);\n  if (stxt) stxt.textContent = \'Image ready - click Schedule\';\n  const sb = document.getElementById(\'sched-\' + type + \'-\' + idx);\n  if (sb) { sb.disabled = false; sb.className = \'mbtn mbtn-gold\'; }\n  updateStats(); checkSchedAll(); renderSchedule();\n  toast(\'Image set for \' + (type===\'img\'?\'post\':\'video\') + \' #\' + (idx+1));\n}\n\nasync function genImage(type, idx) {\n  const arr = getArr(type);\n  const prompt = arr[idx].imagePrompt;\n  const imgDiv = document.getElementById(\'img-\' + type + \'-\' + idx);\n  const dot = document.getElementById(\'dot-\' + type + \'-\' + idx);\n  const stxt = document.getElementById(\'stxt-\' + type + \'-\' + idx);\n  if (dot) dot.className = \'s-dot dot-p\';\n  if (stxt) stxt.textContent = \'Generating...\';\n  if (imgDiv) imgDiv.innerHTML = \'<div class="img-gen"><div class="spinner"></div><span>Generating...</span></div>\';\n  try {\n    const res = await fetch(\'/tdm/api/image\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({prompt, geminiKey:S.geminiKey})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    applyImage(type, idx, data.dataUrl);\n  } catch(e) {\n    if (imgDiv) imgDiv.innerHTML = \'<div class="drop-zone" data-drop-type="\' + type + \'" data-drop-idx="\' + idx + \'"><span style="font-size:18px">&#9888;</span><span>Error - upload manually</span></div>\';\n    if (dot) dot.className = \'s-dot\';\n    if (stxt) stxt.textContent = \'Error: \' + e.message.substring(0,60);\n    toast(\'Error: \'+e.message, true);\n  }\n}\n\nasync function generateAllImages() {\n  const btn = document.getElementById(\'gen-all-imgs-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  const total = S.imagePosts.length;\n  document.getElementById(\'gen-all-prog\').style.display = \'block\';\n  for (let i = 0; i < total; i++) {\n    if (!S.imagePosts[i].imgUrl) {\n      setP(\'gen-all-fill\',\'gen-all-label\', Math.round((i/total)*100), \'Generating image \' + (i+1) + \' of \' + total + \'...\');\n      await genImage(\'img\', i);\n      await new Promise(r => setTimeout(r, 1200));\n    }\n  }\n  setP(\'gen-all-fill\',\'gen-all-label\',100,\'All images done!\');\n  setTimeout(() => { document.getElementById(\'gen-all-prog\').style.display = \'none\'; }, 2500);\n  btn.disabled = false; btn.textContent = \'Regenerate All Images\';\n  toast(\'All images generated!\');\n}\n\nfunction checkSchedAll() {\n  const r = S.imagePosts.filter(p => p.imgUrl).length;\n  const btn = document.getElementById(\'sched-all-btn\');\n  if (btn) btn.style.display = r > 0 ? \'inline-flex\' : \'none\';\n  const msg = document.getElementById(\'img-batch-msg\');\n  if (msg) msg.textContent = r === S.imagePosts.length ? \'All \' + r + \' images ready - Schedule All\' : r + \' of \' + S.imagePosts.length + \' images ready\';\n}\n\n// ?? VIDEO GENERATION ??????????????????????????????????????\n\nasync function generateBanners() {\n  const btn = document.getElementById(\'gen-banner-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(\'banner-prog-wrap\').style.display = \'block\';\n  setP(\'banner-prog-fill\',\'banner-prog-label\',15,\'Creating banner concepts...\');\n  try {\n    const res = await fetch(\'/tdm/api/generate-banner\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({count:3})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(\'banner-prog-fill\',\'banner-prog-label\',100,\'Banners ready!\');\n    S.banners = data.banners.map((b,i) => ({id:i, type:\'banner\', ...b, imgUrl:null, scheduled:false}));\n    savePosts();\n    setTimeout(() => {\n      document.getElementById(\'banner-prog-wrap\').style.display = \'none\';\n      renderBanners(); updateStats(); renderSchedule();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(\'banner-prog-wrap\').style.display=\'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate 3 Banners\';\n}\n\nfunction renderBanners() {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = S.imagePosts.length;\n  const container = document.getElementById(\'banners-container\');\n  container.innerHTML = \'\';\n  const list = document.createElement(\'div\'); list.className = \'content-list\';\n  S.banners.forEach((b, i) => {\n    const t = fmtTime(addMins(start, (baseOff+i)*intv));\n    const card = document.createElement(\'div\');\n    card.className = \'content-card\'; card.id = \'banner-card-\'+i;\n    card.innerHTML = buildCardHTML(\'banner\', i, b, t, \'BANNER\', \'type-banner\',\n      b.bannerPrompt, b.caption, b.firstComment,\n      [{label:\'Banner Prompt\', field:\'bannerPrompt\'}, {label:\'Caption & Hashtags\', field:\'caption\'}, {label:\'First Comment\', field:\'firstComment\'}]\n    );\n    list.appendChild(card);\n  });\n  container.appendChild(list);\n}\n\nasync function generateVideos(type) {\n  const btn = document.getElementById(\'gen-\' + type + \'-btn\');\n  btn.disabled = true; btn.textContent = \'Generating...\';\n  document.getElementById(type + \'-prog-wrap\').style.display = \'block\';\n  setP(type + \'-prog-fill\', type + \'-prog-label\', 15, \'Writing \' + type + \' scripts...\');\n  try {\n    const res = await fetch(\'/tdm/api/generate-video\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({videoType:type, count:3, dogName:S.name||\'the Yorkie\'})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    setP(type + \'-prog-fill\', type + \'-prog-label\', 100, \'Scripts ready!\');\n    const arr = data.videos.map((v,i) => ({id:i, type, ...v, imgUrl:null, status:\'draft\', scheduled:false}));\n    if (type === \'short\') S.shortVideos = arr; else S.longVideos = arr; savePosts();\n    setTimeout(() => {\n      document.getElementById(type + \'-prog-wrap\').style.display = \'none\';\n      renderVideos(type); updateStats(); renderSchedule();\n    }, 400);\n  } catch(e) { toast(\'Error: \'+e.message, true); document.getElementById(type + \'-prog-wrap\').style.display = \'none\'; }\n  btn.disabled = false; btn.textContent = \'Generate 3 \' + (type===\'short\'?\'Short\':\'Long\') + \' Video Scripts\';\n}\n\n// ?? SCHEDULING ????????????????????????????????????????????\nfunction getScheduleTime(type, idx) {\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const baseOff = type === \'long\' ? S.imagePosts.length + 3 : type === \'short\' ? S.imagePosts.length : 0;\n  return addMins(start, (baseOff + idx) * intv);\n}\n\nasync function scheduleItem(type, idx) {\n  const fbId = document.getElementById(\'fb-page-id\').value.trim();\n  const fbTk = document.getElementById(\'fb-token\').value.trim();\n  if (!fbId || !fbTk) { toast(\'Connect Facebook first - go to Facebook Setup tab\'); return; }\n  const arr = getArr(type);\n  const item = arr[idx];\n  if (!item.imgUrl) { toast(\'Upload an image first\'); return; }\n  const btn = document.getElementById(\'sched-\' + type + \'-\' + idx);\n  btn.textContent = \'...\'; btn.disabled = true;\n  const postTime = getScheduleTime(type, idx);\n  const now = new Date(); const schedDate = new Date(now);\n  schedDate.setHours(postTime.h, postTime.m, 0, 0);\n  if (schedDate <= now) schedDate.setDate(schedDate.getDate() + 1);\n  if (schedDate - now < 10*60*1000) schedDate.setTime(now.getTime() + 11*60*1000);\n  const caption = item.caption || item.captionAndHashtags || \'\';\n  try {\n    const res = await fetch(\'/tdm/api/schedule\', {\n      method:\'POST\', headers:{\'Content-Type\':\'application/json\'},\n      body: JSON.stringify({pageId:fbId, token:fbTk, caption, imageB64:item.imgUrl, scheduledTime:Math.floor(schedDate.getTime()/1000)})\n    });\n    const data = await res.json();\n    if (!data.ok) throw new Error(data.error);\n    arr[idx].scheduled = true;\n    btn.textContent = \'? Scheduled\'; btn.style.color = \'#1D9E75\'; btn.style.borderColor = \'#1D9E75\';\n    const dot = document.getElementById(\'dot-\' + type + \'-\' + idx);\n    if (dot) dot.className = \'s-dot dot-s\';\n    const stxt = document.getElementById(\'stxt-\' + type + \'-\' + idx);\n    if (stxt) stxt.textContent = \'Scheduled for \' + fmtTime(postTime);\n    updateStats(); renderSchedule();\n    toast((type===\'img\'?\'Post\':\'Video\') + \' #\' + (idx+1) + \' scheduled!\');\n  } catch(e) { btn.textContent = \'Schedule\'; btn.disabled = false; toast(\'Error: \'+e.message, true); }\n}\n\nasync function scheduleAll(type) {\n  const arr = getArr(type);\n  const ready = arr.filter(p => p.imgUrl && !p.scheduled);\n  if (!ready.length) { toast(\'No unscheduled items with images\'); return; }\n  const fbId = document.getElementById(\'fb-page-id\').value.trim();\n  const fbTk = document.getElementById(\'fb-token\').value.trim();\n  if (!fbId || !fbTk) { toast(\'Connect Facebook first\'); return; }\n  for (let i = 0; i < arr.length; i++) {\n    if (arr[i].imgUrl && !arr[i].scheduled) {\n      await scheduleItem(type, i);\n      await new Promise(r => setTimeout(r, 900));\n    }\n  }\n  toast(\'All scheduled!\');\n}\n\nfunction clearContent(type) {\n  if (type === \'banners\') {\n    S.banners = []; localStorage.removeItem(\'tdm_banners\');\n    document.getElementById(\'banners-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127775;</span><h3>No Banners Yet</h3><p>Click Generate.</p></div>\';\n  } else if (type === \'images\') {\n    S.imagePosts = []; localStorage.removeItem(\'tdm_imagePosts\');\n    document.getElementById(\'images-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#128081;</span><h3>Awaiting Orders</h3><p>Enter a theme and click Generate.</p></div>\';\n    document.getElementById(\'img-batch-bar\').classList.remove(\'show\');\n    document.getElementById(\'gen-all-prog\').style.display = \'none\';\n  } else if (type === \'shorts\') {\n    S.shortVideos = []; localStorage.removeItem(\'tdm_shortVideos\');\n    document.getElementById(\'shorts-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127910;</span><h3>No Short Scripts Yet</h3><p>Click Generate.</p></div>\';\n  } else {\n    S.longVideos = []; localStorage.removeItem(\'tdm_longVideos\');\n    document.getElementById(\'longs-container\').innerHTML = \'<div class="empty"><span class="empty-icon">&#127909;</span><h3>No Long Scripts Yet</h3><p>Click Generate.</p></div>\';\n  }\n  updateStats();\n}\n\n// ?? SCHEDULE VIEW ?????????????????????????????????????????\nfunction renderSchedule() {\n  const all = [\n    ...S.imagePosts.map((p,i) => ({...p, dType:\'Image Post\', idx:i, tKey:\'img\', cap:p.caption})),\n    ...S.shortVideos.map((v,i) => ({...v, dType:\'Short Video\', idx:i, tKey:\'short\', cap:v.captionAndHashtags})),\n    ...S.longVideos.map((v,i) => ({...v, dType:\'Long Video\', idx:i, tKey:\'long\', cap:v.captionAndHashtags}))\n  ];\n  if (!all.length) return;\n  const start = parseTime(document.getElementById(\'start-time\').value);\n  const intv = parseInt(document.getElementById(\'interval\').value) || 45;\n  const rows = all.map((item, i) => {\n    const t = fmtTime(addMins(start, i * intv));\n    const pill = item.scheduled ? \'<span class="pill pill-s">Scheduled</span>\' : item.imgUrl ? \'<span class="pill pill-r">Ready</span>\' : \'<span class="pill pill-p">Pending</span>\';\n    const tLabel = item.dType===\'Image Post\' ? \'<span class="card-type type-image">IMG</span>\' : item.dType===\'Short Video\' ? \'<span class="card-type type-short">SHORT</span>\' : \'<span class="card-type type-long">LONG</span>\';\n    return \'<div class="sched-row"><span class="s-num">\' + (i+1) + \'</span>\' + tLabel + \'<span style="font-size:11px">\' + esc((item.cap||\'\').substring(0,50)) + \'...</span><span style="font-size:11px;color:var(--muted)">\' + t + \'</span>\' + pill + \'</div>\';\n  }).join(\'\');\n  document.getElementById(\'sched-container\').innerHTML = \'<div class="sched-table"><div class="sched-head"><span>#</span><span>Type</span><span>Caption</span><span>Time</span><span>Status</span></div>\' + rows + \'</div>\';\n}\n\n// ?? FACEBOOK TEST ?????????????????????????????????????????\nfunction testFB() {\n  const pageId = document.getElementById(\'fb-page-id\').value.trim();\n  const token = document.getElementById(\'fb-token\').value.trim();\n  const res = document.getElementById(\'fb-result\');\n  res.style.display = \'block\';\n  if (!pageId || !token) { res.innerHTML = \'<div class="alert alert-gold">Enter both Page ID and Access Token.</div>\'; return; }\n  res.innerHTML = \'<div class="alert alert-info">Testing connection...</div>\';\n  fetch(\'https://graph.facebook.com/v19.0/\' + pageId + \'?fields=name,fan_count&access_token=\' + token)\n    .then(r => r.json())\n    .then(d => {\n      if (d.error) { res.innerHTML = \'<div class="alert alert-err">\' + esc(d.error.message) + \'</div>\'; }\n      else { res.innerHTML = \'<div class="alert alert-ok">Connected to "\' + esc(d.name) + \'" - \' + (d.fan_count||0).toLocaleString() + \' followers. Ready.</div>\'; toast(\'Connected!\'); }\n    })\n    .catch(e => { res.innerHTML = \'<div class="alert alert-err">\' + esc(e.message) + \'</div>\'; });\n}\n\n'
+
+@tdm_bp.route('/studio.js')
+def tdm_studio_js():
+    return Response(TDM_STUDIO_JS, mimetype='application/javascript; charset=utf-8')
+
+
+STUDIO_HTML = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiny Dog Mafia Content Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C9A84C;--gold-light:#E8C97A;--gold-dim:#9A7A35;--black:#0D0D0D;--dark:#141414;--dark2:#1C1C1C;--dark3:#242424;--border:rgba(201,168,76,0.2);--text:#F0EAD6;--muted:#7A7060;--hint:#4A4438;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"DM Sans",sans-serif;background:var(--black);color:var(--text);min-height:100vh;font-size:14px;}
+header{background:var(--dark);border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;}
+.logo{font-family:"Bebas Neue",sans-serif;font-size:22px;letter-spacing:.1em;color:var(--gold);line-height:1;}
+.logo span{color:var(--muted);font-size:10px;font-family:"DM Sans",sans-serif;font-weight:400;letter-spacing:.15em;text-transform:uppercase;display:block;margin-top:1px;}
+.day-badge{background:rgba(201,168,76,.15);color:var(--gold);font-size:11px;font-weight:700;padding:4px 12px;border-radius:3px;letter-spacing:.06em;}
+.hdr-actions{margin-left:auto;display:flex;gap:8px;align-items:center;} .mobile-menu-btn{display:none;}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 58px);}
+.sidebar{background:var(--dark);border-right:1px solid var(--border);padding:16px 12px;overflow-y:auto;}
+.s-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--dark3);}
+.s-section{margin-bottom:20px;}
+.s-label{font-size:11px;color:var(--muted);margin-bottom:5px;display:block;}
+.s-field{margin-bottom:11px;}
+.s-field select,.s-field input{width:100%;background:var(--dark3);border:1px solid var(--dark3);border-radius:5px;padding:7px 9px;font-family:"DM Sans",sans-serif;font-size:12px;color:var(--text);outline:none;}
+.s-field select:focus,.s-field input:focus{border-color:var(--gold-dim);}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;}
+.chip{font-size:11px;padding:3px 9px;border-radius:3px;cursor:pointer;border:1px solid var(--dark3);color:var(--muted);background:var(--dark2);transition:all .15s;font-weight:500;}
+.chip.on{background:rgba(201,168,76,.12);border-color:var(--gold-dim);color:var(--gold);}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.stat-box{background:var(--dark3);border-radius:5px;padding:8px;text-align:center;}
+.stat-num{font-family:"Bebas Neue",sans-serif;font-size:26px;color:var(--gold);letter-spacing:.04em;line-height:1;}
+.stat-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-top:2px;}
+.main{display:flex;flex-direction:column;}
+.tabs{display:flex;border-bottom:1px solid var(--dark3);padding:0 20px;flex-wrap:wrap;}
+.tab{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold);}
+.pane{display:none;padding:20px;overflow-y:auto;flex:1;}
+.pane.on{display:block;}
+.theme-box{background:var(--dark2);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+.theme-box p{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6;}
+.day-name-d{font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:.06em;color:var(--gold);margin-bottom:4px;}
+.day-focus-d{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.theme-row{display:flex;gap:10px;}
+.theme-row input{flex:1;background:var(--dark3);border:1px solid var(--dark3);border-radius:5px;padding:9px 12px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;}
+.theme-row input:focus{border-color:var(--gold-dim);}
+.quick-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.qchip{font-size:11px;padding:3px 9px;border-radius:3px;cursor:pointer;border:1px solid var(--dark3);color:var(--muted);background:var(--dark2);}
+.qchip:hover{border-color:var(--gold-dim);color:var(--gold);}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 18px;border-radius:5px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold-light));color:var(--black);}
+.btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.btn-dark{background:var(--dark3);color:var(--muted);border:1px solid var(--dark3);}
+.btn-dark:hover{border-color:var(--border);color:var(--text);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--dark3);}
+.btn-ghost:hover{border-color:var(--border);color:var(--gold);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.prog-wrap{margin-top:14px;}
+.prog-track{height:3px;background:var(--dark3);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold-light));border-radius:99px;width:0%;transition:width .4s;}
+.prog-label{font-size:11px;color:var(--hint);text-align:center;margin-top:6px;}
+.batch-bar{display:none;align-items:center;gap:8px;padding:10px 14px;background:var(--dark2);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;flex-wrap:wrap;}
+.batch-bar.show{display:flex;}
+.batch-msg{font-size:11px;color:var(--gold);flex:1;font-weight:600;}
+.content-list{display:flex;flex-direction:column;gap:10px;}
+.content-card{background:var(--dark2);border:1px solid var(--dark3);border-radius:10px;overflow:hidden;}
+.card-head{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--dark3);border-bottom:1px solid var(--dark3);}
+.card-num{font-family:"Bebas Neue",sans-serif;font-size:16px;color:var(--gold);min-width:28px;}
+.card-meta{font-size:11px;color:var(--muted);flex:1;}
+.card-time{font-size:11px;color:var(--hint);background:var(--dark2);padding:2px 9px;border-radius:3px;font-weight:600;}
+.card-type{font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
+.type-image{background:rgba(99,153,34,.1);color:#639922;}
+.type-short{background:rgba(74,128,184,.1);color:#7AAAD4;}
+.type-long{background:rgba(170,100,34,.1);color:#D4AA7A;}
+.card-body{display:grid;grid-template-columns:1fr 150px;}
+.card-text{padding:12px 14px;border-right:1px solid var(--dark3);}
+.sec-tabs{display:flex;border-bottom:1px solid var(--dark3);margin:-12px -14px 10px;}
+.sec-tab{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--hint);padding:7px 10px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.sec-tab.on{color:var(--gold);border-bottom-color:var(--gold);}
+.sec-pane{display:none;}
+.sec-pane.on{display:block;}
+.section-text{font-size:12px;line-height:1.75;color:var(--text);white-space:pre-wrap;}
+.section-text.prompt{font-style:italic;color:var(--muted);border-left:2px solid var(--gold-dim);padding-left:8px;}
+.card-img-col{padding:12px;display:flex;flex-direction:column;gap:6px;align-items:center;background:var(--dark3);}
+.drop-zone{width:126px;height:126px;border-radius:6px;border:1.5px dashed var(--dark3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:all .2s;background:var(--dark2);}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold-dim);background:rgba(201,168,76,.04);}
+.drop-zone .dz-icon{font-size:22px;color:var(--hint);}
+.drop-zone span{font-size:10px;color:var(--hint);text-align:center;line-height:1.4;}
+.img-gen{width:126px;height:126px;border-radius:6px;border:1px solid var(--dark3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--dark2);font-size:10px;color:var(--hint);text-align:center;}
+.img-preview{width:126px;height:126px;object-fit:cover;border-radius:6px;cursor:pointer;}
+.spinner{width:20px;height:20px;border:2px solid var(--dark3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card-foot{display:flex;align-items:center;gap:6px;padding:8px 14px;border-top:1px solid var(--dark3);background:var(--dark3);flex-wrap:wrap;}
+.s-dot{width:6px;height:6px;border-radius:50%;background:var(--dark3);flex-shrink:0;}
+.dot-r{background:#639922;}.dot-p{background:var(--gold-dim);animation:pulse 1.2s infinite;}.dot-s{background:#1D9E75;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.s-txt{font-size:11px;color:var(--muted);flex:1;}
+.mbtn{font-size:11px;padding:3px 8px;color:var(--muted);border:1px solid var(--dark3);background:var(--dark2);border-radius:4px;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s;font-weight:500;}
+.mbtn:hover{border-color:var(--gold-dim);color:var(--gold);}
+.mbtn:disabled{opacity:.35;cursor:not-allowed;}
+.mbtn-gold{border-color:var(--gold-dim)!important;color:var(--gold)!important;}
+.sched-table{border:1px solid var(--dark3);border-radius:8px;overflow:hidden;}
+.sched-head{display:grid;grid-template-columns:40px 60px 1fr 120px 100px;gap:8px;padding:8px 12px;background:var(--dark3);font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--dark3);}
+.sched-row{display:grid;grid-template-columns:40px 60px 1fr 120px 100px;gap:8px;padding:9px 12px;font-size:12px;border-bottom:1px solid var(--dark3);background:var(--dark2);align-items:center;}
+.sched-row:last-child{border-bottom:none;}
+.s-num{font-family:"Bebas Neue",sans-serif;font-size:16px;color:var(--gold);}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.04em;}
+.pill-p{background:rgba(201,168,76,.1);color:var(--gold-dim);}
+.pill-r{background:rgba(99,153,34,.12);color:#639922;}
+.pill-s{background:rgba(29,158,117,.12);color:#1D9E75;}
+.setup-sec{background:var(--dark2);border:1px solid var(--dark3);border-radius:8px;padding:18px;margin-bottom:12px;}
+.setup-sec h3{font-size:15px;font-weight:500;margin-bottom:6px;}
+.setup-sec p{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px;}
+.step-list{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:9px;margin-bottom:14px;}
+.step-list li{counter-increment:s;display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.55;}
+.step-list li::before{content:counter(s);min-width:19px;height:19px;background:rgba(201,168,76,.15);color:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;}
+.alert{padding:10px 13px;border-radius:0 5px 5px 0;font-size:12px;line-height:1.6;margin-bottom:12px;border-left:2px solid;}
+.alert-gold{background:rgba(201,168,76,.07);color:var(--gold);border-color:var(--gold-dim);}
+.alert-ok{background:rgba(29,158,117,.07);color:#1D9E75;border-color:#1D9E75;}
+.alert-err{background:rgba(170,61,61,.08);color:#D48A8A;border-color:#AA3D3D;}
+.alert-info{background:rgba(74,128,184,.08);color:#7AAAD4;border-color:#4A80B8;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;color:var(--gold);font-family:monospace;}
+.empty{text-align:center;padding:60px 20px;color:var(--hint);}
+.empty-icon{font-size:44px;margin-bottom:14px;display:block;}
+.empty h3{font-family:"Bebas Neue",sans-serif;font-size:24px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;}
+.empty p{font-size:13px;line-height:1.7;max-width:320px;margin:0 auto;}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--dark2);color:var(--gold-light);border:1px solid var(--border);padding:11px 18px;border-radius:6px;font-size:12px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── MOBILE RESPONSIVE ─────────────────────────────────── */
+@media (max-width: 680px) {
+
+  /* Header */
+  header { padding: 0 14px; gap: 8px; }
+  .logo { font-size: 18px; }
+  .logo span { display: none; }
+  .hdr-actions { gap: 6px; }
+  .hdr-actions a, .hdr-actions button { font-size: 10px !important; padding: 4px 8px !important; }
+
+  /* Layout — sidebar hidden by default on mobile */
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: 58px; left: 0; right: 0; bottom: 0;
+    z-index: 200;
+    overflow-y: auto;
+    border-right: none;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar.open { display: block; }
+  .main { min-width: 0; }
+
+  /* Mobile menu button */
+  .mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: var(--dark3);
+    border: 1px solid var(--dark3);
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mobile-menu-btn.on { border-color: var(--gold-dim); color: var(--gold); }
+
+  /* Tabs — horizontal scroll */
+  .tabs { padding: 0 10px; overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 10px 10px; font-size: 10px; white-space: nowrap; flex-shrink: 0; }
+
+  /* Pane padding */
+  .pane { padding: 12px; }
+
+  /* Gen/theme boxes */
+  .gen-box, .theme-box { padding: 12px; }
+  .gen-box p, .theme-box p { font-size: 11px; margin-bottom: 10px; }
+  .override-row, .theme-row { flex-direction: column; gap: 8px; }
+  .override-row input, .theme-row input { width: 100%; }
+  .btn-row { flex-direction: column; }
+  .btn-row .btn { width: 100%; }
+  .btn { font-size: 12px; padding: 10px 14px; }
+  .quick-row { gap: 4px; }
+  .qchip { font-size: 10px; }
+
+  /* Cards — stack image below text */
+  .card-body { grid-template-columns: 1fr; }
+  .card-text { border-right: none; border-bottom: 1px solid var(--dark3); padding: 10px 12px; }
+  .card-img-col {
+    padding: 10px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    background: var(--dark3);
+    justify-content: flex-start;
+  }
+  .drop-zone, .img-preview, .img-gen, .banner-placeholder {
+    width: 80px !important; height: 80px !important;
+  }
+  .drop-zone span { font-size: 9px; }
+  .dz-icon { font-size: 18px; }
+
+  /* Card head */
+  .card-head { padding: 8px 12px; flex-wrap: wrap; gap: 6px; }
+  .card-time { margin-left: 0; }
+
+  /* Card foot */
+  .card-foot { padding: 8px 12px; gap: 5px; }
+  .mbtn { font-size: 10px; padding: 4px 8px; }
+  .s-txt { font-size: 10px; width: 100%; order: -1; margin-bottom: 2px; }
+
+  /* Section text */
+  .section-text { font-size: 11px; }
+  .first-comment-text { font-size: 11px; }
+
+  /* Batch bar */
+  .batch-bar { padding: 8px 10px; gap: 6px; }
+  .batch-bar .btn { font-size: 10px !important; padding: 6px 10px !important; width: auto; }
+  .batch-msg { font-size: 10px; width: 100%; }
+
+  /* Schedule table */
+  .sched-head { grid-template-columns: 28px 50px 1fr 80px; font-size: 9px; padding: 6px 10px; }
+  .sched-row { grid-template-columns: 28px 50px 1fr 80px; font-size: 10px; padding: 7px 10px; }
+  .sched-head span:nth-child(5), .sched-row span:nth-child(5),
+  .sched-head span:last-child, .sched-row .pill { display: none; }
+
+  /* Settings modal */
+  #settings-modal > div { width: 95vw !important; padding: 20px !important; }
+
+  /* Stat grid */
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stat-num { font-size: 22px; }
+
+  /* Toast */
+  .toast { left: 10px; right: 10px; max-width: none; bottom: 14px; }
+
+  /* Two col forms */
+  .two-col { grid-template-columns: 1fr; }
+
+  /* Progress */
+  .prog-label { font-size: 10px; }
+}
+
+
+/* ── MOBILE READABILITY ────────────────────────────────── */
+@media (max-width: 680px) {
+  /* Larger base font */
+  body { font-size: 15px; }
+
+  /* Sidebar text */
+  .s-title { font-size: 11px; color: #7A7A7A; }
+  .s-label { font-size: 12px; color: #A0A090; }
+  .s-field select, .s-field input { font-size: 13px; color: var(--text); }
+
+  /* Chip text */
+  .chip { font-size: 12px; padding: 5px 11px; color: #A0A090; }
+  .chip.on { color: var(--gold-light); }
+
+  /* Stat boxes */
+  .stat-num { font-size: 28px; }
+  .stat-lbl { font-size: 10px; color: #7A7A7A; }
+
+  /* Tab labels */
+  .tab { font-size: 11px; color: #A0A090; }
+  .tab.on { color: var(--gold-light); }
+
+  /* Gen box text */
+  .gen-box p, .theme-box p { font-size: 13px; color: #A0A090; line-height: 1.65; }
+  .day-name-d { font-size: 18px; }
+  .day-focus-d { font-size: 12px; color: #A0A090; }
+
+  /* Card head */
+  .card-num { font-size: 18px; }
+  .card-meta, .card-era { font-size: 12px; }
+  .card-time { font-size: 12px; }
+
+  /* Section content - most important */
+  .section-text { font-size: 14px; line-height: 1.8; color: #E8E0CC; }
+  .section-text.prompt { font-size: 13px; color: #B0A890; }
+  .first-comment-text { font-size: 13px; color: #B0A890; line-height: 1.7; }
+  .first-comment-label { font-size: 10px; color: #7A7A7A; }
+
+  /* Sec tabs */
+  .sec-tab { font-size: 11px; padding: 8px 10px; color: #8A8070; }
+  .sec-tab.on { color: var(--gold-light); }
+
+  /* Card footer */
+  .s-txt { font-size: 12px; color: #A0A090; }
+  .mbtn { font-size: 12px; padding: 5px 10px; color: #A0A090; }
+  .mbtn-gold { color: var(--gold-light) !important; }
+
+  /* Batch bar */
+  .batch-msg { font-size: 12px; }
+
+  /* Logo */
+  .logo { font-size: 20px; }
+
+  /* Pillar note in sidebar */
+  .sidebar div[style*="font-size:11px"] { font-size: 12px !important; color: #8A8070 !important; line-height: 1.75 !important; }
+
+  /* Input placeholders */
+  input::placeholder { color: #6A6458; font-size: 13px; }
+  select { color: var(--text); }
+
+  /* Progress label */
+  .prog-label { font-size: 12px; color: #A0A090; }
+
+  /* Schedule table */
+  .sched-row { font-size: 12px; }
+  .s-num { font-size: 18px; }
+
+  /* Empty state */
+  .empty h3 { font-size: 20px; }
+  .empty p { font-size: 13px; color: #8A8070; }
+
+  /* Btn text */
+  .btn { font-size: 13px; }
+  .btn-gold { font-size: 13px; }
+
+  /* Quick chips */
+  .qchip { font-size: 12px; padding: 5px 10px; color: #8A8070; }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Tiny Dog Mafia<span>Content Studio</span></div>
+  <div class="day-badge" id="day-badge">Loading...</div>
+  <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+  <div class="hdr-actions">
+    <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px;" id="settings-btn">&#9881; Settings</button>
+    <a href="/mj" class="btn btn-ghost" style="font-size:11px;padding:5px 12px;">Switch to MJ</a>
+  </div>
+</header>
+
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--dark2);border:1px solid var(--border);border-radius:12px;padding:32px;width:460px;max-width:90vw;">
+    <h2 style="font-family:Bebas Neue,sans-serif;font-size:22px;letter-spacing:.08em;color:var(--gold);margin-bottom:4px;">Studio Settings</h2>
+    <div style="font-size:11px;color:var(--hint);margin-bottom:16px;" id="topic-count-display">Loading topic history...</div>
+    <div class="s-field"><label class="s-label">Yorkie Name (optional)</label><input type="text" id="set-name" placeholder="Bella, Boss, Coco..."></div>
+    <div class="s-field"><label class="s-label">Gemini API Key (optional)</label><input type="password" id="set-gemini" placeholder="AIza..."></div>
+    <div class="s-field"><label class="s-label">Buffer Access Token (future use)</label><input type="password" id="set-buffer" placeholder="For Buffer scheduling..."></div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <div style="border-top:1px solid var(--dark3);margin-top:16px;padding-top:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">Buffer Integration</div>
+      <label style="font-size:11px;font-weight:600;color:var(--hint);">Buffer API Key</label>
+      <input type="password" id="tdm-set-buffer-key" placeholder="Paste your Buffer API key..." style="width:100%;background:var(--dark2);border:1px solid var(--dark3);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text);font-family:DM Sans,sans-serif;margin-top:4px;margin-bottom:8px;box-sizing:border-box;">
+      <button onclick="loadTdmBufferChannels()" style="width:100%;background:var(--dark3);border:1px solid var(--dark3);border-radius:6px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;margin-bottom:8px;">Connect to Buffer</button>
+      <div id="tdm-buffer-channels-wrap" style="display:none;">
+        <label style="font-size:11px;font-weight:600;color:var(--hint);">Post to these channels:</label>
+        <div id="tdm-buffer-channel-list" style="margin-top:6px;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div id="tdm-buffer-status" style="font-size:11px;color:var(--hint);margin-top:6px;"></div>
+    </div>
+    <button class="btn btn-gold" id="save-settings-btn" style="flex:1;">Save</button>
+      <button class="btn btn-ghost" id="cancel-settings-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="s-section">
+      <div class="s-title">Session Stats</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-num" id="s-images">0</div><div class="stat-lbl">Images</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-videos">0</div><div class="stat-lbl">Videos</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-ready">0</div><div class="stat-lbl">Ready</div></div>
+        <div class="stat-box"><div class="stat-num" id="s-sched">0</div><div class="stat-lbl">Scheduled</div></div>
+      </div>
+    </div>
+    <div class="s-section">
+      <div class="s-title">Post Settings</div>
+      <div class="s-field"><label class="s-label">Image posts per day</label>
+        <select id="post-count"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10" selected>10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15" selected>15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select>
+      </div>
+      <div class="s-field"><label class="s-label">First post time</label><input type="text" id="start-time" value="8:00 AM"></div>
+      <div class="s-field"><label class="s-label">Interval (minutes)</label><input type="text" id="interval" value="45"></div>
+
+    </div>
+    <div class="s-section">
+      <div class="s-title">Content Pillars</div>
+      <div style="font-size:11px;color:var(--hint);line-height:1.7;margin-bottom:10px;">10 Yorkie pillars randomly selected on each generation for maximum variety.</div>
+    </div>
+    <div class="s-section">
+      <div class="s-title">Vibe / Tone</div>
+      <div class="chip-row" id="tone-chips">
+        <div class="chip on" data-tone="funny">Funny</div>
+        <div class="chip" data-tone="cinematic">Cinematic</div>
+        <div class="chip" data-tone="savage">Savage</div>
+        <div class="chip" data-tone="wholesome">Wholesome</div>
+        <div class="chip" data-tone="relatable">Relatable</div>
+      </div>
+    </div>
+    <div class="s-section">
+      <div class="s-title">CTA Style</div>
+      <div class="chip-row" id="cta-chips">
+        <div class="chip on" data-cta="engagement">Comments</div>
+        <div class="chip" data-cta="tag">Tag a friend</div>
+        <div class="chip" data-cta="save">Save/share</div>
+        <div class="chip" data-cta="follow">Follow</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tabs">
+      <div class="tab on" data-tab="images">Image Posts</div>
+      <div class="tab" data-tab="banners">Banners</div>
+      <div class="tab" data-tab="shorts">Short Videos (30s)</div>
+      <div class="tab" data-tab="longs">Long Videos</div>
+      <div class="tab" data-tab="schedule">Schedule</div>
+      <div class="tab" data-tab="facebook">Facebook Setup</div>
+    </div>
+
+    <div class="pane on" id="pane-images">
+      <div class="theme-box">
+        <div class="day-name-d" id="theme-name-d">Loading...</div>
+        <div class="day-focus-d" id="theme-focus-d"></div>
+        <p>Enter a theme or leave blank to use the daily theme. <strong style="color:var(--gold);">Tip: Generate 15 at a time for best results.</strong></p>
+        <div class="theme-row">
+          <input type="text" id="theme-input" placeholder="Optional theme override...">
+          <button class="btn btn-gold" id="gen-img-btn">Generate Image Posts</button>
+        </div>
+        <div style="margin-top:10px;padding:10px 12px;background:var(--dark3);border-radius:8px;border:1px solid var(--gold-dim);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.05em;">DAILY RUN</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:10px;color:var(--hint);">Auto-approve</span>
+              <label style="position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;">
+                <input type="checkbox" id="auto-approve-toggle" style="opacity:0;width:0;height:0;">
+                <span id="auto-approve-slider" style="position:absolute;top:0;left:0;right:0;bottom:0;background:var(--dark2);border-radius:20px;border:1px solid var(--dark3);transition:.3s;">
+                  <span id="auto-approve-dot" style="position:absolute;height:16px;width:16px;left:2px;bottom:2px;background:white;border-radius:50%;transition:.3s;"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin:0 0 8px;">Generates images, sends to OpenArt via Claude, then queues approved captions to Buffer.</p>
+          <button class="btn btn-gold" id="daily-run-btn" onclick="startDailyRun()" style="width:100%;font-size:13px;padding:10px;">&#9654; Run TDM Daily</button>
+          <div id="daily-run-status" style="display:none;margin-top:8px;font-size:11px;color:var(--hint);"></div>
+        </div>
+        <div id="approval-panel" style="display:none;margin-top:12px;padding:12px;background:var(--dark2);border-radius:8px;border:1px solid var(--gold-dim);">
+          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.05em;">APPROVE POSTS FOR BUFFER</div>
+          <div id="approval-list" style="max-height:300px;overflow-y:auto;margin-bottom:10px;"></div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="approveSelected()" class="btn btn-gold" style="flex:1;font-size:12px;">Approve Selected</button>
+            <button onclick="approveAll()" class="btn btn-gold" style="flex:1;font-size:12px;">Approve All</button>
+            <button onclick="document.getElementById('approval-panel').style.display='none';" class="btn btn-dark" style="font-size:12px;">Cancel</button>
+          </div>
+        </div>
+        <div class="quick-row">
+          <span style="font-size:10px;color:var(--hint);align-self:center;">Quick:</span>
+          <div class="qchip" data-theme="morning chaos">Morning</div>
+          <div class="qchip" data-theme="pool day takeover">Pool day</div>
+          <div class="qchip" data-theme="grocery store heist">Grocery</div>
+          <div class="qchip" data-theme="spa day demands">Spa day</div>
+          <div class="qchip" data-theme="remote work supervision">WFH</div>
+          <div class="qchip" data-theme="dinner table negotiations">Dinner</div>
+        </div>
+        <div id="img-prog-wrap" style="display:none;" class="prog-wrap">
+          <div class="prog-track"><div class="prog-fill" id="img-prog-fill"></div></div>
+          <div class="prog-label" id="img-prog-label">Generating...</div>
+        </div>
+      </div>
+      <div class="batch-bar" id="img-batch-bar">
+        <span class="batch-msg" id="img-batch-msg">Posts ready</span>
+        <button class="btn btn-gold" id="gen-all-imgs-btn" style="font-size:11px;padding:7px 14px;">&#10024; Generate All Images</button>
+        <button class="btn btn-dark" id="copy-all-captions-btn" style="font-size:11px;padding:7px 12px;">&#128203; Copy All Captions</button>
+        <button class="btn btn-gold" id="sched-all-btn" style="font-size:11px;padding:7px 14px;display:none;">&#128640; Schedule All to FB</button>
+        <button class="btn btn-ghost" id="clear-images-btn" style="font-size:11px;padding:7px 12px;">&#10005; Clear</button>
+      </div>
+      <div id="gen-all-prog" style="display:none;padding:0 0 12px;">
+        <div class="prog-track"><div class="prog-fill" id="gen-all-fill"></div></div>
+        <div class="prog-label" id="gen-all-label">Generating images...</div>
+      </div>
+      <div id="images-container">
+        <div class="empty"><span class="empty-icon">&#128081;</span><h3>Awaiting Orders</h3><p>Enter a theme and click Generate Image Posts.</p></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-banners">
+      <div class="theme-box">
+        <div class="day-name-d">Tiny Dog Mafia Banners</div>
+        <div class="day-focus-d">Typographic banners with bold questions that drive comments. Paste prompt into OpenArt or Gemini.</div>
+        <p>Vibrant gradient backgrounds, mafia-boss attitude, scroll-stopping questions.</p>
+        <div class="btn-row">
+          <button class="btn btn-gold" id="gen-banner-btn">Generate 3 Banners</button>
+          <button class="btn btn-ghost" id="clear-banners-btn">Clear</button>
+        </div>
+        <div id="banner-prog-wrap" style="display:none;" class="prog-wrap">
+          <div class="prog-track"><div class="prog-fill" id="banner-prog-fill"></div></div>
+          <div class="prog-label" id="banner-prog-label">Generating banners...</div>
+        </div>
+      </div>
+      <div id="banners-container">
+        <div class="empty"><span class="empty-icon">&#127775;</span><h3>No Banners Yet</h3><p>Generate typographic banner concepts with Tiny Dog Mafia attitude.</p></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-shorts">
+      <div class="theme-box">
+        <div class="day-name-d" id="short-day-d">Loading...</div>
+        <p>Generates 3 x 30-second video packages with narration + 5 image prompts with captions and scene image prompts.</p>
+        <div class="btn-row">
+          <button class="btn btn-gold" id="gen-short-btn">Generate 3 Short Videos</button>
+          <button class="btn btn-dark" onclick="downloadTdmVideoPrompts('short')" style="font-size:12px;">&#8595; OpenArt Prompts</button>
+          <button class="btn btn-dark" id="clear-shorts-btn">Clear</button>
+        </div>
+        <div id="short-prog-wrap" style="display:none;" class="prog-wrap">
+          <div class="prog-track"><div class="prog-fill" id="short-prog-fill"></div></div>
+          <div class="prog-label" id="short-prog-label">Writing scripts...</div>
+        </div>
+      </div>
+      <div id="shorts-container">
+        <div class="empty"><span class="empty-icon">&#127910;</span><h3>No Short Scripts Yet</h3><p>Click Generate to create 3 x 30-second video packages.</p></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-longs">
+      <div class="theme-box">
+        <div class="day-name-d" id="long-day-d">Loading...</div>
+        <p>Generates 3 x 60-second video packages with narration + 10 image prompts with captions and scene image prompts.</p>
+        <div class="btn-row">
+          <button class="btn btn-gold" id="gen-long-btn">Generate 3 Long Video Packages</button>
+          <button class="btn btn-dark" id="clear-longs-btn">Clear</button>
+        </div>
+        <div id="long-prog-wrap" style="display:none;" class="prog-wrap">
+          <div class="prog-track"><div class="prog-fill" id="long-prog-fill"></div></div>
+          <div class="prog-label" id="long-prog-label">Writing scripts...</div>
+        </div>
+      </div>
+      <div id="longs-container">
+        <div class="empty"><span class="empty-icon">&#127909;</span><h3>No Long Scripts Yet</h3><p>Click Generate to create 3 x 60-second video packages.</p></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-schedule">
+      <div id="sched-container">
+        <div class="empty"><span class="empty-icon">&#128197;</span><h3>No Posts Yet</h3><p>Generate content first.</p></div>
+      </div>
+    </div>
+
+    <div class="pane" id="pane-facebook">
+      <div class="alert alert-gold" style="margin-bottom:18px;"><strong>Connect Tiny Dog Mafia page</strong> to enable one-click scheduling via the Facebook Graph API.</div>
+      <div class="setup-sec">
+        <h3>Step 1 - Create Facebook Developer App</h3>
+        <ol class="step-list">
+          <li>Go to <strong>developers.facebook.com</strong> and log in</li>
+          <li>Click <strong>My Apps &rarr; Create App &rarr; Business</strong></li>
+          <li>Name it "Tiny Dog Mafia Studio"</li>
+          <li>Add: <strong>Facebook Login</strong> and <strong>Pages API</strong></li>
+        </ol>
+      </div>
+      <div class="setup-sec">
+        <h3>Step 2 - Get Page Access Token</h3>
+        <ol class="step-list">
+          <li>Go to <strong>Tools &rarr; Graph API Explorer</strong></li>
+          <li>Select app and <strong>Tiny Dog Mafia</strong> page</li>
+          <li>Add: <code>pages_manage_posts</code> <code>instagram_content_publish</code></li>
+          <li>Click <strong>Generate Access Token</strong></li>
+        </ol>
+      </div>
+      <div class="setup-sec">
+        <h3>Step 3 - Enter Credentials</h3>
+        <div class="two-col">
+          <div><label class="s-label">Facebook Page ID</label><input type="text" id="fb-page-id" placeholder="123456789" style="width:100%;background:var(--dark3);border:1px solid var(--dark3);border-radius:5px;padding:8px 10px;font-size:13px;color:var(--text);outline:none;font-family:DM Sans,sans-serif;"></div>
+          <div><label class="s-label">Page Access Token</label><input type="password" id="fb-token" placeholder="EAABx..." style="width:100%;background:var(--dark3);border:1px solid var(--dark3);border-radius:5px;padding:8px 10px;font-size:13px;color:var(--text);outline:none;font-family:DM Sans,sans-serif;"></div>
+        </div>
+        <div class="two-col">
+          <div><label class="s-label">Instagram Account ID (optional)</label><input type="text" id="ig-id" placeholder="From IG Business Settings" style="width:100%;background:var(--dark3);border:1px solid var(--dark3);border-radius:5px;padding:8px 10px;font-size:13px;color:var(--text);outline:none;font-family:DM Sans,sans-serif;"></div>
+          <div style="display:flex;align-items:flex-end;"><button class="btn btn-gold" id="test-fb-btn" style="width:100%;">Save &amp; Test</button></div>
+        </div>
+        <div id="fb-result" style="display:none;margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Mobile copy modal -->
+<div id="copy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;padding:20px;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--dark2);border-radius:10px;padding:20px;width:90%;max-width:500px;">
+    <div id="copy-modal-title" style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;">Copy Text</div>
+    <textarea id="copy-modal-text" readonly style="width:100%;height:200px;background:var(--dark1);border:1px solid var(--dark3);border-radius:6px;padding:10px;font-size:12px;color:var(--text);font-family:monospace;resize:none;box-sizing:border-box;"></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button id="copy-modal-btn" class="btn btn-gold" style="flex:1;">Copy to Clipboard</button>
+      <button id="copy-modal-close2" class="btn btn-ghost">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="/tdm/studio.js?v=1" defer></script>
+</body>
+</html>
+'''
