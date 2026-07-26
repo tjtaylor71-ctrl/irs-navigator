@@ -798,9 +798,9 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
             <span style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.05em;">DAILY RUN</span>
             <div style="display:flex;align-items:center;gap:8px;">
               <span style="font-size:10px;color:var(--hint);">Auto-approve</span>
-              <label style="position:relative;display:inline-block;width:36px;height:20px;">
-                <input type="checkbox" id="auto-approve-toggle" style="opacity:0;width:0;height:0;" onchange="localStorage.setItem('tdm_auto_approve',this.checked)">
-                <span id="auto-approve-slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--dark2);border-radius:20px;border:1px solid var(--dark3);transition:.3s;" onclick="var cb=document.getElementById('auto-approve-toggle');cb.checked=!cb.checked;localStorage.setItem('tdm_auto_approve',cb.checked);this.style.background=cb.checked?'var(--gold)':'var(--dark2)';document.getElementById('auto-approve-dot').style.left=cb.checked?'18px':'2px';">
+              <label style="position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;">
+                <input type="checkbox" id="auto-approve-toggle" style="opacity:0;width:0;height:0;">
+                <span id="auto-approve-slider" style="position:absolute;top:0;left:0;right:0;bottom:0;background:var(--dark2);border-radius:20px;border:1px solid var(--dark3);transition:.3s;">
                   <span id="auto-approve-dot" style="position:absolute;height:16px;width:16px;left:2px;bottom:2px;background:white;border-radius:50%;transition:.3s;"></span>
                 </span>
               </label>
@@ -961,7 +961,8 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
   </div>
 </div>
 
-<script>
+<script>console.log("TDM script starting v3");
+
 // -- DAILY RUN AUTOMATION ----------------------------------
 (function initAutoApprove() {
   var saved = localStorage.getItem('tdm_auto_approve') === 'true';
@@ -1076,6 +1077,19 @@ async function sendDailyToBuffer(posts) {
 }
 
 // -- BUFFER SETTINGS --------------------------------------
+
+// Auto-approve toggle
+var autoApproveToggle = document.getElementById('auto-approve-toggle');
+if (autoApproveToggle) {
+  autoApproveToggle.addEventListener('change', function() {
+    var slider = document.getElementById('auto-approve-slider');
+    var dot = document.getElementById('auto-approve-dot');
+    localStorage.setItem('tdm_auto_approve', this.checked);
+    if (slider) slider.style.background = this.checked ? 'var(--gold)' : 'var(--dark2)';
+    if (dot) dot.style.left = this.checked ? '18px' : '2px';
+  });
+}
+
 function loadTdmBufferChannels() {
   var key = document.getElementById('tdm-set-buffer-key').value.trim();
   var status = document.getElementById('tdm-buffer-status');
