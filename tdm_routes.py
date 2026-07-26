@@ -950,8 +950,7 @@ code{background:var(--dark3);padding:1px 6px;border-radius:3px;font-size:11px;co
 <div class="toast" id="toast"></div>
 
 <!-- Mobile copy modal -->
-<div id="copy-modal" style="display:none
-;padding:20px;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
+<div id="copy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;padding:20px;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--dark2);border-radius:10px;padding:20px;width:90%;max-width:500px;">
     <div id="copy-modal-title" style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;">Copy Text</div>
     <textarea id="copy-modal-text" readonly style="width:100%;height:200px;background:var(--dark1);border:1px solid var(--dark3);border-radius:6px;padding:10px;font-size:12px;color:var(--text);font-family:monospace;resize:none;box-sizing:border-box;"></textarea>
