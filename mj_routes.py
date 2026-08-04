@@ -2181,7 +2181,7 @@ JSON: {{"posts":[{{"imagePrompt":"...","caption":"...","firstComment":"...","pil
 @mj_bp.route('/api/generate-banner', methods=['POST'])
 def generate_banner():
     data       = request.get_json()
-    count      = int(data.get('count', 3))
+    count      = min(int(data.get('count', 9)), 12)  # cap to avoid timeouts
     override   = data.get('themeOverride', '').strip()
     exclusions = data.get('exclusions', [])
 
@@ -2197,9 +2197,12 @@ def generate_banner():
 
     system_prompt = (
         'You are the creative director for a viral Michael Jackson tribute Facebook and Instagram page. '
-        'Generate typographic banner concepts  -  no people, no photography, text on gradient background only. '
-        'Banners must be vibrant, scroll-stopping, and emotionally powerful. '
-        'The banner text must always be a QUESTION that invites comments, not a declarative statement. '
+        'Generate cinematic concert-stage banner concepts - symbolic props and silhouettes only, NEVER a depiction of his face or a photorealistic likeness. '
+        'Visual style: dramatic concert stage at night, moody blue and gold spotlight beams cutting through haze and drifting sparkle particles, reflective black stage floor. '
+        'The sole human element allowed is a distant silhouette (back to camera, or too far/dark to show facial detail) - never a face, never a recognizable portrait. '
+        'Large bold 3D metallic text (alternating chrome-silver and gold-foil lettering with specular highlights and soft glow, cinematic movie-poster typography) carries the message. '
+        'Banners must be emotionally powerful and scroll-stopping using imagery + typography, not saturated cartoon gradients. '
+        'The banner text must always be a QUESTION or a bold declarative hook that invites comments - vary between the two, do not make every single one a literal question. '
         'CONTENT SOURCING RULES for the caption text: '
         '1. Only reference facts documented in named interviews, publications, album credits, or verified sources. '
         '2. Never invent dialogue, quotes, or private moments. Never fill gaps with plausible detail. '
@@ -2208,24 +2211,31 @@ def generate_banner():
         'Respond ONLY with valid JSON. No markdown. No code fences. No preamble.'
     )
 
-    user_prompt = f"""Generate exactly {count} unique Michael Jackson typographic banner concepts.
+    prop_bank = [
+        'a single rhinestone-studded white glove resting alone on the reflective stage floor, catching a spotlight',
+        'a black fedora resting on the floor at a slight angle, rim-lit by a spotlight, with drifting haze around it',
+        'a full silhouette of a figure in a fedora, back to camera or head bowed, standing center stage in a single spotlight column - no facial detail visible',
+        'a trail of glowing golden sparkle footprints (moonwalk-style) crossing the reflective floor toward camera, with no figure present',
+        'a spotlighted microphone stand alone on an empty stage, cord coiled at its base',
+        'a single award or record trophy on a lit pedestal at center stage',
+        'the rhinestone glove and fedora placed together on the floor, sparkle footprints trailing away from them',
+    ]
+
+    user_prompt = f"""Generate exactly {count} unique Michael Jackson typographic/cinematic banner concepts.
 
 {"MANDATORY TOPIC: " + override + "  -  ALL banners must directly address this specific topic." if override else "Each banner MUST be based on a DIFFERENT story angle below  -  do not combine them:" + chr(10) + chr(10).join([f"Banner {i+1}: {s['angle']}" for i, s in enumerate(stories)])}
 
-BANNER FORMAT  -  typographic only, no people or photography:
-- Vibrant saturated color gradients matched to the emotional mood  -  electric blues, deep purples, fiery oranges, emerald greens, golden bursts
-- Strong contrast between lettering and background required
-- Soft glow behind text, gradient or lit-from-within lettering, or dramatic radial burst
-- The sole visual element is bold centered text
-- The text must be a QUESTION that invites comments (not a declarative statement)
-- Heavy condensed sans-serif font, bright lettering with glow effect
-- Stack text across 2-3 lines for visual rhythm
-- End description with: "No people, no instruments, no illustrations, no photography. Text on gradient background only. Optimized for 1080x1350 format."
+PROP BANK - rotate through these across the batch so no two banners look the same, pick whichever best fits each story angle:
+{chr(10).join(["- " + p for p in prop_bank])}
+
+BANNER IMAGE PROMPT FORMAT (this is what gets pasted into OpenArt/Gemini):
+"Cinematic concert stage at night, moody blue and gold spotlight beams cutting through haze and drifting sparkle particles, reflective black stage floor. [ONE PROP ELEMENT FROM THE BANK ABOVE, chosen to fit the story]. Large bold 3D metallic text, alternating chrome-silver and gold-foil lettering with strong specular highlights and soft glow, cinematic movie-poster typography, centered/upper-third composition: '[BOLD HOOK - a short punchy headline tied to the story angle, in all caps]'. Smaller subtitle line beneath in clean chrome text: '[supporting line, in all caps]'. Atmosphere: smoke, lens flare, subtle lighting rig glow at top of frame, arena scale. No visible face - silhouette or props only. Aspect ratio 9:16. Ultra-detailed, photorealistic render, dramatic award-show lighting."
+Fill in the bracketed parts based on the assigned story angle. The hook and subtitle must be genuinely tied to the documented fact, not generic.
 
 CAPTION FORMAT  -  exactly 3 full paragraphs:
-Paragraph 1: Strong scroll-stopping hook with 2-3 emojis tied to the banner question.
-Paragraph 2: Context and story behind the question  -  documented facts only.
-Paragraph 3: Clear engagement CTA inviting followers to answer the question in comments and follow.
+Paragraph 1: Strong scroll-stopping hook with 2-3 emojis tied to the banner headline.
+Paragraph 2: Context and story behind the headline  -  documented facts only.
+Paragraph 3: Clear engagement CTA inviting followers to comment and follow.
 Then on a new line: exactly 5 hashtags.
 
 FIRST COMMENT: 1-2 sentences, warm fan-to-fan voice, documented fact + "Tag a friend" CTA. Never hashtags.
@@ -2238,7 +2248,7 @@ JSON: {{"banners":[{{"bannerPrompt":"...","caption":"...","firstComment":"...","
         resp = requests.post(
             'https://api.anthropic.com/v1/messages',
             headers={'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01'},
-            json={'model':'claude-sonnet-4-6','max_tokens':6000,'system':system_prompt,
+            json={'model':'claude-sonnet-4-6','max_tokens':10000,'system':system_prompt,
                   'messages':[{'role':'user','content':user_prompt}]},
             timeout=300
         )
