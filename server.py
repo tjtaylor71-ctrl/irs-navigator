@@ -41,6 +41,8 @@ from tdm_routes import tdm_bp
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
 app.register_blueprint(planning_bp, url_prefix='/planning')
+from mj_routes import mj_bp
+from tdm_routes import tdm_bp
 app.register_blueprint(mj_bp, url_prefix='/mj')
 app.register_blueprint(tdm_bp, url_prefix='/tdm')
 # ── Path Configuration ─────────────────────────────────────────────────────────
