@@ -35,10 +35,14 @@ import auth
 import stripe_checkout
 import email_service
 from planning.routes import planning_bp
+from mj_routes import mj_bp
+from tdm_routes import tdm_bp
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
 app.register_blueprint(planning_bp, url_prefix='/planning')
+app.register_blueprint(mj_bp)
+app.register_blueprint(tdm_bp)
 
 # ── Path Configuration ─────────────────────────────────────────────────────────
 BASE_DIR  = Path(__file__).parent
