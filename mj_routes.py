@@ -1,4 +1,3 @@
-# v2
 import os, json, base64, requests, random
 from flask import Blueprint, request, jsonify, Response
 
