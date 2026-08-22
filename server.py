@@ -1899,8 +1899,7 @@ def api_reset_password():
 @app.route("/bookkeeping")
 @require_admin
 def bookkeeping_tool():
-    html = build_page("bookkeeping_tool.js",
-    "testimonial_form.js", "BookkeepingTool", "Bookkeeping Tool — IRS Pilot")
+html = build_page("bookkeeping_tool.js", "BookkeepingTool", "Bookkeeping Tool — IRS Pilot")
     return Response(html, mimetype="text/html")
 
 
