@@ -47,12 +47,10 @@ app.register_blueprint(tdm_bp)
 
 @app.route("/debug-mj-check")
 def debug_mj_check():
-    import mj_routes
-    import inspect
-    source = inspect.getsource(mj_routes)
-    idx = source.find("imgs.map(function(img)")
-    snippet = source[idx-50:idx+150] if idx != -1 else "NOT FOUND"
-    return Response(snippet, mimetype="text/plain")
+    from mj_routes import MJ_STUDIO_HTML
+    idx = MJ_STUDIO_HTML.find("imgs.map(function(img)")
+    snippet = MJ_STUDIO_HTML[idx-50:idx+150] if idx != -1 else "NOT FOUND"
+    return Response(repr(snippet), mimetype="text/plain")
 
 # ── Path Configuration ─────────────────────────────────────────────────────────
 BASE_DIR  = Path(__file__).parent
