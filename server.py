@@ -38,6 +38,13 @@ from planning.routes import planning_bp
 from mj_routes import mj_bp
 from tdm_routes import tdm_bp
 
+app = Flask(__name__, static_folder="static", static_url_path="/static")
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+app.register_blueprint(planning_bp, url_prefix='/planning')
+app.register_blueprint(mj_bp)
+app.register_blueprint(tdm_bp)
+
+
 @app.route("/debug-mj-check")
 def debug_mj_check():
     import mj_routes
@@ -46,12 +53,6 @@ def debug_mj_check():
     idx = source.find("imgs.map(function(img)")
     snippet = source[idx-50:idx+150] if idx != -1 else "NOT FOUND"
     return Response(snippet, mimetype="text/plain")
-
-app = Flask(__name__, static_folder="static", static_url_path="/static")
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
-app.register_blueprint(planning_bp, url_prefix='/planning')
-app.register_blueprint(mj_bp)
-app.register_blueprint(tdm_bp)
 
 # ── Path Configuration ─────────────────────────────────────────────────────────
 BASE_DIR  = Path(__file__).parent
