@@ -19,7 +19,6 @@ function IRSPilotNav(props) {
   if (user && user.loggedIn) {
     var acc = user.access || [];
     if (acc.indexOf('bundle')!==-1) al='Bundle Access';
-    else if (acc.indexOf('planning')!==-1) al='Planning Access';
     else if (acc.indexOf('wizard')!==-1) al='Wizard Access';
     else if (acc.indexOf('navigator')!==-1) al='Navigator Access';
     else al='Free Account';
@@ -27,7 +26,6 @@ function IRSPilotNav(props) {
   var hN = user&&user.loggedIn&&(user.access||[]).some(function(a){return a==='navigator'||a==='bundle';});
   var hB = user&&user.loggedIn&&(user.access||[]).indexOf('bundle')!==-1;
   var hW = user&&user.loggedIn&&(user.access||[]).some(function(a){return a==='wizard'||a==='bundle';});
-  var hP = user&&user.loggedIn&&(user.access||[]).some(function(a){return a==='planning'||a==='bundle';});
   var lnk = { display:'flex',alignItems:'center',gap:10,padding:'10px 16px',color:'#333',textDecoration:'none',fontSize:13,borderBottom:'1px solid #f5f2ee' };
   var bdg = { marginLeft:'auto',background:'#7ec11f',color:'#1a2d5a',fontSize:9,fontWeight:'bold',padding:'2px 7px',borderRadius:10 };
   return React.createElement('div',{style:{background:'#1a2d5a',borderBottom:'3px solid #7ec11f',padding:'12px 24px',fontFamily:"'DM Sans',sans-serif",position:'relative',zIndex:100}},
@@ -57,7 +55,7 @@ function IRSPilotNav(props) {
                 React.createElement('div',{style:{fontSize:11,color:'#888',marginTop:2}},user.email||'')
               ),
               React.createElement('a',{href:'/navigator',style:lnk},'\uD83E\uDDED Navigator',hN&&React.createElement('span',{style:bdg},'Active')),
-              React.createElement('a',{href:'/planning',style:lnk},'\uD83D\uDCCA Tax Planning',hP&&React.createElement('span',{style:bdg},'Active')),
+              React.createElement('a',{href:'/planning',style:lnk},'\uD83D\uDCCA Tax Planning',hB&&React.createElement('span',{style:bdg},'Active')),
               React.createElement('a',{href:'/letters',style:lnk},'\uD83D\uDCC4 Letter Generator',hW&&React.createElement('span',{style:bdg},'Active')),
               React.createElement('a',{href:'/transcript',style:lnk},'\uD83D\uDCC1 Transcript Analyzer'),
               React.createElement('a',{href:'/account',style:lnk},'\u2699\ufe0f My Account'),
@@ -86,16 +84,25 @@ function ReferralPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+  // Form state for referral application
+  const [joinForm, setJoinForm] = React.useState({ name:"", firm:"", phone:"", address:"", website:"", credential:"", calendly:false });
+  const [joinError, setJoinError] = React.useState("");
+  const [joinPending, setJoinPending] = React.useState(false);
+  const setJF = (k,v) => setJoinForm(prev => ({...prev, [k]:v}));
+
   const handleJoin = async () => {
-    setJoining(true);
-    const res = await fetch("/api/referral/join", { method: "POST" });
+    if (!joinForm.name.trim() || !joinForm.firm.trim() || !joinForm.phone.trim()) { setJoinError("Name, firm name, and phone number are required."); return; }
+    setJoining(true); setJoinError("");
+    const res = await fetch("/api/referral/join", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(joinForm) });
     const data = await res.json();
     setJoining(false);
-    if (res.ok) {
+    if (data.pending) {
+      setJoinPending(true);
+    } else if (res.ok && data.code) {
       setPartner({ code: data.code, commission_pct: 20 });
       setStats({ conversions: 0, total_commission: 0, unpaid_commission: 0, history: [] });
     } else {
-      alert(data.error || "Something went wrong.");
+      setJoinError(data.error || "Something went wrong.");
     }
   };
   const copyLink = () => {
@@ -109,15 +116,35 @@ function ReferralPage() {
     { icon: "\u{1F517}", label: "Get your link", desc: "One unique link, share anywhere" },
     { icon: "\u{1F4B3}", label: "Client purchases", desc: "They buy any plan through your link" },
     { icon: "\u{1F4B0}", label: "You earn 20%", desc: "$11.80 \xB7 $19.80 \xB7 $25.80 per sale" }
-  ].map((s) => /* @__PURE__ */ React.createElement("div", { key: s.label, style: { background: "#fff", border: "1px solid #e8e4dc", borderRadius: 12, padding: "20px 16px", textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 28, marginBottom: 10 } }, s.icon), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: "bold", fontSize: 14, marginBottom: 4 } }, s.label), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#888" } }, s.desc)))), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ React.createElement(
-    "button",
-    {
-      onClick: handleJoin,
-      disabled: joining,
-      style: { padding: "14px 32px", background: "#1a2d5a", color: "#7ec11f", border: "2px solid #7ec11f", borderRadius: 8, fontFamily: "'DM Sans',sans-serif", fontWeight: "bold", fontSize: 16, cursor: "pointer" }
-    },
-    joining ? "Setting up..." : "Join the Referral Program \u2192"
-  ), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#aaa", marginTop: 10 } }, "Free to join. No minimums."))) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 } }, [
+  ].map((s) => /* @__PURE__ */ React.createElement("div", { key: s.label, style: { background: "#fff", border: "1px solid #e8e4dc", borderRadius: 12, padding: "20px 16px", textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 28, marginBottom: 10 } }, s.icon), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: "bold", fontSize: 14, marginBottom: 4 } }, s.label), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#888" } }, s.desc)))), /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center" } }, joinPending
+  ? /* @__PURE__ */ React.createElement("div", { style:{ textAlign:"center", padding:"24px 0" } },
+      /* @__PURE__ */ React.createElement("div", { style:{ fontSize:44, marginBottom:12 } }, "\u2705"),
+      /* @__PURE__ */ React.createElement("div", { style:{ fontSize:18, fontWeight:"bold", color:"#1a2d5a", marginBottom:8 } }, "Application Received!"),
+      /* @__PURE__ */ React.createElement("div", { style:{ fontSize:14, color:"#666", lineHeight:1.7 } }, "Tyrone Taylor will review your application and follow up within 1\u20132 business days."),
+      joinForm.calendly && /* @__PURE__ */ React.createElement("div", { style:{ marginTop:16 } }, /* @__PURE__ */ React.createElement("a", { href:"https://calendly.com/taylor-tax-financial/tax-professionals", target:"_blank", style:{ background:"#1a2d5a", color:"#7ec11f", borderRadius:8, padding:"10px 22px", textDecoration:"none", fontWeight:"bold", fontSize:14 } }, "Schedule Your Zoom Call \u2192"))
+    )
+  : /* @__PURE__ */ React.createElement("div", null,
+      /* @__PURE__ */ React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))", gap:12, marginBottom:14 } },
+        [["name","Full Name *","Jane Smith"],["firm","Firm Name *","Smith Tax Group EA"],["phone","Phone *","(312) 555-0187"],["credential","Credential","EA, CPA..."]].map(function(f,i){
+          return /* @__PURE__ */ React.createElement("div", { key:i }, /* @__PURE__ */ React.createElement("label", { style:{ display:"block", fontSize:11, fontWeight:"bold", color:"#1a2d5a", marginBottom:4 } }, f[1]), /* @__PURE__ */ React.createElement("input", { style:{ width:"100%", border:"1px solid #e8e4dc", borderRadius:7, padding:"9px 12px", fontSize:14, fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box" }, placeholder:f[2], value:joinForm[f[0]], onChange:function(e){var k=f[0];setJF(k,e.target.value);} }));
+        }),
+        /* @__PURE__ */ React.createElement("div", { style:{ gridColumn:"1/-1" } }, /* @__PURE__ */ React.createElement("label", { style:{ display:"block", fontSize:11, fontWeight:"bold", color:"#1a2d5a", marginBottom:4 } }, "Business Address"), /* @__PURE__ */ React.createElement("input", { style:{ width:"100%", border:"1px solid #e8e4dc", borderRadius:7, padding:"9px 12px", fontSize:14, fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box" }, placeholder:"123 Main St, Chicago, IL", value:joinForm.address, onChange:function(e){setJF("address",e.target.value);} })),
+        /* @__PURE__ */ React.createElement("div", { style:{ gridColumn:"1/-1" } }, /* @__PURE__ */ React.createElement("label", { style:{ display:"block", fontSize:11, fontWeight:"bold", color:"#1a2d5a", marginBottom:4 } }, "Website"), /* @__PURE__ */ React.createElement("input", { style:{ width:"100%", border:"1px solid #e8e4dc", borderRadius:7, padding:"9px 12px", fontSize:14, fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box" }, placeholder:"https://yourfirm.com", value:joinForm.website, onChange:function(e){setJF("website",e.target.value);} }))
+      ),
+      /* @__PURE__ */ React.createElement("div", { style:{ background:"#f0f7ff", border:"1px solid #bcd4f0", borderRadius:8, padding:"12px 16px", marginBottom:14 } },
+        /* @__PURE__ */ React.createElement("div", { style:{ display:"flex", alignItems:"flex-start", gap:10 } },
+          /* @__PURE__ */ React.createElement("input", { type:"checkbox", id:"ref-cal", checked:joinForm.calendly, onChange:function(e){setJF("calendly",e.target.checked);}, style:{ marginTop:3, cursor:"pointer" } }),
+          /* @__PURE__ */ React.createElement("label", { htmlFor:"ref-cal", style:{ fontSize:13, color:"#1a2d5a", cursor:"pointer", lineHeight:1.65 } }, /* @__PURE__ */ React.createElement("strong", null, "Schedule a Zoom with Tyrone Taylor"), " \u2014 I\u2019d like to discuss the program first.")
+        )
+      ),
+      joinError && /* @__PURE__ */ React.createElement("div", { style:{ background:"#fef2f2", border:"1px solid #fca5a5", borderRadius:7, padding:"10px 14px", fontSize:13, color:"#dc2626", marginBottom:12 } }, joinError),
+      /* @__PURE__ */ React.createElement("div", { style:{ textAlign:"center" } },
+        /* @__PURE__ */ React.createElement("button", { onClick:handleJoin, disabled:joining, style:{ padding:"14px 32px", background:"#1a2d5a", color:"#7ec11f", border:"2px solid #7ec11f", borderRadius:8, fontFamily:"'DM Sans',sans-serif", fontWeight:"bold", fontSize:16, cursor:"pointer" } },
+          joining ? "Submitting..." : "Submit Application \u2192"
+        ),
+        /* @__PURE__ */ React.createElement("div", { style:{ fontSize:11, color:"#aaa", marginTop:8 } }, "Reviewed personally by Tyrone Taylor within 1\u20132 business days.")
+      )
+    ))) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 } }, [
     { label: "Total Sales", value: stats?.conversions || 0 },
     { label: "Total Earned", value: `$${((stats?.total_commission || 0) / 100).toFixed(2)}` },
     { label: "Pending Payout", value: `$${((stats?.unpaid_commission || 0) / 100).toFixed(2)}` }
