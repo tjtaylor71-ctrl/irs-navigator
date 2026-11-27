@@ -80,7 +80,7 @@ function DashboardPage() {
     }).catch(() => setLoading(false));
   }, []);
   const handleLogout = async () => {
-    await fetch("/api/logout", { method: "POST" });
+    await csrfFetch("/api/logout", { method: "POST" });
     window.location.href = "/";
   };
   const hasNavigator = user && (user.access || []).some((p) => ["navigator", "bundle"].includes(p));

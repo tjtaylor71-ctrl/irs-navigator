@@ -144,7 +144,7 @@ function LetterGenerator() {
     const allLetters = [...NOTICE_LETTERS, ...RESOLUTION_LETTERS];
     const typeDef = allLetters.find((l) => l.id === letterType);
     try {
-      const res = await fetch("/api/generate-letter", {
+      const res = await csrfFetch("/api/generate-letter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

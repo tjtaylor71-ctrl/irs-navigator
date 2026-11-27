@@ -110,7 +110,7 @@ function UploadForm({ mode, onResult, proInfo }) {
       formData.append("name", name.trim());
       formData.append("mode", mode);
       if (mode === "taxpro") formData.append("firm_name", firmName.trim());
-      const res = await fetch("/api/transcript/analyze", { method: "POST", credentials: "include", body: formData });
+      const res = await csrfFetch("/api/transcript/analyze", { method: "POST", credentials: "include", body: formData });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Analysis failed. Please try again."); return; }
       onResult(data, name.trim(), firmName.trim());
@@ -170,7 +170,7 @@ function ReportPage({ results, name, firmName, mode, onBack }) {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      const res = await fetch("/api/transcript/pdf", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ results: sorted, name, firmName, mode }) });
+      const res = await csrfFetch("/api/transcript/pdf", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ results: sorted, name, firmName, mode }) });
       if (!res.ok) { alert("PDF generation failed. Please try again."); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);

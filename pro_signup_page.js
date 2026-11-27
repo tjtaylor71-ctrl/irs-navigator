@@ -22,7 +22,7 @@ function ProSignupPage() {
     }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/pro-signup/complete", {
+      const res = await csrfFetch("/api/pro-signup/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, ...form })

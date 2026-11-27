@@ -1039,7 +1039,7 @@ function IRSIntakeWizard() {
       }
     };
     try {
-      const response = await fetch("/api/generate-form", {
+      const response = await csrfFetch("/api/generate-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formType, data: enrichedData })

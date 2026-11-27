@@ -72,7 +72,7 @@ function BookkeepingTool() {
 
   async function loadSessions() {
     try {
-      const r = await fetch("/api/admin/bookkeeping/sessions", { credentials: "include" });
+      const r = await csrfFetch("/api/admin/bookkeeping/sessions", { credentials: "include" });
       const d = await r.json();
       setSessions(d.sessions || []);
     } catch(e) {}
@@ -81,7 +81,7 @@ function BookkeepingTool() {
   async function saveSession() {
     setSaving(true);
     try {
-      const r = await fetch("/api/admin/bookkeeping/sessions", {
+      const r = await csrfFetch("/api/admin/bookkeeping/sessions", {
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: sessionId, client_name: rClient || "Unnamed Client", period: rPeriod, notes: rNote, transactions: txns })
@@ -94,7 +94,7 @@ function BookkeepingTool() {
 
   async function loadSession(sid) {
     try {
-      const r = await fetch("/api/admin/bookkeeping/sessions/" + sid, { credentials: "include" });
+      const r = await csrfFetch("/api/admin/bookkeeping/sessions/" + sid, { credentials: "include" });
       const d = await r.json();
       setTxns(d.transactions || []);
       setRClient(d.client_name || "");
@@ -109,7 +109,7 @@ function BookkeepingTool() {
 
   async function loadCategories() {
     try {
-      const r = await fetch("/api/admin/bookkeeping/categories", { credentials: "include" });
+      const r = await csrfFetch("/api/admin/bookkeeping/categories", { credentials: "include" });
       const d = await r.json();
       setCustomCats(d.categories || []);
     } catch(e) {}
@@ -117,14 +117,14 @@ function BookkeepingTool() {
 
   async function loadRules() {
     try {
-      const r = await fetch("/api/admin/bookkeeping/rules", { credentials: "include" });
+      const r = await csrfFetch("/api/admin/bookkeeping/rules", { credentials: "include" });
       const d = await r.json();
       setRules(d.rules || []);
     } catch(e) {}
   }
 
   async function saveRule(keyword, matchType, category) {
-    await fetch("/api/admin/bookkeeping/rules", {
+    await csrfFetch("/api/admin/bookkeeping/rules", {
       method: "POST", credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ keyword, match_type: matchType, category })
@@ -133,13 +133,13 @@ function BookkeepingTool() {
   }
 
   async function deleteRule(rid) {
-    await fetch("/api/admin/bookkeeping/rules/" + rid, { method: "DELETE", credentials: "include" });
+    await csrfFetch("/api/admin/bookkeeping/rules/" + rid, { method: "DELETE", credentials: "include" });
     loadRules();
   }
 
   async function createCategory(name, qbo) {
     if (!name.trim()) return;
-    await fetch("/api/admin/bookkeeping/categories", {
+    await csrfFetch("/api/admin/bookkeeping/categories", {
       method: "POST", credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name.trim(), qbo_account: qbo.trim() })
@@ -149,7 +149,7 @@ function BookkeepingTool() {
   }
 
   async function deleteCategory(cid) {
-    await fetch("/api/admin/bookkeeping/categories/" + cid, { method: "DELETE", credentials: "include" });
+    await csrfFetch("/api/admin/bookkeeping/categories/" + cid, { method: "DELETE", credentials: "include" });
     loadCategories();
   }
 
@@ -192,7 +192,7 @@ function BookkeepingTool() {
   }
 
   async function deleteSession(sid) {
-    await fetch("/api/admin/bookkeeping/sessions/" + sid, { method: "DELETE", credentials: "include" });
+    await csrfFetch("/api/admin/bookkeeping/sessions/" + sid, { method: "DELETE", credentials: "include" });
     loadSessions();
     showToast("Session deleted");
   }
@@ -224,7 +224,7 @@ function BookkeepingTool() {
       try {
         const b64 = await toBase64(item.file);
         // Submit job
-        const submitResp = await fetch("/api/admin/bookkeeping/extract", {
+        const submitResp = await csrfFetch("/api/admin/bookkeeping/extract", {
           method: "POST", credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ pdf_base64: b64, filename: item.file.name })
@@ -237,7 +237,7 @@ function BookkeepingTool() {
         let jobResult = null;
         for (let attempt = 0; attempt < 200; attempt++) {
           await new Promise(r => setTimeout(r, 5000));
-          const pollResp = await fetch(`/api/admin/bookkeeping/job/${jobId}`, { credentials: "include" });
+          const pollResp = await csrfFetch(`/api/admin/bookkeeping/job/${jobId}`, { credentials: "include" });
           const pollData = await pollResp.json();
           if (pollData.status === "done") { jobResult = pollData; break; }
           if (pollData.status === "error") throw new Error(pollData.error || "Extraction failed");
@@ -268,7 +268,7 @@ function BookkeepingTool() {
       showToast(`${collected.length} transactions extracted`);
       setTab("transactions");
       try {
-        const r2 = await fetch("/api/admin/bookkeeping/sessions", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: sessionId, client_name: rClient || "Unnamed Client", period: rPeriod, notes: rNote, transactions: collected }) });
+        const r2 = await csrfFetch("/api/admin/bookkeeping/sessions", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: sessionId, client_name: rClient || "Unnamed Client", period: rPeriod, notes: rNote, transactions: collected }) });
         const d2 = await r2.json();
         if (d2.ok) setSessionId(d2.id);
       } catch(e) {}

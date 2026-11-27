@@ -24,21 +24,195 @@ File layout expected:
 """
 
 import os
+import secrets
 from functools import wraps
 import sys
 import json
 import tempfile
 import subprocess
 from pathlib import Path
-from flask import Flask, request, send_file, jsonify, Response, make_response, redirect
+from flask import Flask, request, send_file, jsonify, Response, make_response, redirect, session
 import auth
 import stripe_checkout
 import email_service
 from planning.routes import planning_bp
 
 app = Flask(__name__, static_folder="static", static_url_path="/static")
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+_secret_key = os.environ.get("SECRET_KEY")
+if not _secret_key:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. "
+        "Set it to a random 32+ byte hex string before starting the server."
+    )
+# SEC-06: Validate SECRET_KEY length and entropy.
+# A key shorter than 32 bytes or composed only of repeated characters is
+# dangerously weak for HMAC-based session signing.
+_sk_bytes = _secret_key.encode()
+if len(_sk_bytes) < 32:
+    raise RuntimeError(
+        f"SECRET_KEY is too short ({len(_sk_bytes)} bytes). "
+        "It must be at least 32 bytes. Generate one with: "
+        "python3 -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+# Check for obviously low-entropy values (all same byte, or all ASCII digits/letters only)
+_sk_unique = len(set(_sk_bytes))
+if _sk_unique < 8:
+    raise RuntimeError(
+        f"SECRET_KEY has very low entropy (only {_sk_unique} unique byte value(s)). "
+        "Use a randomly generated key: "
+        "python3 -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+app.secret_key = _secret_key
 app.register_blueprint(planning_bp, url_prefix='/planning')
+
+# ── Security headers ───────────────────────────────────────────────────────────
+@app.after_request
+def add_security_headers(response):
+    """Attach security headers to every response."""
+    # Prevent embedding in iframes (clickjacking protection)
+    response.headers["X-Frame-Options"] = "DENY"
+    # Prevent MIME-type sniffing
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    # Limit referrer information sent to third parties
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # Content Security Policy — restricts resource loading.
+    # 'self' allows same-origin; Stripe is allowed for payment iframes;
+    # cdnjs/fonts are allowed for any CDN assets the front-end loads.
+    # Adjust 'script-src' or 'style-src' if the React build requires additional sources.
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://cdnjs.cloudflare.com https://unpkg.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "frame-src https://js.stripe.com https://hooks.stripe.com; "
+        "connect-src 'self' https://api.stripe.com; "
+        "img-src 'self' data:;"
+    )
+    return response
+
+
+# ── Item 10: CSRF protection ───────────────────────────────────────────────────
+# Manual double-submit CSRF token using a per-session secret.
+# The client reads /api/csrf-token (GET, no auth required) and includes the
+# returned token in X-CSRF-Token header on every state-changing API call.
+# Webhook endpoints are excluded (they use Stripe signature verification instead).
+import hashlib as _hashlib
+import threading as _threading
+
+_CSRF_EXEMPT_PATHS = {
+    "/stripe/webhook",
+    "/stripe/webhook/foundation",
+    "/stripe/webhook/connect",
+}
+
+_STATE_CHANGING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+def _get_csrf_token() -> str:
+    """Return (or generate) the CSRF token for the current session."""
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(32)
+    return session["csrf_token"]
+
+
+@app.before_request
+def enforce_csrf():
+    """
+    Validate the CSRF token on all state-changing requests except exempt paths.
+    Returns 403 if the token is missing or does not match the session token.
+    """
+    if request.method not in _STATE_CHANGING_METHODS:
+        return  # GET/HEAD/OPTIONS are safe
+    if request.path in _CSRF_EXEMPT_PATHS:
+        return  # Webhook endpoints use Stripe signature verification
+    if request.path.startswith("/stripe/webhook"):
+        return  # Catch-all for any sub-paths
+
+    # API calls must supply X-CSRF-Token header
+    client_token = request.headers.get("X-CSRF-Token", "")
+    session_token = session.get("csrf_token", "")
+
+    if not session_token:
+        # Session has no CSRF token yet — force client to fetch one first.
+        # This protects against pre-auth CSRF on login/register endpoints.
+        return jsonify({"error": "CSRF token required. GET /api/csrf-token first."}), 403
+
+    if not _hashlib.compare_digest(client_token, session_token):
+        app.logger.warning(
+            "CSRF validation failed: path=%s method=%s ip=%s",
+            request.path, request.method, request.remote_addr
+        )
+        return jsonify({"error": "Invalid CSRF token."}), 403
+
+
+@app.route("/api/csrf-token", methods=["GET"])
+def api_csrf_token():
+    """
+    Issue a CSRF token for the current session.
+    Clients must call this endpoint and include the returned token in
+    X-CSRF-Token on all subsequent state-changing requests.
+    """
+    token = _get_csrf_token()
+    return jsonify({"csrf_token": token})
+
+
+# ── Item 10: Login rate limiting ───────────────────────────────────────────────
+# In-memory rate limiter for login/register endpoints.
+# Tracks failed attempts per (IP + email) pair with an exponential lockout.
+# This is process-local (per Gunicorn worker) — shared state would require
+# Redis; this provides meaningful protection against targeted attacks while
+# remaining simple and dependency-free.
+
+_login_attempts: dict = {}       # key: (ip, email) → {"count": int, "locked_until": float}
+_login_lock = _threading.Lock()
+
+_LOGIN_MAX_ATTEMPTS    = 5    # max failures before lockout
+_LOGIN_LOCKOUT_SECONDS = 300  # 5-minute lockout after max failures
+
+
+def _check_login_rate_limit(ip: str, email: str) -> tuple:
+    """
+    Check if a login attempt should be rate-limited.
+    Returns (allowed: bool, seconds_remaining: int).
+    """
+    import time
+    key = (ip, email.lower())
+    with _login_lock:
+        entry = _login_attempts.get(key)
+        now = time.time()
+        if entry is None:
+            return True, 0
+        if entry.get("locked_until", 0) > now:
+            remaining = int(entry["locked_until"] - now)
+            return False, remaining
+        # Lockout expired — reset
+        if entry.get("locked_until", 0) <= now and entry.get("locked_until", 0) > 0:
+            del _login_attempts[key]
+            return True, 0
+        return True, 0
+
+
+def _record_login_failure(ip: str, email: str):
+    """Record a failed login attempt; apply lockout if threshold is reached."""
+    import time
+    key = (ip, email.lower())
+    with _login_lock:
+        entry = _login_attempts.setdefault(key, {"count": 0, "locked_until": 0.0})
+        entry["count"] += 1
+        if entry["count"] >= _LOGIN_MAX_ATTEMPTS:
+            entry["locked_until"] = time.time() + _LOGIN_LOCKOUT_SECONDS
+            app.logger.warning(
+                "Login rate limit: locked out %s / %s for %ds after %d failures",
+                ip, email, _LOGIN_LOCKOUT_SECONDS, entry["count"]
+            )
+
+
+def _reset_login_attempts(ip: str, email: str):
+    """Clear the failure counter after a successful login."""
+    key = (ip, email.lower())
+    with _login_lock:
+        _login_attempts.pop(key, None)
+
 
 # ── Path Configuration ─────────────────────────────────────────────────────────
 BASE_DIR  = Path(__file__).parent
@@ -221,6 +395,7 @@ PAGE_MID_TPL = """</title>
   })();
   </script>
   <div id="root"><p style="padding:20px;font-family:sans-serif;color:#999;font-size:12px">Starting...</p></div>
+  <script src="/js/csrf.js"></script>
   <script src="/js/COMPILED_FILE"></script>
   <script>
     try {
@@ -300,6 +475,10 @@ def require_access(product):
 
 ADMIN_EMAILS = [e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
 
+# True when running on Railway (HTTPS enforced); False in local dev (HTTP only).
+# Used to set the `secure` flag on all session cookies.
+IS_PRODUCTION = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PUBLIC_DOMAIN"))
+
 def is_admin(user):
     if not user: return False
     return user["email"].lower() in ADMIN_EMAILS
@@ -360,7 +539,8 @@ def api_register():
     except Exception:
         pass
     resp  = make_response(jsonify({"redirect": f"/checkout?product={product}" if product else "/account"}))
-    resp.set_cookie(auth.SESSION_COOKIE, token, max_age=60*60*24*8, httponly=True, samesite="Lax")
+    resp.set_cookie(auth.SESSION_COOKIE, token, max_age=60*60*24*8, httponly=True,
+                    samesite="Lax", secure=IS_PRODUCTION)
     return resp
 
 
@@ -371,9 +551,20 @@ def api_login():
     password = data.get("password", "")
     product  = data.get("product")
 
+    # Item 10: Login rate limiting
+    client_ip = request.remote_addr or "unknown"
+    allowed, wait_secs = _check_login_rate_limit(client_ip, email)
+    if not allowed:
+        return jsonify({
+            "error": f"Too many failed login attempts. Try again in {wait_secs} seconds."
+        }), 429
+
     user_id, err = auth.login_user(email, password)
     if err:
+        _record_login_failure(client_ip, email)
         return jsonify({"error": err}), 401
+
+    _reset_login_attempts(client_ip, email)
 
     token = auth.create_session(user_id)
     # Determine where to send them
@@ -385,13 +576,21 @@ def api_login():
         redirect_to = "/account"
 
     resp = make_response(jsonify({"redirect": redirect_to}))
-    resp.set_cookie(auth.SESSION_COOKIE, token, max_age=60*60*24*8, httponly=True, samesite="Lax")
+    resp.set_cookie(auth.SESSION_COOKIE, token, max_age=60*60*24*8, httponly=True,
+                    samesite="Lax", secure=IS_PRODUCTION)
     return resp
 
 
 @app.route("/logout")
 def logout():
-    """Clear session cookie and redirect to home."""
+    """Clear session cookie and revoke server-side session."""
+    token = request.cookies.get(auth.SESSION_COOKIE)
+    if token:
+        try:
+            with auth.get_db() as conn:
+                conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
+        except Exception:
+            pass  # Best-effort — cookie deletion still proceeds
     resp = make_response(redirect("/"))
     resp.delete_cookie(auth.SESSION_COOKIE)
     return resp
@@ -399,6 +598,13 @@ def logout():
 
 @app.route("/api/logout", methods=["POST"])
 def api_logout():
+    token = request.cookies.get(auth.SESSION_COOKIE)
+    if token:
+        try:
+            with auth.get_db() as conn:
+                conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
+        except Exception:
+            pass  # Best-effort — cookie deletion still proceeds
     resp = make_response(jsonify({"redirect": "/"}))
     resp.delete_cookie(auth.SESSION_COOKIE)
     return resp
@@ -438,22 +644,13 @@ def checkout():
     discount_code = request.args.get("discount", "").strip()
     referral_code = (request.args.get("ref") or request.cookies.get("ref_code", "")).strip()
 
-    # Admin shortcut — grant access directly instead of going through Stripe
+    # Admin shortcut — grant access directly instead of going through Stripe.
+    # Uses auth.grant_admin_entitlements for all products (AUDIT-013).
     if is_admin(user):
-        from datetime import timedelta
-        long_expiry = (__import__("datetime").datetime.utcnow() + timedelta(days=3650)).isoformat()
-        with auth.get_db() as conn:
-            existing = conn.execute(
-                "SELECT id FROM purchases WHERE user_id = ? AND product = ? AND stripe_session_id = 'admin_permanent'",
-                (user["user_id"], product)
-            ).fetchone()
-            if existing:
-                conn.execute("UPDATE purchases SET expires_at = ? WHERE id = ?", (long_expiry, existing["id"]))
-            else:
-                conn.execute(
-                    "INSERT INTO purchases (user_id, product, stripe_session_id, expires_at) VALUES (?, ?, 'admin_permanent', ?)",
-                    (user["user_id"], product, long_expiry)
-                )
+        try:
+            auth.grant_admin_entitlements(user["user_id"])
+        except Exception as e:
+            app.logger.error(f"Admin entitlement grant failed for user {user['user_id']}: {e}")
         return redirect("/covid-penalty-relief" if product == "covid_penalty" else "/checkout/success")
 
     discount_pct     = 0
@@ -554,23 +751,70 @@ def stripe_webhook():
 @app.route("/stripe/webhook/connect", methods=["POST"])
 def stripe_connect_webhook():
     """
-    Receive and process Stripe Connect webhook events (Phase 4).
-    Uses a separate signing secret from STRIPE_CONNECT_WEBHOOK_SECRET.
-    Currently logs events; full handling implemented in Phase 4.
+    PAY-07: Stripe Connect webhook — explicitly disabled until Phase 4 is ready.
+    Returns 503 Service Unavailable so Stripe retries the event later rather
+    than silently discarding it.  Do NOT return 200 here (would permanently
+    discard the event) or 400 (Stripe never retries 4xx).
     """
     payload    = request.get_data()
     sig_header = request.headers.get("Stripe-Signature", "")
-    try:
-        success, msg = stripe_checkout.handle_connect_webhook(payload, sig_header)
-    except Exception as e:
-        app.logger.error(f"Connect webhook processing error: {e}")
-        return jsonify({"error": "Internal processing error"}), 500
-
+    success, msg = stripe_checkout.handle_connect_webhook(payload, sig_header)
+    # handle_connect_webhook always returns (False, "SERVICE_UNAVAILABLE") until implemented.
+    if msg == "SERVICE_UNAVAILABLE":
+        return jsonify({"error": "Stripe Connect is not yet enabled on this service."}), 503
+    # Defensive fallback — should never be reached.
     if not success:
-        app.logger.error(f"Connect webhook rejected: {msg}")
+        app.logger.error("Connect webhook rejected: %s", msg)
         return jsonify({"error": msg}), 400
-
     return jsonify({"status": "ok"})
+
+
+@app.route("/stripe/webhook/foundation", methods=["POST"])
+def stripe_foundation_webhook():
+    """
+    Foundation program webhook endpoint.
+
+    Foundation is a FREE referral-partner program — there is no Stripe subscription,
+    no paid enrollment, and no recurring fee. Foundation members are never deactivated
+    due to nonpayment because they never pay.
+
+    This endpoint is retained so that any Stripe webhook pointing here continues to
+    receive a valid 200 response rather than a connection error. All events are logged
+    and acknowledged; none trigger membership changes.
+
+    If Stripe Connect payouts for Foundation commission disbursements are added in a
+    future phase, the relevant transfer/payout event handlers should be added here.
+    """
+    payload    = request.get_data()
+    sig_header = request.headers.get("Stripe-Signature", "")
+    secret     = os.environ.get("STRIPE_FOUNDATION_WEBHOOK_SECRET", "")
+
+    # Verify signature only if a secret is configured. If no secret is set,
+    # we still return 200 — the endpoint is a no-op and carries no risk of
+    # incorrectly modifying Foundation member records.
+    if secret:
+        try:
+            import stripe as _stripe
+            event = _stripe.Webhook.construct_event(payload, sig_header, secret)
+            event_id   = event.get("id", "unknown")
+            event_type = event.get("type", "unknown")
+        except Exception as e:
+            app.logger.warning("Foundation webhook signature/parse error: %s", e)
+            return jsonify({"error": "Invalid signature or payload"}), 400
+    else:
+        # No secret configured — log and acknowledge without parsing.
+        event_id   = "unverified"
+        event_type = "unverified"
+        app.logger.info(
+            "Foundation webhook received (no STRIPE_FOUNDATION_WEBHOOK_SECRET configured)"
+        )
+
+    app.logger.info(
+        "Foundation webhook acknowledged: event_id=%s type=%s "
+        "(Foundation is a free program — no subscription events are acted upon)",
+        event_id, event_type
+    )
+    return jsonify({"status": "ok"}), 200
 
 
 @app.route("/api/pro/activation-status")
@@ -1742,6 +1986,84 @@ def api_admin_revoke():
     return jsonify({"message": "Access revoked."})
 
 
+# ── SEC-03: Explicit admin password rotation ───────────────────────────────────
+
+@app.route("/api/admin/rotate-password", methods=["POST"])
+@require_admin
+def api_admin_rotate_password():
+    """
+    SEC-03: Explicit, authenticated admin password rotation.
+
+    Operator workflow:
+      1. Set ADMIN_SEED_PASSWORD in Railway to the desired new password.
+      2. While logged in as admin, POST /api/admin/rotate-password.
+      3. Immediately clear ADMIN_SEED_PASSWORD from Railway.
+
+    This endpoint:
+      • Reads ADMIN_SEED_PASSWORD from the environment at call time.
+      • Hashes it with Argon2id.
+      • Updates the admin user record.
+      • Invalidates all existing admin sessions (SEC-03 requirement).
+      • Logs the rotation event without echoing the password.
+
+    Returns 200 on success, 400/500 on failure.
+    """
+    new_password = os.environ.get("ADMIN_SEED_PASSWORD", "").strip()
+    if not new_password:
+        return jsonify({
+            "error": "ADMIN_SEED_PASSWORD environment variable is not set. "
+                     "Set it in Railway, call this endpoint, then clear it."
+        }), 400
+
+    if len(new_password) < 12:
+        return jsonify({
+            "error": "ADMIN_SEED_PASSWORD must be at least 12 characters."
+        }), 400
+
+    admin_email = "tjtaylor@irspilot.com"
+    try:
+        with auth.get_db() as conn:
+            row = conn.execute(
+                "SELECT id FROM users WHERE email = ?", (admin_email,)
+            ).fetchone()
+        if not row:
+            return jsonify({"error": "Admin account not found."}), 500
+
+        admin_id = row["id"]
+        new_hash = auth.hash_password(new_password)
+
+        with auth.get_db() as conn:
+            # Update password
+            conn.execute(
+                "UPDATE users SET password_hash = ? WHERE id = ?",
+                (new_hash, admin_id)
+            )
+            # Item 9 / SEC-03: Revoke ALL existing server-side sessions for this admin.
+            # The sessions table tracks active tokens; deleting by user_id immediately
+            # invalidates every existing admin session on the next authenticated request.
+            # This replaces the previous session_version approach (column does not exist).
+            revoked = conn.execute(
+                "DELETE FROM sessions WHERE user_id = ?",
+                (admin_id,)
+            )
+            app.logger.info(
+                "SEC-03: Revoked %d existing session(s) for admin user %d during password rotation.",
+                revoked.rowcount, admin_id
+            )
+
+        app.logger.info(
+            "SEC-03: Admin password rotated for %s. "
+            "Clear ADMIN_SEED_PASSWORD from Railway now.", admin_email
+        )
+        return jsonify({
+            "message": "Admin password rotated successfully. "
+                       "Clear ADMIN_SEED_PASSWORD from Railway environment variables now."
+        })
+    except Exception as e:
+        app.logger.error("SEC-03: Admin password rotation failed: %s", e)
+        return jsonify({"error": "Password rotation failed. See server logs."}), 500
+
+
 # ── Letter generator ───────────────────────────────────────────────────────────
 
 @app.route("/letters")
@@ -2011,7 +2333,7 @@ def api_admin_mark_paid():
 def referral_landing(code):
     """Landing page for referral links — sets cookie then redirects to pricing."""
     resp = make_response(redirect("/pricing"))
-    resp.set_cookie("ref_code", code.upper(), max_age=60*60*24*30, samesite="Lax")
+    resp.set_cookie("ref_code", code.upper(), max_age=60*60*24*30, samesite="Lax", secure=IS_PRODUCTION)
     return resp
 
 
@@ -2052,7 +2374,8 @@ def pro_landing(code):
         )
 
     resp = make_response(redirect("/navigator"))
-    resp.set_cookie(PRO_SESSION_COOKIE, token, max_age=60*60*24, httponly=True, samesite="Lax")
+    resp.set_cookie(PRO_SESSION_COOKIE, token, max_age=60*60*24, httponly=True,
+                    samesite="Lax", secure=IS_PRODUCTION)
     return resp
 
 
@@ -2428,7 +2751,6 @@ def pro_client_link_access(token):
             mimetype="text/html"
         )
 
-    sub = auth.get_pro_subscriber_by_code(None)
     with auth.get_db() as conn:
         sub = conn.execute(
             "SELECT * FROM pro_subscribers WHERE id = ? AND active = 1",
@@ -2445,7 +2767,8 @@ def pro_client_link_access(token):
 
     product = link["product"]
     resp = make_response(redirect("/navigator" if product != "wizard" else "/wizard"))
-    resp.set_cookie(PRO_SESSION_COOKIE, session_token, max_age=60*60*24, httponly=True, samesite="Lax")
+    resp.set_cookie(PRO_SESSION_COOKIE, session_token, max_age=60*60*24, httponly=True,
+                    samesite="Lax", secure=IS_PRODUCTION)
     return resp
 
 
@@ -2764,7 +3087,8 @@ def preview_access(token):
         f"{token}:{code_type}",
         max_age=60 * 60 * 24 if code_type == "partner" else 60 * 15,
         httponly=True,
-        samesite="Lax"
+        samesite="Lax",
+        secure=IS_PRODUCTION,
     )
     return resp
 
@@ -3820,7 +4144,7 @@ def foundation_recruitment_landing(token):
     # Set a cookie so after they register they get auto-enrolled as a partner
     # sponsored by this foundation member
     resp = make_response(redirect(f"/login?mode=register&next=/referral&fm_token={token}"))
-    resp.set_cookie("fm_recruit_token", token, max_age=60*60*24, samesite="Lax")
+    resp.set_cookie("fm_recruit_token", token, max_age=60*60*24, samesite="Lax", secure=IS_PRODUCTION)
     return resp
 
 
@@ -4773,15 +5097,30 @@ auth.init_db()  # ensure tables exist on startup
 
 # ── Seed admin account ─────────────────────────────────────────────────────────
 def seed_admin():
-    """Create admin account if it doesn't exist and ensure permanent full access."""
+    """Create admin account if it doesn't exist and ensure permanent full access.
+
+    If ADMIN_SEED_PASSWORD is set in the environment, the admin password is
+    updated to that value on every startup — allowing Railway-variable rotation
+    to take effect immediately without requiring a manual password-reset email.
+
+    If ADMIN_SEED_PASSWORD is not set, password is left unchanged (or set to a
+    random value on first creation so no default ever exists in the database).
+    """
     admin_email    = "tjtaylor@irspilot.com"
-    admin_password = os.environ.get("ADMIN_SEED_PASSWORD", "IRSPilot2026!")
+    admin_password = os.environ.get("ADMIN_SEED_PASSWORD")  # None if not set
     try:
         with auth.get_db() as conn:
             row = conn.execute(
                 "SELECT id FROM users WHERE email = ?", (admin_email,)
             ).fetchone()
         if not row:
+            # First-time creation: require ADMIN_SEED_PASSWORD to be set.
+            if not admin_password:
+                app.logger.error(
+                    "ADMIN_SEED_PASSWORD is not set. Admin account cannot be created. "
+                    "Set this variable in Railway and redeploy."
+                )
+                return
             user_id, err = auth.create_user(admin_email, admin_password)
             if err:
                 app.logger.warning(f"Admin seed failed: {err}")
@@ -4789,29 +5128,33 @@ def seed_admin():
             app.logger.info(f"Admin account created: {admin_email}")
         else:
             user_id = row["id"]
+            # SEC-03: Do NOT automatically overwrite the admin password on routine
+            # startup.  An overwrite on every restart means:
+            #   • the password is exposed in Railway logs and env-variable history,
+            #   • an attacker with env-variable read access can compromise the account
+            #     without touching the database, and
+            #   • no audit trail of when the password was actually changed.
+            #
+            # Password rotation is an explicit operator action:
+            #   1. Set ADMIN_SEED_PASSWORD in Railway.
+            #   2. POST /admin/rotate-password  (authenticated endpoint, below).
+            #   3. Clear ADMIN_SEED_PASSWORD from Railway immediately after.
+            #
+            # If ADMIN_SEED_PASSWORD is still set here on a non-first-run startup,
+            # log a prominent warning so the operator knows to clear it.
+            if admin_password:
+                app.logger.warning(
+                    "SEC-03: ADMIN_SEED_PASSWORD is set but the admin account already exists. "
+                    "The password has NOT been changed automatically. "
+                    "To rotate the admin password, POST /admin/rotate-password while logged in. "
+                    "Then clear ADMIN_SEED_PASSWORD from Railway environment variables."
+                )
 
-        # Grant or renew access for all products — 3650 days (10 years)
-        from datetime import timedelta
-        long_expiry = (__import__("datetime").datetime.utcnow() + timedelta(days=3650)).isoformat()
-        with auth.get_db() as conn:
-            for product in ("navigator", "wizard", "bundle", "planning", "covid_penalty"):
-                existing = conn.execute(
-                    "SELECT id FROM purchases WHERE user_id = ? AND product = ? "
-                    "AND stripe_session_id = 'admin_permanent'",
-                    (user_id, product)
-                ).fetchone()
-                if existing:
-                    # Renew expiry
-                    conn.execute(
-                        "UPDATE purchases SET expires_at = ? WHERE id = ?",
-                        (long_expiry, existing["id"])
-                    )
-                else:
-                    conn.execute(
-                        "INSERT INTO purchases (user_id, product, stripe_session_id, expires_at) "
-                        "VALUES (?, ?, 'admin_permanent', ?)",
-                        (user_id, product, long_expiry)
-                    )
+        # Grant or renew 10-year access for all admin products.
+        # auth.grant_admin_entitlements handles the exclusive transaction,
+        # lock timeout, rollback, connection cleanup, legacy migration, and
+        # the NULL stripe_session_id / amount_paid=0 row pattern (AUDIT-013).
+        auth.grant_admin_entitlements(user_id)
         app.logger.info(f"Admin access ensured for {admin_email} (10 years)")
     except Exception as e:
         app.logger.error(f"Admin seed error: {e}")

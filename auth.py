@@ -8,6 +8,27 @@ from pathlib import Path
 from functools import wraps
 from flask import request, redirect, jsonify, session
 
+# Argon2id password hashing (SEC-02)
+# argon2-cffi is a required dependency (listed in requirements.txt).
+# In hosted environments (detected via RAILWAY_ENVIRONMENT), we refuse to start
+# without it rather than silently degrading to SHA-256.
+try:
+    from argon2 import PasswordHasher as _PasswordHasher
+    from argon2.exceptions import VerifyMismatchError as _VerifyMismatchError, \
+        InvalidHashError as _InvalidHashError, VerificationError as _VerificationError
+    _ph = _PasswordHasher()
+    _ARGON2_AVAILABLE = True
+except ImportError:
+    _ARGON2_AVAILABLE = False
+    # Item 1: Never silently fall back to SHA-256 on Railway or any hosted environment.
+    # RAILWAY_ENVIRONMENT is set by the Railway platform for all running services.
+    if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PROJECT_ID"):
+        raise RuntimeError(
+            "argon2-cffi is required but not installed. "
+            "Add 'argon2-cffi==23.1.0' to requirements.txt and redeploy. "
+            "Refusing to start in a hosted environment without Argon2id password hashing."
+        )
+
 DB_PATH = Path(os.environ.get("DB_PATH", "/app/data/irs_navigator.db"))
 
 ACCESS_NAVIGATOR = "navigator"
@@ -342,8 +363,25 @@ def init_db():
             event_id     TEXT UNIQUE NOT NULL,
             event_type   TEXT NOT NULL,
             status       TEXT DEFAULT 'processing',
+            claim_token  TEXT,
+            claimed_at   TEXT DEFAULT (datetime('now')),
             processed_at TEXT,
             error        TEXT
+        )""",
+        # PAY-02 — add claim_token to existing installs
+        "ALTER TABLE stripe_webhook_events ADD COLUMN claim_token TEXT",
+        # Item 4 — add claimed_at to existing installs for stale claim detection
+        "ALTER TABLE stripe_webhook_events ADD COLUMN claimed_at TEXT",
+        # Item 5 — durable storage for failed price-schedule creation jobs
+        """CREATE TABLE IF NOT EXISTS failed_schedule_jobs (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            stripe_sub_id     TEXT UNIQUE NOT NULL,
+            intro_price_id    TEXT NOT NULL,
+            error             TEXT,
+            retry_count       INTEGER DEFAULT 0,
+            created_at        TEXT DEFAULT (datetime('now')),
+            last_attempted_at TEXT DEFAULT (datetime('now')),
+            resolved_at       TEXT
         )""",
         # Phase 1 — subscription period tracking
         """CREATE TABLE IF NOT EXISTS pro_session_history (
@@ -387,26 +425,208 @@ def init_db():
         "ALTER TABLE taxpro_interests ADD COLUMN address TEXT DEFAULT NULL",
         "ALTER TABLE taxpro_interests ADD COLUMN calendly_requested INTEGER DEFAULT 0",
         "ALTER TABLE users ADD COLUMN name TEXT DEFAULT NULL",
+        # SEC-04 — explicit admin entitlement marker
+        "ALTER TABLE purchases ADD COLUMN entitlement_type TEXT DEFAULT NULL",
+        # SEC-04 — back-fill existing admin rows with marker.
+        # Item 3 fix: scope strictly to known admin user IDs (via email join) to avoid
+        # stamping legitimate complimentary purchases granted by admin to real customers.
+        # The old broad WHERE clause (stripe_session_id IS NULL AND amount_paid = 0)
+        # would have incorrectly marked complimentary purchases as admin entitlements.
+        """UPDATE purchases SET entitlement_type = 'admin'
+           WHERE entitlement_type IS NULL
+             AND stripe_session_id IS NULL
+             AND amount_paid = 0
+             AND user_id = (SELECT id FROM users WHERE email = 'tjtaylor@irspilot.com' LIMIT 1)""",
+        # IR-01 — store Stripe PaymentIntent ID on purchases so charge.refunded
+        # (which provides pi_... not cs_...) can resolve the correct purchase rows.
+        "ALTER TABLE purchases ADD COLUMN payment_intent_id TEXT DEFAULT NULL",
+        # IR-01 — index for fast pi_... lookups at refund time.
+        "CREATE INDEX IF NOT EXISTS idx_purchases_payment_intent ON purchases(payment_intent_id) WHERE payment_intent_id IS NOT NULL",
+        # IR-02 — distinguish direct commissions from Foundation overrides.
+        "ALTER TABLE referral_conversions ADD COLUMN commission_type TEXT DEFAULT 'direct'",
+        # IR-02 — DB-enforced uniqueness: one direct commission per (partner, session)
+        # and one override per (partner, session).  Partial index excludes rows with
+        # NULL stripe_session_id (admin grants, manual entries).
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_ref_conv_partner_session_type ON referral_conversions(partner_id, stripe_session_id, commission_type) WHERE stripe_session_id IS NOT NULL",
+        # IR-01 — audit trail for already-paid commissions that could not be voided.
+        """CREATE TABLE IF NOT EXISTS commission_adjustments (
+            id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+            referral_conversion_id INTEGER NOT NULL REFERENCES referral_conversions(id),
+            stripe_session_id    TEXT,
+            adjustment_amount    INTEGER NOT NULL,
+            reason               TEXT NOT NULL,
+            created_at           TEXT DEFAULT (datetime('now'))
+        )""",
     ]
+    # SEC-05: Distinguish expected duplicate-column errors from real migration failures.
+    # Critical schema objects (indexes, tables, essential columns) must be verified
+    # before allowing payment processing.  "duplicate column" is expected for ALTER
+    # TABLE statements that have already run; everything else is a real failure.
+    import logging as _logging
+    _mig_log = _logging.getLogger(__name__)
+    critical_failures = []
     with get_db() as conn:
         for sql in migrations:
             try:
                 conn.execute(sql)
-            except Exception:
-                pass  # Column already exists
+            except Exception as exc:
+                msg = str(exc).lower()
+                # SQLite reports duplicate column as "duplicate column name: <col>"
+                # and duplicate index/table as "already exists"
+                if "duplicate column" in msg or "already exists" in msg or "table" in msg and "already exists" in msg:
+                    pass  # Expected on subsequent startups — not an error
+                else:
+                    _mig_log.error("DB migration failed: %s — SQL: %.200s", exc, sql)
+                    # Only mark critical if it involves the stripe_webhook_events
+                    # table or the purchases unique index — payment integrity depends on these
+                    if "stripe_webhook_events" in sql.lower() or "idx_purchases_stripe" in sql.lower():
+                        critical_failures.append(sql[:80])
+    if critical_failures:
+        raise RuntimeError(
+            f"Critical DB migrations failed — payment processing may be unsafe. "
+            f"Failing statements: {critical_failures}"
+        )
 
-# ── Password helpers ───────────────────────────────────────────────────────────
+# ── Password helpers (SEC-02: Argon2id with backward-compatible SHA-256 migration) ──
+
 def hash_password(password: str) -> str:
+    """Hash a password using Argon2id (preferred) or salted SHA-256 fallback."""
+    if _ARGON2_AVAILABLE:
+        return _ph.hash(password)
+    # Fallback for environments without argon2-cffi (never used in production)
     salt = secrets.token_hex(16)
     h = hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
-    return f"{salt}:{h}"
+    return f"sha256:{salt}:{h}"
+
 
 def verify_password(password: str, stored: str) -> bool:
+    """Verify password against stored hash.
+
+    Supports both legacy salted SHA-256 (old format: 'hexsalt:hexhash' or
+    'sha256:hexsalt:hexhash') and Argon2id (new format: '$argon2id$...').
+    On first successful login with a legacy hash, the caller is responsible for
+    re-hashing and updating the stored value (see login_user).
+    """
+    if not stored:
+        return False
     try:
-        salt, h = stored.split(":")
+        if stored.startswith("$argon2"):
+            # Argon2id hash
+            if not _ARGON2_AVAILABLE:
+                return False
+            try:
+                return _ph.verify(stored, password)
+            except (_VerifyMismatchError, _InvalidHashError, _VerificationError):
+                return False
+        # Legacy SHA-256 format: 'sha256:salt:hash' or legacy 'salt:hash'
+        if stored.startswith("sha256:"):
+            _, salt, h = stored.split(":")
+        else:
+            salt, h = stored.split(":")
         return hashlib.sha256(f"{salt}{password}".encode()).hexdigest() == h
     except Exception:
         return False
+
+# ── Administrator entitlement helpers ─────────────────────────────────────────
+
+ADMIN_PRODUCTS = ("navigator", "wizard", "bundle", "planning", "covid_penalty")
+_ADMIN_ENTITLEMENT_TIMEOUT = 10  # seconds to wait for SQLite exclusive lock
+
+def grant_admin_entitlements(user_id: int) -> None:
+    """Ensure *user_id* holds a valid 10-year purchase row for every admin product.
+
+    Design (AUDIT-013):
+    • Admin rows use stripe_session_id = NULL.  The unique index on
+      purchases(stripe_session_id) is a partial index defined
+      "WHERE stripe_session_id IS NOT NULL", so NULL rows are exempt — multiple
+      NULL rows for different (user_id, product) pairs are always permitted.
+    • Rows are matched by (user_id, product, stripe_session_id IS NULL AND
+      amount_paid = 0).  This avoids touching complimentary purchases that may
+      legitimately have NULL stripe_session_id but a non-zero amount_paid, e.g.
+      a manually granted free trial recorded with a real payment amount.
+    • The entire check-and-upsert loop runs inside a single BEGIN EXCLUSIVE
+      transaction with a 10-second busy timeout.  SQLite serialises exclusive
+      transactions across all processes sharing the database file, so two
+      Gunicorn workers racing at startup cannot both INSERT the same row.
+    • On exception the transaction is explicitly rolled back and the connection
+      is closed before re-raising, leaving the database clean.
+
+    Raises:
+        RuntimeError  — user_id does not exist in the users table.
+        sqlite3.Error — database error after rollback.
+    """
+    long_expiry = (datetime.utcnow() + timedelta(days=3650)).isoformat()
+
+    # Open a dedicated connection with a generous busy timeout so a second
+    # Gunicorn worker waits rather than failing immediately on lock contention.
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(DB_PATH), timeout=_ADMIN_ENTITLEMENT_TIMEOUT)
+    conn.row_factory = sqlite3.Row
+    # Disable Python's implicit transaction management so our explicit
+    # BEGIN EXCLUSIVE is not interfered with.
+    conn.isolation_level = None
+    try:
+        # Verify the user exists before touching purchases.
+        row = conn.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+        if not row:
+            raise RuntimeError(f"grant_admin_entitlements: user_id {user_id} not found")
+
+        conn.execute("BEGIN EXCLUSIVE")
+        try:
+            # One-time migration: clear legacy 'admin_permanent' marker from rows
+            # created before AUDIT-013, and stamp them with entitlement_type='admin'
+            # so the loop below recognises them and does not insert duplicates.
+            # Safe to run on every call — no-op once done.
+            conn.execute(
+                "UPDATE purchases SET stripe_session_id = NULL, entitlement_type = 'admin' "
+                "WHERE user_id = ? AND stripe_session_id = 'admin_permanent'",
+                (user_id,)
+            )
+
+            for product in ADMIN_PRODUCTS:
+                existing = conn.execute(
+                    "SELECT id FROM purchases "
+                    "WHERE user_id = ? AND product = ? "
+                    "AND stripe_session_id IS NULL AND amount_paid = 0 AND entitlement_type = 'admin'",
+                    (user_id, product)
+                ).fetchone()
+                if existing:
+                    conn.execute(
+                        "UPDATE purchases SET expires_at = ?, entitlement_type = 'admin' WHERE id = ?",
+                        (long_expiry, existing["id"])
+                    )
+                else:
+                    conn.execute(
+                        "INSERT INTO purchases "
+                        "(user_id, product, stripe_session_id, amount_paid, expires_at, entitlement_type) "
+                        "VALUES (?, ?, NULL, 0, ?, 'admin')",
+                        (user_id, product, long_expiry)
+                    )
+            conn.execute("COMMIT")
+        except Exception:
+            try:
+                conn.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+    finally:
+        conn.close()
+
+
+def migrate_admin_entitlements_legacy(user_id: int) -> None:
+    """Clear 'admin_permanent' stripe_session_id for a user (standalone migration).
+
+    Called once at startup before grant_admin_entitlements so that the exclusive
+    transaction in grant_admin_entitlements never sees the legacy string.
+    This is a no-op if already migrated.
+    """
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE purchases SET stripe_session_id = NULL "
+            "WHERE user_id = ? AND stripe_session_id = 'admin_permanent'",
+            (user_id,)
+        )
+
 
 # ── Session helpers ────────────────────────────────────────────────────────────
 SESSION_COOKIE = "irs_session"
@@ -769,6 +989,8 @@ def get_published_testimonials() -> list:
 
 
 def login_user(email: str, password: str):
+    """Authenticate user. On success, transparently upgrades legacy SHA-256 hashes
+    to Argon2id (SEC-02 backward-compatible migration)."""
     with get_db() as conn:
         row = conn.execute(
             "SELECT id, password_hash FROM users WHERE email = ?",
@@ -776,6 +998,18 @@ def login_user(email: str, password: str):
         ).fetchone()
     if not row or not verify_password(password, row["password_hash"]):
         return None, "Invalid email or password."
+    # Upgrade legacy SHA-256 hash to Argon2id on successful login
+    stored = row["password_hash"]
+    if _ARGON2_AVAILABLE and not stored.startswith("$argon2"):
+        try:
+            new_hash = hash_password(password)
+            with get_db() as conn:
+                conn.execute(
+                    "UPDATE users SET password_hash = ? WHERE id = ?",
+                    (new_hash, row["id"])
+                )
+        except Exception:
+            pass  # Non-fatal — will retry on next login
     return row["id"], None
 
 def grant_access(user_id: int, product: str, stripe_session_id: str = None):
@@ -902,18 +1136,38 @@ def get_referral_partner_by_user(user_id: int):
 def record_referral_conversion(partner_id: int, referred_user_id: int,
                                 purchase_id: int, product: str,
                                 sale_amount: int, commission_pct: int,
-                                stripe_session_id: str = None):
+                                stripe_session_id: str = None) -> int:
+    """Record a direct referral commission.
+
+    IR-02: Idempotency is now enforced by the DB UNIQUE index on
+    (partner_id, stripe_session_id, commission_type).  On duplicate the
+    IntegrityError is caught and the existing commission amount returned.
+    Failures other than duplicates are re-raised so callers receive a durable
+    error rather than silently skipping the commission.
+    """
     commission = int(sale_amount * commission_pct / 100)
-    with get_db() as conn:
-        conn.execute(
-            """INSERT INTO referral_conversions
-               (partner_id, referred_user_id, purchase_id, product,
-                sale_amount, commission_amount, stripe_session_id)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (partner_id, referred_user_id, purchase_id, product,
-             sale_amount, commission, stripe_session_id)
-        )
-    return commission
+    try:
+        with get_db() as conn:
+            conn.execute(
+                """INSERT INTO referral_conversions
+                   (partner_id, referred_user_id, purchase_id, product,
+                    sale_amount, commission_amount, stripe_session_id,
+                    commission_type)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, 'direct')""",
+                (partner_id, referred_user_id, purchase_id, product,
+                 sale_amount, commission, stripe_session_id)
+            )
+        return commission
+    except sqlite3.IntegrityError:
+        # UNIQUE constraint fired — row already exists; return existing amount.
+        with get_db() as conn:
+            row = conn.execute(
+                "SELECT commission_amount FROM referral_conversions "
+                "WHERE partner_id = ? AND stripe_session_id = ? "
+                "AND commission_type = 'direct'",
+                (partner_id, stripe_session_id)
+            ).fetchone()
+        return row["commission_amount"] if row else commission
 
 def get_partner_stats(partner_id: int):
     with get_db() as conn:
@@ -1407,22 +1661,127 @@ def get_foundation_sponsor(partner_id: int):
 
 def record_foundation_override(foundation_member_id: int, sale_amount: int,
                                 override_pct: int, source_partner_id: int,
-                                purchase_id: int = None):
+                                purchase_id: int = None,
+                                stripe_session_id: str = None) -> int:
+    """Record a Foundation override commission (5% on recruited partner's sale).
+
+    IR-02: Idempotency is enforced by the DB UNIQUE index on
+    (partner_id, stripe_session_id, commission_type='foundation_override').
+    On duplicate the IntegrityError is caught and the existing amount returned.
+    Failures other than duplicates are re-raised.
+
+    The foundation member's partner_id is used as the partner_id column so that
+    payout queries can join to referral_partners for the Foundation member's account.
+    """
     override_amount = int(sale_amount * override_pct / 100)
     with get_db() as conn:
-        conn.execute(
-            "INSERT INTO referral_conversions "
-            "(partner_id, referred_user_id, purchase_id, product, "
-            " sale_amount, commission_amount, paid_out) "
-            "SELECT ?, rc.referred_user_id, ?, rc.product, ?, ?, 0 "
+        # Resolve foundation member's partner_id for use as the commission owner
+        fm_row = conn.execute(
+            "SELECT fm.partner_id, rp.user_id "
             "FROM foundation_members fm "
             "JOIN referral_partners rp ON fm.partner_id = rp.id "
-            "JOIN referral_conversions rc ON rc.partner_id = ? "
-            "WHERE fm.id = ? LIMIT 1",
-            (source_partner_id, purchase_id, sale_amount,
-             override_amount, source_partner_id, foundation_member_id)
-        )
+            "WHERE fm.id = ?",
+            (foundation_member_id,)
+        ).fetchone()
+        if not fm_row:
+            return 0  # Foundation member not found — skip silently
+
+        fm_partner_id = fm_row["partner_id"]
+
+        # Pull product and referred_user_id from the source partner's conversion row
+        src_row = conn.execute(
+            "SELECT referred_user_id, product FROM referral_conversions "
+            "WHERE partner_id = ? AND stripe_session_id = ? LIMIT 1",
+            (source_partner_id, stripe_session_id)
+        ).fetchone() if stripe_session_id else None
+
+        referred_user_id = src_row["referred_user_id"] if src_row else None
+        product = src_row["product"] if src_row else "navigator"
+
+        try:
+            conn.execute(
+                "INSERT INTO referral_conversions "
+                "(partner_id, referred_user_id, purchase_id, product, "
+                " sale_amount, commission_amount, stripe_session_id, paid_out, "
+                " commission_type) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, 0, 'foundation_override')",
+                (fm_partner_id, referred_user_id, purchase_id, product,
+                 sale_amount, override_amount, stripe_session_id)
+            )
+        except sqlite3.IntegrityError:
+            # UNIQUE constraint fired — row already exists; return existing amount.
+            row = conn.execute(
+                "SELECT commission_amount FROM referral_conversions "
+                "WHERE partner_id = ? AND stripe_session_id = ? "
+                "AND commission_type = 'foundation_override'",
+                (fm_partner_id, stripe_session_id)
+            ).fetchone()
+            return row["commission_amount"] if row else override_amount
+
     return override_amount
+
+
+def get_foundation_sponsor(partner_id: int):
+    """Return the Foundation member record that sponsors this referral partner,
+    or None if the partner has no Foundation sponsor."""
+    with get_db() as conn:
+        return conn.execute(
+            "SELECT fm.id, fm.partner_id, fm.override_pct, fm.active "
+            "FROM referral_partners rp "
+            "JOIN foundation_members fm ON fm.id = rp.foundation_sponsor_id "
+            "WHERE rp.id = ? AND fm.active = 1",
+            (partner_id,)
+        ).fetchone()
+
+
+def void_commissions_for_refund(stripe_session_id: str,
+                                refund_fraction: float = 1.0) -> int:
+    """Adjust commission rows tied to a Stripe session on refund.
+
+    IR-01 — Full vs. partial refund handling:
+    - For unpaid rows: commission_amount is zeroed (full refund) or reduced
+      proportionally (partial refund, e.g. refund_fraction=0.5 halves it).
+    - For already-paid rows: an audit record is inserted into
+      commission_adjustments so finance can process the clawback manually;
+      the original row is left intact because the partner was already paid.
+
+    refund_fraction: fraction of the sale that was refunded (0 < f <= 1.0).
+    Returns the number of commission rows affected (voided + audit-only).
+    """
+    if not stripe_session_id:
+        return 0
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT id, commission_amount, paid_out "
+            "FROM referral_conversions WHERE stripe_session_id = ?",
+            (stripe_session_id,)
+        ).fetchall()
+
+        total_affected = 0
+        for row in rows:
+            original = row["commission_amount"]
+            adjustment = int(original * refund_fraction)
+            if not row["paid_out"]:
+                # Unpaid: zero out or reduce proportionally.
+                new_amount = original - adjustment
+                conn.execute(
+                    "UPDATE referral_conversions SET commission_amount = ? WHERE id = ?",
+                    (new_amount, row["id"])
+                )
+                total_affected += 1
+            else:
+                # Already paid: create an audit record for clawback processing.
+                if adjustment > 0:
+                    conn.execute(
+                        "INSERT INTO commission_adjustments "
+                        "(referral_conversion_id, stripe_session_id, adjustment_amount, reason) "
+                        "VALUES (?, ?, ?, ?)",
+                        (row["id"], stripe_session_id, -adjustment,
+                         f"refund fraction={refund_fraction:.4f}")
+                    )
+                    total_affected += 1
+
+        return total_affected
 
 def get_foundation_recruited_partners(foundation_member_id: int):
     with get_db() as conn:
@@ -1577,27 +1936,97 @@ def mark_overage_billed(subscriber_id: int):
 
 # ── Webhook idempotency helpers ────────────────────────────────────────────────
 
+_STALE_CLAIM_SECONDS = 300  # 5 minutes — a crashed worker's claim expires after this
+
+
 def claim_webhook_event(event_id: str, event_type: str) -> bool:
     """
-    Attempt to claim an event for processing. Returns True if this call
-    is the one that should process it (first claim). Returns False if already
-    claimed (duplicate delivery). Uses INSERT OR IGNORE so only one concurrent
-    caller succeeds.
+    Attempt to claim an event for exclusive processing.
+
+    PAY-02 fix: Uses a worker-unique claim_token so only ONE worker wins the
+    claim, even when multiple workers receive the same event simultaneously.
+
+    Item 4 fix: Stale claim recovery — if a worker crashes after claiming but
+    before completing/failing, the row stays in 'processing' with a dead token.
+    We detect this by checking claimed_at: if the claim is older than
+    _STALE_CLAIM_SECONDS, we UPDATE the row to take ownership with our token.
+    This allows Stripe's automatic retries to eventually succeed.
+
+    Design:
+    - Each caller generates a unique claim_token and attempts INSERT.
+    - On INSERT success, reads back to confirm OUR claim_token won.
+    - If another worker's INSERT won first, check if their claim is stale.
+      * If stale (claimed_at older than 5 min): UPDATE to take ownership.
+      * If fresh: return False and let the winning worker process.
+    - If status='completed', the event is done: return False (safe duplicate).
+    - If status='failed' (crash recovery), re-insert to allow retry: a failed
+      row was deleted by fail_webhook_event; if still present, another worker
+      is retrying — return False to avoid double-processing.
+
+    Returns True  — this caller exclusively owns the event and must process it.
+    Returns False — another worker claimed it (and their claim is fresh), or
+                    the event is already completed.
+    Raises        — database error; caller must return 500 so Stripe retries.
     """
-    try:
-        with get_db() as conn:
-            conn.execute(
-                "INSERT OR IGNORE INTO stripe_webhook_events "
-                "(event_id, event_type, status) VALUES (?, ?, 'processing')",
-                (event_id, event_type)
-            )
-            # Check whether we just inserted or the row already existed
-            row = conn.execute(
-                "SELECT status FROM stripe_webhook_events WHERE event_id = ?",
-                (event_id,)
-            ).fetchone()
-            return row["status"] == "processing"
-    except Exception:
+    import logging as _cl_log
+    _wh_log = _cl_log.getLogger(__name__)
+    my_token = secrets.token_hex(8)  # unique per-worker-call identifier
+    with get_db() as conn:
+        conn.execute(
+            "INSERT OR IGNORE INTO stripe_webhook_events "
+            "(event_id, event_type, status, claim_token, claimed_at) "
+            "VALUES (?, ?, 'processing', ?, datetime('now'))",
+            (event_id, event_type, my_token)
+        )
+        row = conn.execute(
+            "SELECT status, claim_token, claimed_at FROM stripe_webhook_events WHERE event_id = ?",
+            (event_id,)
+        ).fetchone()
+        if not row:
+            # Should not happen — INSERT OR IGNORE guarantees the row exists
+            raise RuntimeError(f"claim_webhook_event: row missing after INSERT for {event_id}")
+
+        if row["status"] == "completed":
+            return False   # Already processed successfully — safe duplicate
+
+        if row["status"] == "processing":
+            if row["claim_token"] == my_token:
+                return True  # We won the INSERT race — this event is ours
+
+            # Another worker's token is in the row.
+            # Item 4: Check if that claim is stale (worker may have crashed).
+            claimed_at_str = row["claimed_at"]
+            is_stale = False
+            if claimed_at_str:
+                try:
+                    claimed_at_dt = datetime.strptime(claimed_at_str, "%Y-%m-%d %H:%M:%S")
+                    age_seconds = (datetime.utcnow() - claimed_at_dt).total_seconds()
+                    is_stale = age_seconds > _STALE_CLAIM_SECONDS
+                except ValueError:
+                    pass  # Unparseable timestamp — treat as fresh to be safe
+
+            if is_stale:
+                # Previous claimant appears to have crashed without completing.
+                # Atomically take ownership by updating claim_token and claimed_at.
+                result = conn.execute(
+                    "UPDATE stripe_webhook_events "
+                    "SET claim_token = ?, claimed_at = datetime('now'), status = 'processing' "
+                    "WHERE event_id = ? AND claim_token = ? AND status = 'processing'",
+                    (my_token, event_id, row["claim_token"])
+                )
+                if result.rowcount == 1:
+                    _wh_log.warning(
+                        "claim_webhook_event: reclaimed stale event %s (was held by %s for >%ds)",
+                        event_id, row["claim_token"][:4] + "...", _STALE_CLAIM_SECONDS
+                    )
+                    return True  # We took over the stale claim
+                # Another worker beat us to the stale reclaim — give up
+                return False
+
+            # Claim is fresh — another worker is actively processing
+            return False
+
+        # status='failed' or anything else — not our event to process
         return False
 
 
@@ -1672,16 +2101,25 @@ def get_subscriber_activation_status(subscriber_id: int) -> dict:
 
 
 def grant_access_idempotent(user_id: int, product: str,
-                              stripe_session_id: str = None) -> tuple:
+                              stripe_session_id: str = None,
+                              amount_paid: int = 0,
+                              payment_intent_id: str = None) -> tuple:
     """
     Grant access, skipping silently if the stripe_session_id already has a purchase.
-    Returns (purchase_id_or_expires, is_new: bool).
+    Returns (purchase_id, is_new: bool).
+
+    PAY-06: amount_paid is now persisted so revenue reporting is accurate.
+    amount_paid should be the actual amount collected in cents (e.g. 5900 for $59).
+
+    IR-01: payment_intent_id (pi_...) is stored alongside the checkout session ID
+    (cs_...) so that charge.refunded webhook events — which only provide the
+    PaymentIntent — can resolve the correct purchase rows at refund time.
     """
     # Check for existing grant with this session ID
     if stripe_session_id:
         with get_db() as conn:
             existing = conn.execute(
-                "SELECT id, expires_at FROM purchases WHERE stripe_session_id=? AND product=?",
+                "SELECT id FROM purchases WHERE stripe_session_id=? AND product=?",
                 (stripe_session_id, product)
             ).fetchone()
         if existing:
@@ -1691,9 +2129,10 @@ def grant_access_idempotent(user_id: int, product: str,
     try:
         with get_db() as conn:
             cur = conn.execute(
-                "INSERT INTO purchases (user_id, product, stripe_session_id, expires_at) "
-                "VALUES (?, ?, ?, ?)",
-                (user_id, product, stripe_session_id, expires)
+                "INSERT INTO purchases "
+                "(user_id, product, stripe_session_id, expires_at, amount_paid, payment_intent_id) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, product, stripe_session_id, expires, amount_paid, payment_intent_id)
             )
         return cur.lastrowid, True
     except Exception:

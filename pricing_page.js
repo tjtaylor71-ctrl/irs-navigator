@@ -80,7 +80,7 @@ function PricingPage() {
     if (!discountCode.trim()) return;
     setDiscountLoading(true);
     setDiscountError("");
-    const res = await fetch("/api/validate-discount", {
+    const res = await csrfFetch("/api/validate-discount", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: discountCode.trim(), product })

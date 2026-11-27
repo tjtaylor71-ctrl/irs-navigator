@@ -73,7 +73,7 @@ function CovidPenaltyPro() {
   async function buyCredits(tier) {
     setBuying(true);
     try {
-      const resp = await fetch("/api/covid-pro/buy-credits", {
+      const resp = await csrfFetch("/api/covid-pro/buy-credits", {
         method:"POST", credentials:"include",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ tier, member_type: memberType })
@@ -260,7 +260,7 @@ function CovidPenaltyPro() {
       setGenning(true); setGenErr("");
       try {
         // Consume one credit first (admins are exempt)
-        const creditResp = await fetch("/api/covid-pro/consume-credit", {method:"POST",credentials:"include"});
+        const creditResp = await csrfFetch("/api/covid-pro/consume-credit", {method:"POST",credentials:"include"});
         const creditData = await creditResp.json();
         if (!creditResp.ok && creditResp.status === 402) {
           setGenErr("No letter credits remaining. Purchase more credits to continue.");
@@ -271,7 +271,7 @@ function CovidPenaltyPro() {
         if (creditData.remaining !== undefined) {
           setCredits(function(c){return c?{...c,remaining:creditData.remaining,used:(c.used||0)+1}:c;});
         }
-        const resp = await fetch("/api/covid-penalty/generate-letter", {
+        const resp = await csrfFetch("/api/covid-penalty/generate-letter", {
           method:"POST", credentials:"include",
           headers:{"Content-Type":"application/json"},
           body: JSON.stringify({
@@ -420,7 +420,7 @@ function CovidPenaltyPro() {
 
         try {
           const b64 = await toBase64(newClients[i].file);
-          const resp = await fetch("/api/covid-penalty/analyze", {
+          const resp = await csrfFetch("/api/covid-penalty/analyze", {
             method:"POST", credentials:"include",
             headers:{"Content-Type":"application/json"},
             body: JSON.stringify({ pdf_base64: b64, filename: newClients[i].file.name, pro_mode: true })

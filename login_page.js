@@ -55,7 +55,7 @@ function LoginPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(mode === "login" ? "/api/login" : "/api/register", {
+      const res = await csrfFetch(mode === "login" ? "/api/login" : "/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, product })

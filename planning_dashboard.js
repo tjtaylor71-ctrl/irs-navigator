@@ -2710,7 +2710,7 @@ function PlanningDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/session`, { credentials: "include" });
+        const res = await csrfFetch(`${API_BASE}/session`, { credentials: "include" });
         if (res.status === 401) { window.location.href = "/login?next=/planning"; return; }
         const data = await res.json();
         setSession(data.session || {});
@@ -2727,7 +2727,7 @@ function PlanningDashboard() {
   const handleSave = useCallback(async (formData) => {
     setSaving(true); setError(null);
     try {
-      const res = await fetch(`${API_BASE}/session`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
+      const res = await csrfFetch(`${API_BASE}/session`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
       if (!res.ok) throw new Error("Save failed");
     } catch { setError("Could not save. Please try again."); } finally { setSaving(false); }
   }, []);
@@ -2735,8 +2735,8 @@ function PlanningDashboard() {
   const handleCalculate = useCallback(async (formData) => {
     setCalculating(true); setError(null);
     try {
-      await fetch(`${API_BASE}/session`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
-      const res = await fetch(`${API_BASE}/calculate`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
+      await csrfFetch(`${API_BASE}/session`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
+      const res = await csrfFetch(`${API_BASE}/calculate`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Calculation failed");
       setResults(data);

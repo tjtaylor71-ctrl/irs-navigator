@@ -16,7 +16,7 @@ function ResetPage() {
       return;
     }
     setStatus("loading");
-    const res = await fetch("/api/forgot-password", {
+    const res = await csrfFetch("/api/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
@@ -42,7 +42,7 @@ function ResetPage() {
       return;
     }
     setStatus("loading");
-    const res = await fetch("/api/reset-password", {
+    const res = await csrfFetch("/api/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, password })

@@ -172,7 +172,7 @@ function TaxProPage() {
     }
     setDemoSubmitting(true);
     try {
-      const res = await fetch("/api/taxpro/demo-request", {
+      const res = await csrfFetch("/api/taxpro/demo-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(demoForm)

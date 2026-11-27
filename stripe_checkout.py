@@ -71,7 +71,7 @@ PRODUCT_NAMES = {
     "bundle":    "IRS Pilot Complete Access — 7-Day Access",
 }
 
-PRODUCT_AMOUNTS = {"navigator": 12900, "wizard": 12900, "bundle": 12900}
+PRODUCT_AMOUNTS = {"navigator": 5900, "wizard": 9900, "bundle": 12900}
 
 PRODUCT_REDIRECT = {
     "navigator": "/navigator",
@@ -200,17 +200,46 @@ def create_pro_signup_checkout(user_id: int, user_email: str,
     intro_price_id = _get_active_intro_price()
 
     try:
-        # Get or create Stripe customer
-        customers = stripe.Customer.list(email=user_email, limit=1)
-        if customers.data:
-            customer = customers.data[0]
-        else:
+        # PAY-08: Prevent duplicate subscriptions — if this subscriber already
+        # has a stripe_customer_id stored, reuse it and block a second checkout.
+        with auth.get_db() as conn:
+            existing_sub = conn.execute(
+                "SELECT stripe_customer_id, stripe_sub_id FROM pro_subscribers WHERE id=?",
+                (subscriber_id,)
+            ).fetchone()
+
+        if existing_sub and existing_sub["stripe_sub_id"]:
+            # Active subscription already exists — do not create a second checkout.
+            log.warning(
+                "PAY-08: Subscriber %d already has subscription %s — refusing duplicate checkout",
+                subscriber_id, existing_sub["stripe_sub_id"]
+            )
+            return None, (
+                "A subscription already exists for this account. "
+                "Please contact support if you believe this is an error."
+            )
+
+        # PAY-08: Reuse a known IRS Pilot customer; never search by email alone
+        # (email-only search would match Taylor Tax customers in the same Stripe account).
+        customer = None
+        if existing_sub and existing_sub["stripe_customer_id"]:
+            try:
+                customer = stripe.Customer.retrieve(existing_sub["stripe_customer_id"])
+                if getattr(customer, "deleted", False):
+                    customer = None   # deleted — fall through to create
+            except stripe.error.StripeError:
+                customer = None
+
+        if customer is None:
+            # Create a new IRS Pilot–tagged customer. Do NOT use Customer.list(email=...)
+            # because the same email may belong to a Taylor Tax customer in this account.
             customer = stripe.Customer.create(
                 email=user_email,
                 name=firm_name,
                 metadata={
                     "user_id":       str(user_id),
                     "subscriber_id": str(subscriber_id),
+                    "app":           "irs_pilot",   # PAY-08: tag for auditing
                 },
                 idempotency_key=f"customer-create-{subscriber_id}",
             )
@@ -276,93 +305,119 @@ def schedule_price_upgrade(stripe_subscription_id: str,
         intro_price_id = _pro_price_intro()
 
     try:
-        # Idempotency: check whether a schedule already exists for this sub
-        existing = stripe.SubscriptionSchedule.list(limit=5)
-        for sched in existing.auto_paging_iter():
-            if getattr(sched, "subscription", None) == stripe_subscription_id:
-                log.info("schedule_price_upgrade: schedule already exists for %s",
-                         stripe_subscription_id)
-                return sched.id, None
+        # Idempotency: check whether a schedule already exists for this sub.
+        # Verify it has the correct number of phases before accepting it —
+        # a schedule created in a broken state (create succeeded, modify failed)
+        # would have < 2 phases and must be corrected, not silently reused.
+        try:
+            existing_schedules = stripe.SubscriptionSchedule.list(
+                limit=10
+            )
+            for sched in existing_schedules.auto_paging_iter():
+                if getattr(sched, "subscription", None) == stripe_subscription_id:
+                    phases = getattr(sched, "phases", [])
+                    if len(phases) >= 2:
+                        log.info("schedule_price_upgrade: valid 2-phase schedule %s already exists for %s",
+                                 sched.id, stripe_subscription_id)
+                        return sched.id, None
+                    # Broken/partial schedule — release and recreate
+                    log.warning(
+                        "schedule_price_upgrade: existing schedule %s for %s has only %d phase(s); "
+                        "releasing and recreating", sched.id, stripe_subscription_id, len(phases)
+                    )
+                    try:
+                        stripe.SubscriptionSchedule.release(sched.id)
+                    except stripe.error.StripeError as rel_err:
+                        log.error("Failed to release broken schedule %s: %s", sched.id, rel_err)
+                    break
+        except stripe.error.StripeError as list_err:
+            log.warning("schedule_price_upgrade: could not list schedules: %s — proceeding", list_err)
 
-        # Create from the live subscription so Stripe uses the existing billing anchor
+        # PAY-01 fix: Use the supported two-step approach.
+        # Step 1: Create schedule FROM the existing subscription (no phases override).
+        #         This creates a 1-phase schedule mirroring the current sub.
+        # Step 2: Amend the schedule to add the standard phase.
+        # This is the only supported combination per Stripe API documentation.
         schedule = stripe.SubscriptionSchedule.create(
             from_subscription=stripe_subscription_id,
             idempotency_key=f"schedule-create-{stripe_subscription_id}",
         )
+        schedule_id = schedule.id
+        log.info("schedule_price_upgrade: created schedule %s for sub %s (step 1)",
+                 schedule_id, stripe_subscription_id)
 
-        # Phase 2 requirement: schedule must use the PURCHASED intro price,
-        # and must end_behavior='release' so billing continues after the schedule ends.
-        stripe.SubscriptionSchedule.modify(
-            schedule.id,
+        # Step 2: Amend to add the standard-price phase after the intro period.
+        # We use the schedule's current phases as the basis and append our
+        # standard-price phase. The first phase should already reflect the
+        # intro period from the subscription.
+        current_phases = getattr(schedule, "phases", [])
+        if not current_phases:
+            return None, "schedule_price_upgrade: step 1 produced no phases — cannot amend"
+
+        # Build the intro phase (mirror from current, enforce iterations=PRO_INTRO_MONTHS)
+        intro_phase = {
+            "items": [{"price": intro_price_id, "quantity": 1}],
+            "iterations": PRO_INTRO_MONTHS,
+        }
+        standard_phase = {
+            "items": [{"price": _pro_price_standard(), "quantity": 1}],
+            # No iterations — runs indefinitely after intro period
+        }
+
+        amended = stripe.SubscriptionSchedule.modify(
+            schedule_id,
             end_behavior="release",
-            phases=[
-                {
-                    "items":      [{"price": intro_price_id, "quantity": 1}],
-                    "iterations": PRO_INTRO_MONTHS,
-                },
-                {
-                    "items": [{"price": _pro_price_standard(), "quantity": 1}],
-                    # No iterations → runs indefinitely
-                },
-            ],
+            phases=[intro_phase, standard_phase],
+            idempotency_key=f"schedule-amend-{stripe_subscription_id}",
         )
+        actual_phases = len(getattr(amended, "phases", []))
+        if actual_phases < 2:
+            return None, (
+                f"schedule_price_upgrade: amended schedule {schedule_id} has only "
+                f"{actual_phases} phase(s) — expected 2"
+            )
+        log.info("schedule_price_upgrade: schedule %s amended to %d phases for sub %s",
+                 schedule_id, actual_phases, stripe_subscription_id)
+        return schedule_id, None
 
-        return schedule.id, None
     except stripe.error.StripeError as e:
+        log.error("schedule_price_upgrade failed for sub %s: %s", stripe_subscription_id, e)
         return None, str(e)
 
 
 # ── Overage billing ────────────────────────────────────────────────────────────
 
+PRO_SESSION_HARD_LIMIT = 10  # sessions per billing period when overage billing is disabled
+
 def charge_pro_overage(subscriber_id: int, user_email: str,
                         extra_sessions: int, stripe_customer_id: str = None,
                         billing_period_key: str = None):
     """
-    Charge a pro subscriber for overage sessions ($5 each).
-    billing_period_key is used as a Stripe idempotency key to prevent
-    duplicate charges for the same billing period.
-    Returns (payment_intent_id, None) or (None, error).
-    """
-    _get_stripe_key()
-    amount = PRO_OVERAGE_AMOUNT * extra_sessions
-    idempotency_key = (
-        f"overage-{subscriber_id}-{billing_period_key}"
-        if billing_period_key else None
-    )
+    Item 8: Overage billing is DISABLED pending owner approval of the billing-period
+    implementation using actual Stripe current_period_start/current_period_end.
 
-    try:
-        if stripe_customer_id:
-            kwargs = dict(
-                amount=amount,
-                currency="usd",
-                customer=stripe_customer_id,
-                description=f"IRS Pilot Pro — {extra_sessions} overage session(s) @ $5",
-                confirm=True,
-                off_session=True,
-            )
-            if idempotency_key:
-                kwargs["idempotency_key"] = idempotency_key
-            intent = stripe.PaymentIntent.create(**kwargs)
-            return intent.id, None
-        else:
-            customers = stripe.Customer.list(email=user_email, limit=1)
-            if not customers.data:
-                return None, "No Stripe customer found for this subscriber."
-            customer = customers.data[0]
-            stripe.InvoiceItem.create(
-                customer=customer.id,
-                amount=amount,
-                currency="usd",
-                description=f"IRS Pilot Pro — {extra_sessions} overage session(s) @ $5 each",
-            )
-            invoice_kwargs = dict(customer=customer.id, auto_advance=True)
-            if idempotency_key:
-                invoice_kwargs["idempotency_key"] = f"inv-{idempotency_key}"
-            invoice = stripe.Invoice.create(**invoice_kwargs)
-            invoice.finalize_invoice()
-            return invoice.id, None
-    except stripe.error.StripeError as e:
-        return None, str(e)
+    The current implementation used calendar months as a billing period proxy,
+    which does not match Stripe's actual billing cycles and could mis-charge
+    subscribers. Rather than charge on an incorrect schedule, overage billing is
+    disabled and a hard session limit (PRO_SESSION_HARD_LIMIT) is enforced instead.
+
+    When the owner approves a corrected implementation that reads billing periods
+    from the Stripe Subscription object, this function should:
+      1. Retrieve the subscription via stripe.Subscription.retrieve(stripe_sub_id)
+      2. Use sub.current_period_start and sub.current_period_end as the idempotency
+         key period to prevent double-charging across the correct billing window.
+      3. Remove the DISABLED return below.
+
+    Returns (None, "OVERAGE_BILLING_DISABLED") always while disabled.
+    Caller (server.py) must enforce PRO_SESSION_HARD_LIMIT (10 sessions) instead.
+    """
+    log.warning(
+        "charge_pro_overage called for subscriber %d but overage billing is DISABLED. "
+        "Enforcing hard session limit of %d instead. "
+        "Owner approval required before enabling Stripe-period-based overage billing.",
+        subscriber_id, PRO_SESSION_HARD_LIMIT
+    )
+    return None, "OVERAGE_BILLING_DISABLED"
 
 
 # ── Billing portal ─────────────────────────────────────────────────────────────
@@ -573,22 +628,16 @@ def _handle_checkout_completed(session: dict):
     event_type     = metadata.get("type", "")
 
     if event_type == "pro_subscription":
-        # Requirement B: confirm payment before activating
-        if payment_status not in ("paid",):
-            # Subscription mode sessions may show 'no_payment_required' or 'unpaid'
-            # for free trials — we don't offer those, but guard anyway.
-            sub_status = ""
-            stripe_sub_id = session.get("subscription")
-            if stripe_sub_id:
-                try:
-                    sub = stripe.Subscription.retrieve(stripe_sub_id)
-                    sub_status = sub.status
-                except Exception:
-                    pass
-            if sub_status not in ("active", "trialing"):
-                log.warning("Pro subscription checkout not paid: payment_status=%s sub_status=%s",
-                            payment_status, sub_status)
-                return
+        # Item 6: Require confirmed payment before activating.
+        # Only activate when payment_status == "paid" — never for trialing,
+        # unpaid, or no_payment_required sessions. We do not offer free trials.
+        if payment_status != "paid":
+            log.warning(
+                "Pro subscription checkout not paid — blocking activation: "
+                "payment_status=%s event_id=%s",
+                payment_status, session.get("id", "")
+            )
+            return
         _activate_pro_from_checkout(session, metadata)
 
     elif event_type == "consumer_purchase" or metadata.get("product"):
@@ -617,8 +666,13 @@ def _activate_pro_from_checkout(session: dict, metadata: dict):
         log.error("Failed to retrieve subscription %s: %s", stripe_sub_id, e)
         raise
 
-    if sub.status not in ("active", "trialing", "past_due"):
-        log.warning("Subscription %s status %s — not activating", stripe_sub_id, sub.status)
+    # Item 6: Only activate on 'active' subscription status.
+    # Removed: 'trialing' (no trials offered) and 'past_due' (payment not confirmed).
+    if sub.status != "active":
+        log.warning(
+            "Subscription %s status '%s' — not activating (requires 'active')",
+            stripe_sub_id, sub.status
+        )
         return
 
     stripe_customer_id = sub.customer if isinstance(sub.customer, str) else sub.customer.id
@@ -652,17 +706,70 @@ def _activate_pro_from_checkout(session: dict, metadata: dict):
 
 
 def _create_schedule_safe(stripe_sub_id: str, intro_price_id: str):
-    """Create the upgrade schedule, logging but not raising on failure."""
+    """
+    Create the upgrade schedule, logging but not raising on failure.
+
+    Item 5: On failure, persist the failure to the DB and notify admin by email
+    so the operator can manually create the schedule or trigger a retry.
+    Activation is not blocked — the subscriber gets access even if the schedule
+    creation fails; the admin notification ensures the issue is not silently lost.
+    """
     try:
         sched_id, err = schedule_price_upgrade(stripe_sub_id, intro_price_id)
         if err:
             log.error("schedule_price_upgrade failed for %s: %s", stripe_sub_id, err)
+            _persist_schedule_failure(stripe_sub_id, intro_price_id, err)
+            _notify_admin_schedule_failure(stripe_sub_id, intro_price_id, err)
         else:
             log.info("Price schedule %s created for subscription %s", sched_id, stripe_sub_id)
+            _clear_schedule_failure(stripe_sub_id)
     except Exception as e:
         log.error("schedule_price_upgrade exception for %s: %s", stripe_sub_id, e)
+        _persist_schedule_failure(stripe_sub_id, intro_price_id, str(e))
+        _notify_admin_schedule_failure(stripe_sub_id, intro_price_id, str(e))
         # Do NOT re-raise — activation must still complete even if schedule fails.
-        # An admin can create the schedule manually if needed.
+
+
+def _persist_schedule_failure(stripe_sub_id: str, intro_price_id: str, error: str):
+    """
+    Persist a schedule creation failure to the DB for operator-triggered retry.
+    Uses the failed_schedule_jobs table (created by migration below).
+    """
+    try:
+        with auth.get_db() as conn:
+            conn.execute(
+                """INSERT INTO failed_schedule_jobs
+                   (stripe_sub_id, intro_price_id, error, created_at)
+                   VALUES (?, ?, ?, datetime('now'))
+                   ON CONFLICT(stripe_sub_id) DO UPDATE SET
+                       error = excluded.error,
+                       retry_count = retry_count + 1,
+                       last_attempted_at = datetime('now')""",
+                (stripe_sub_id, intro_price_id, error[:500])
+            )
+    except Exception as db_err:
+        log.error("Failed to persist schedule failure for %s: %s", stripe_sub_id, db_err)
+
+
+def _clear_schedule_failure(stripe_sub_id: str):
+    """Remove a previously-failed schedule job once it succeeds."""
+    try:
+        with auth.get_db() as conn:
+            conn.execute(
+                "DELETE FROM failed_schedule_jobs WHERE stripe_sub_id = ?",
+                (stripe_sub_id,)
+            )
+    except Exception:
+        pass  # Best-effort cleanup
+
+
+def _notify_admin_schedule_failure(stripe_sub_id: str, intro_price_id: str, error: str):
+    """Email admin when a price schedule creation fails (item 5)."""
+    try:
+        import email_service
+        email_service.notify_admin_schedule_failure(stripe_sub_id, intro_price_id, error)
+    except Exception as e:
+        log.error("Failed to send schedule failure alert for %s: %s", stripe_sub_id, e)
 
 
 def _handle_invoice_payment_succeeded(invoice: dict):
@@ -701,9 +808,12 @@ def _handle_invoice_payment_succeeded(invoice: dict):
 
     stripe_customer_id = sub.customer if isinstance(sub.customer, str) else sub.customer.id
 
-    if sub.status not in ("active", "trialing", "past_due"):
-        log.warning("invoice.payment_succeeded: sub %s status %s, not activating",
-                    stripe_sub_id, sub.status)
+    # Item 6: Only activate on confirmed 'active' subscription status.
+    if sub.status != "active":
+        log.warning(
+            "invoice.payment_succeeded: sub %s status '%s' — not activating (requires 'active')",
+            stripe_sub_id, sub.status
+        )
         return
 
     changed = auth.activate_pro_subscriber(
@@ -719,13 +829,70 @@ def _handle_invoice_payment_succeeded(invoice: dict):
 
 
 def _handle_invoice_payment_failed(invoice: dict):
-    """Log failed invoice payments; email notification handled separately."""
+    """
+    Item 7: Handle failed invoice payments.
+    - Look up the subscriber by stripe_sub_id.
+    - Set overage_payment_failed=1 to block further overage charging.
+    - Send admin notification email.
+    """
     stripe_sub_id = invoice.get("subscription", "")
     customer_id   = invoice.get("customer", "")
     amount        = invoice.get("amount_due", 0)
-    log.warning("Invoice payment failed: sub=%s customer=%s amount=%d",
-                stripe_sub_id, customer_id, amount)
-    # TODO Phase 6: look up subscriber, set overage_payment_failed=1, send email
+    billing_reason = invoice.get("billing_reason", "")
+    log.warning(
+        "Invoice payment failed: sub=%s customer=%s amount=%d reason=%s",
+        stripe_sub_id, customer_id, amount, billing_reason
+    )
+
+    if not stripe_sub_id:
+        return
+
+    # Look up subscriber and set overage_payment_failed flag
+    try:
+        with auth.get_db() as conn:
+            row = conn.execute(
+                "SELECT id, user_id FROM pro_subscribers WHERE stripe_sub_id = ?",
+                (stripe_sub_id,)
+            ).fetchone()
+        if not row:
+            log.info("invoice.payment_failed: no subscriber found for sub %s", stripe_sub_id)
+            return
+
+        subscriber_id = row["id"]
+        user_id = row["user_id"]
+
+        with auth.get_db() as conn:
+            conn.execute(
+                "UPDATE pro_subscribers SET overage_payment_failed = 1 WHERE id = ?",
+                (subscriber_id,)
+            )
+        log.warning(
+            "Marked overage_payment_failed=1 for subscriber %d (sub=%s)",
+            subscriber_id, stripe_sub_id
+        )
+
+        # Notify admin
+        try:
+            import email_service
+            with auth.get_db() as conn:
+                u = conn.execute(
+                    "SELECT email FROM users WHERE id = ?", (user_id,)
+                ).fetchone()
+            user_email = u["email"] if u else "(unknown)"
+            email_service.notify_admin_payment_failed(
+                subscriber_id=subscriber_id,
+                user_email=user_email,
+                stripe_sub_id=stripe_sub_id,
+                amount_cents=amount,
+                billing_reason=billing_reason,
+            )
+        except Exception as e:
+            log.error("Failed to send payment-failed admin alert for sub %s: %s",
+                      stripe_sub_id, e)
+
+    except Exception as e:
+        log.error("invoice.payment_failed handler error for sub %s: %s", stripe_sub_id, e)
+        raise
 
 
 def _handle_subscription_deleted(sub: dict):
@@ -754,10 +921,120 @@ def _handle_subscription_updated(sub: dict):
 
 
 def _handle_charge_refunded(charge: dict):
-    """Log refund; block future redemption of unredeemed purchases."""
-    stripe_session = charge.get("payment_intent", "")
-    log.info("Charge refunded: payment_intent=%s", stripe_session)
-    # TODO Phase 7: mark purchase as refunded to block redemption
+    """
+    IR-01: Handle charge refunds using payment_intent_id.
+
+    charge.refunded supplies a PaymentIntent ID (pi_...).  Purchases are stored
+    with both stripe_session_id (cs_...) and payment_intent_id (pi_...).  This
+    handler resolves the checkout session ID from the purchases table so it can
+    also expire bundle child rows (cs_...-nav, cs_...-wiz) and pass the correct
+    session ID to commission voiding.
+
+    Partial refunds reduce commission proportionally; already-paid commissions
+    produce an audit record in commission_adjustments instead of being modified.
+    """
+    payment_intent  = charge.get("payment_intent", "")
+    amount_refunded = charge.get("amount_refunded", 0)
+    amount_total    = charge.get("amount", 0)        # total charge amount
+    charge_id       = charge.get("id", "")
+    log.info(
+        "Charge refunded: charge=%s payment_intent=%s amount_refunded=%d amount_total=%d",
+        charge_id, payment_intent, amount_refunded, amount_total
+    )
+
+    if not payment_intent:
+        return
+
+    # --- Step 1: Resolve the checkout session ID from the purchases table ----------
+    # Purchases store payment_intent_id; from there we get stripe_session_id (cs_...)
+    # which is needed to expire bundle children and look up commission rows.
+    stripe_session_id = None
+    try:
+        with auth.get_db() as conn:
+            row = conn.execute(
+                "SELECT stripe_session_id FROM purchases "
+                "WHERE payment_intent_id = ? LIMIT 1",
+                (payment_intent,)
+            ).fetchone()
+        if row:
+            stripe_session_id = row["stripe_session_id"]
+    except Exception as e:
+        log.error("Refund: failed to resolve session for %s: %s", payment_intent, e)
+
+    # --- Step 2: Expire purchase rows -----------------------------------------------
+    # Expire the main purchase(s) matched by payment_intent_id.
+    # Also expire bundle child synthetic rows (cs_...-nav, cs_...-wiz) matched by
+    # the checkout session prefix.
+    try:
+        with auth.get_db() as conn:
+            # Expire by payment_intent_id (the primary/most reliable join)
+            result = conn.execute(
+                """UPDATE purchases
+                   SET expires_at = datetime('now'),
+                       wizard_locked = 1,
+                       wizard_lock_reason = 'refunded'
+                   WHERE payment_intent_id = ?
+                     AND (expires_at IS NULL OR expires_at > datetime('now'))""",
+                (payment_intent,)
+            )
+            expired_count = result.rowcount
+
+            # Also expire bundle child rows (synthetic session IDs like cs_...-nav)
+            # These have no payment_intent_id; match by stripe_session_id prefix.
+            if stripe_session_id:
+                child_result = conn.execute(
+                    """UPDATE purchases
+                       SET expires_at = datetime('now'),
+                           wizard_locked = 1,
+                           wizard_lock_reason = 'refunded'
+                       WHERE stripe_session_id LIKE ? || '-%'
+                         AND (expires_at IS NULL OR expires_at > datetime('now'))""",
+                    (stripe_session_id,)
+                )
+                expired_count += child_result.rowcount
+
+        if expired_count > 0:
+            log.warning(
+                "Refund: expired %d purchase row(s) for payment_intent=%s session=%s",
+                expired_count, payment_intent, stripe_session_id
+            )
+        else:
+            log.info(
+                "Refund: no active purchases found for payment_intent=%s session=%s "
+                "(may already be expired)",
+                payment_intent, stripe_session_id
+            )
+    except Exception as e:
+        log.error("Failed to expire purchases on refund for %s: %s", payment_intent, e)
+        raise
+
+    # --- Step 3: Adjust commissions -------------------------------------------------
+    # Commissions are keyed by stripe_session_id (cs_...), not payment_intent.
+    # Compute refund fraction for proportional partial-refund handling.
+    if stripe_session_id:
+        try:
+            refund_fraction = 1.0
+            if amount_total and amount_total > 0:
+                refund_fraction = min(amount_refunded / amount_total, 1.0)
+            affected = auth.void_commissions_for_refund(stripe_session_id, refund_fraction)
+            if affected > 0:
+                log.info(
+                    "Refund: adjusted %d commission row(s) for session=%s "
+                    "(fraction=%.4f)",
+                    affected, stripe_session_id, refund_fraction
+                )
+        except Exception as e:
+            log.error(
+                "Failed to adjust commissions on refund for session=%s pi=%s: %s",
+                stripe_session_id, payment_intent, e
+            )
+            # Non-fatal — access is already revoked; commission adjustment is best-effort
+    else:
+        log.warning(
+            "Refund: could not resolve stripe_session_id for payment_intent=%s; "
+            "commission adjustment skipped",
+            payment_intent
+        )
 
 
 def _handle_dispute_created(dispute: dict):
@@ -781,11 +1058,28 @@ def _grant_consumer_access(session: dict, metadata: dict):
     if not user_id or not product:
         return
 
+    # PAY-06: pass the actual amount paid so revenue records are accurate.
+    # For bundles, distribute proportionally: nav=$59, wiz=$99, bundle=$129.
+    # The parent bundle row gets the full amount; sub-items use the
+    # sub-product list prices (not the bundle discount) purely for reference.
+    NAV_PRICE  = 5900   # cents
+    WIZ_PRICE  = 9900   # cents
+    # IR-01: also store payment_intent_id (pi_...) alongside the checkout session
+    # ID (cs_...) so charge.refunded can resolve purchase rows by pi_.
+    payment_intent_id = session.get("payment_intent") or None
     # Idempotent grant
-    purchase_id, is_new = auth.grant_access_idempotent(user_id, product, stripe_id)
+    purchase_id, is_new = auth.grant_access_idempotent(
+        user_id, product, stripe_id, amount_paid=amount_paid,
+        payment_intent_id=payment_intent_id
+    )
     if is_new and product == "bundle":
-        auth.grant_access_idempotent(user_id, "navigator", stripe_id + "-nav")
-        auth.grant_access_idempotent(user_id, "wizard",    stripe_id + "-wiz")
+        # Bundle child rows use synthetic session IDs; payment_intent_id is not
+        # stored on children because _handle_charge_refunded finds them via the
+        # cs_...-nav / cs_...-wiz prefix pattern.
+        auth.grant_access_idempotent(user_id, "navigator", stripe_id + "-nav",
+                                     amount_paid=NAV_PRICE)
+        auth.grant_access_idempotent(user_id, "wizard",    stripe_id + "-wiz",
+                                     amount_paid=WIZ_PRICE)
 
     if is_new:
         # Send purchase notification
@@ -805,7 +1099,10 @@ def _grant_consumer_access(session: dict, metadata: dict):
             except Exception:
                 pass
 
-        # Record referral conversion
+        # Record referral conversion and Foundation override
+        # IR-02: Commission failures are logged and re-raised so callers receive a
+        # durable error.  Override failures are logged but non-fatal (purchase access
+        # is already granted; the override is a secondary accounting step).
         if referral_code:
             try:
                 partner = auth.get_referral_partner_by_code(referral_code)
@@ -814,8 +1111,31 @@ def _grant_consumer_access(session: dict, metadata: dict):
                         partner["id"], user_id, purchase_id,
                         product, amount_paid, partner["commission_pct"], stripe_id
                     )
-            except Exception:
-                pass
+                    # If this partner was recruited by a Foundation member, record
+                    # the 5% override commission for that Foundation member.
+                    try:
+                        sponsor = auth.get_foundation_sponsor(partner["id"])
+                        if sponsor:
+                            auth.record_foundation_override(
+                                foundation_member_id=sponsor["id"],
+                                sale_amount=amount_paid,
+                                override_pct=sponsor["override_pct"],
+                                source_partner_id=partner["id"],
+                                purchase_id=purchase_id,
+                                stripe_session_id=stripe_id,
+                            )
+                    except Exception as _ov_err:
+                        log.error(
+                            "Foundation override recording failed for session=%s "
+                            "partner=%s: %s — override skipped; purchase fulfilled",
+                            stripe_id, partner.get("id"), _ov_err
+                        )
+            except Exception as _comm_err:
+                log.error(
+                    "Referral commission recording failed for session=%s code=%s: %s",
+                    stripe_id, referral_code, _comm_err
+                )
+                raise  # Propagate so the webhook event is not marked complete
 
 
 # ── Notification helpers ───────────────────────────────────────────────────────
@@ -848,44 +1168,24 @@ def _send_admin_dispute_alert(charge_id: str, amount: int, reason: str):
         log.error("Failed to send dispute alert: %s", e)
 
 
-# ── Connect webhook handler (Phase 4) ─────────────────────────────────────────
+# ── Connect webhook handler (Phase 4 — DISABLED) ──────────────────────────────
 
 def handle_connect_webhook(payload: bytes, sig_header: str) -> tuple:
     """
-    Process Stripe Connect webhook events (connected account events).
-    Separate signing secret from the platform webhook.
-    Returns (True, "OK") or (False, error_message).
-    Phase 4 placeholder — routes implemented in Phase 4.
+    PAY-07: Stripe Connect webhook is NOT implemented.
+    This function is explicitly disabled until Phase 4 is approved, tested,
+    and ready for production. It returns (False, 503) so the caller can
+    respond with HTTP 503, causing Stripe to retry later (and alerting the
+    team that the endpoint is receiving traffic it cannot process).
+
+    DO NOT silently accept and discard Connect events — that hides problems.
+    DO NOT remove this function without enabling a real implementation.
     """
-    secret = _get_connect_webhook_secret()
-    if not secret:
-        log.error("STRIPE_CONNECT_WEBHOOK_SECRET not set")
-        return False, "Connect webhook secret not configured"
-
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, secret)
-    except stripe.error.SignatureVerificationError:
-        return False, "Invalid signature"
-    except Exception as e:
-        return False, f"Connect webhook parse error: {e}"
-
-    event_id   = event["id"]
-    event_type = event["type"]
-    _get_stripe_key()
-
-    # Idempotency for connect events
-    claimed = auth.claim_webhook_event(f"connect-{event_id}", event_type)
-    if not claimed:
-        return True, "OK (duplicate)"
-
-    try:
-        # Phase 4 handlers will be added here
-        log.info("Connect webhook %s type=%s — Phase 4 not yet implemented", event_id, event_type)
-        auth.complete_webhook_event(f"connect-{event_id}")
-        return True, "OK"
-    except Exception as e:
-        auth.fail_webhook_event(f"connect-{event_id}", str(e))
-        raise
+    log.warning(
+        "PAY-07: Stripe Connect webhook received but feature is disabled — "
+        "returning 503 so Stripe will retry. Remove this gate when Phase 4 is implemented."
+    )
+    return False, "SERVICE_UNAVAILABLE"
 
 
 # ── Activation status (for success page polling) ───────────────────────────────

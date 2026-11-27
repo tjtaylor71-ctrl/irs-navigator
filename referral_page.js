@@ -93,7 +93,7 @@ function ReferralPage() {
   const handleJoin = async () => {
     if (!joinForm.name.trim() || !joinForm.firm.trim() || !joinForm.phone.trim()) { setJoinError("Name, firm name, and phone number are required."); return; }
     setJoining(true); setJoinError("");
-    const res = await fetch("/api/referral/join", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(joinForm) });
+    const res = await csrfFetch("/api/referral/join", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(joinForm) });
     const data = await res.json();
     setJoining(false);
     if (data.pending) {

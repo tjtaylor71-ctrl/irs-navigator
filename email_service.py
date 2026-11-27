@@ -1666,3 +1666,93 @@ def notify_admin_dispute(charge_id: str, amount: int, reason: str):
       </p>
     </div>"""
     _send_via_sendgrid(NOTIFY_EMAIL, subject, body)
+
+
+def notify_admin_schedule_failure(stripe_sub_id: str, intro_price_id: str, error: str):
+    """Notify admin that a subscription schedule modification failed and was persisted for retry."""
+    subject = f"[IRS Pilot] ⚠️ Schedule failure — sub {stripe_sub_id}"
+    body = f"""
+    <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:24px">
+      <div style="background:#dc2626;padding:16px 24px;border-bottom:3px solid #fca5a5;border-radius:8px 8px 0 0">
+        <div style="color:#fff;font-size:18px;font-weight:bold">IRS Pilot — Schedule Failure</div>
+      </div>
+      <div style="background:#fef2f2;padding:24px;border-radius:0 0 8px 8px">
+        <h2 style="color:#dc2626;margin-top:0">Subscription Schedule Modification Failed</h2>
+        <p style="font-size:14px;color:#555">
+          A price-upgrade schedule could not be applied to a Pro subscription.
+          The failure has been persisted for automatic retry.
+        </p>
+        <table style="width:100%;font-size:14px;border-collapse:collapse">
+          <tr><td style="padding:6px 0;color:#888;width:140px">Subscription ID</td>
+              <td style="padding:6px 0;font-family:monospace">{stripe_sub_id}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Intro Price ID</td>
+              <td style="padding:6px 0;font-family:monospace">{intro_price_id}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Error</td>
+              <td style="padding:6px 0;color:#dc2626">{error}</td></tr>
+        </table>
+        <p style="font-size:13px;color:#555;margin-top:16px">
+          <strong>Action required:</strong> Verify that this subscription's pricing schedule
+          is correct in the Stripe Dashboard. If retries continue to fail, the subscriber
+          may remain on the introductory price past the 3-month window.
+        </p>
+        <a href="https://dashboard.stripe.com/subscriptions/{stripe_sub_id}"
+           style="display:inline-block;padding:10px 20px;background:#dc2626;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px">
+          View Subscription in Stripe →
+        </a>
+        <a href="https://irspilot.com/admin"
+           style="display:inline-block;padding:10px 20px;background:#1a2d5a;color:#7ec11f;border:2px solid #7ec11f;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px;margin-left:8px">
+          View in Admin →
+        </a>
+      </div>
+    </div>"""
+    _send_via_sendgrid(NOTIFY_EMAIL, subject, body)
+
+
+def notify_admin_payment_failed(
+    subscriber_id: int,
+    user_email: str,
+    stripe_sub_id: str,
+    amount_cents: int,
+    billing_reason: str,
+):
+    """Notify admin that a pro subscriber invoice payment failed."""
+    subject = f"[IRS Pilot] ⚠️ Invoice payment failed — {user_email}"
+    amount_fmt = f"${amount_cents / 100:.2f}" if amount_cents else "unknown amount"
+    body = f"""
+    <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:24px">
+      <div style="background:#dc2626;padding:16px 24px;border-bottom:3px solid #fca5a5;border-radius:8px 8px 0 0">
+        <div style="color:#fff;font-size:18px;font-weight:bold">IRS Pilot — Invoice Payment Failed</div>
+      </div>
+      <div style="background:#fef2f2;padding:24px;border-radius:0 0 8px 8px">
+        <h2 style="color:#dc2626;margin-top:0">Pro Subscriber Invoice Payment Failed</h2>
+        <p style="font-size:14px;color:#555">
+          An invoice payment failed for a Pro subscriber. Stripe will automatically retry.
+          The subscriber has 7 days to update their payment method before access is suspended.
+        </p>
+        <table style="width:100%;font-size:14px;border-collapse:collapse">
+          <tr><td style="padding:6px 0;color:#888;width:140px">Subscriber ID</td>
+              <td style="padding:6px 0">{subscriber_id}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Email</td>
+              <td style="padding:6px 0">{user_email}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Subscription ID</td>
+              <td style="padding:6px 0;font-family:monospace">{stripe_sub_id}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Amount</td>
+              <td style="padding:6px 0;font-weight:bold;color:#dc2626">{amount_fmt}</td></tr>
+          <tr><td style="padding:6px 0;color:#888">Billing Reason</td>
+              <td style="padding:6px 0">{billing_reason}</td></tr>
+        </table>
+        <p style="font-size:13px;color:#555;margin-top:16px">
+          <strong>Note:</strong> The subscriber's <code>overage_payment_failed</code> flag has been set.
+          Consider reaching out directly if the automatic retry does not succeed within 48 hours.
+        </p>
+        <a href="https://dashboard.stripe.com/subscriptions/{stripe_sub_id}"
+           style="display:inline-block;padding:10px 20px;background:#dc2626;color:#fff;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px">
+          View Subscription in Stripe →
+        </a>
+        <a href="https://irspilot.com/admin"
+           style="display:inline-block;padding:10px 20px;background:#1a2d5a;color:#7ec11f;border:2px solid #7ec11f;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px;margin-left:8px">
+          View in Admin →
+        </a>
+      </div>
+    </div>"""
+    _send_via_sendgrid(NOTIFY_EMAIL, subject, body)
