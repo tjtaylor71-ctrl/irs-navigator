@@ -96,7 +96,7 @@ def add_security_headers(response):
 # The client reads /api/csrf-token (GET, no auth required) and includes the
 # returned token in X-CSRF-Token header on every state-changing API call.
 # Webhook endpoints are excluded (they use Stripe signature verification instead).
-import hashlib as _hashlib
+import hmac as _hashlib
 import threading as _threading
 
 _CSRF_EXEMPT_PATHS = {
