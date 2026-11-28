@@ -63,6 +63,16 @@ if _sk_unique < 8:
         "python3 -c \"import secrets; print(secrets.token_hex(32))\""
     )
 app.secret_key = _secret_key
+# True when running on Railway (HTTPS enforced); False in local dev (HTTP only).
+# Used to set the `secure` flag on all session cookies.
+IS_PRODUCTION = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PUBLIC_DOMAIN"))
+# Keep Flask session cookie alive for 8 days (matches auth cookie lifetime).
+# Without this the session cookie is a browser-session cookie and disappears
+# on tab close, which silently drops the CSRF token and causes 403 errors.
+import datetime as _dt
+app.config["PERMANENT_SESSION_LIFETIME"] = _dt.timedelta(days=8)
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = IS_PRODUCTION
 app.register_blueprint(planning_bp, url_prefix='/planning')
 
 # ── Security headers ───────────────────────────────────────────────────────────
@@ -85,8 +95,8 @@ def add_security_headers(response):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "frame-src https://js.stripe.com https://hooks.stripe.com; "
-        "connect-src 'self' https://api.stripe.com; "
-        "img-src 'self' data:;"
+        "connect-src 'self' https://api.stripe.com https://fonts.gstatic.com; "
+        "img-src 'self' data: blob:;"
     )
     return response
 
@@ -112,6 +122,7 @@ def _get_csrf_token() -> str:
     """Return (or generate) the CSRF token for the current session."""
     if "csrf_token" not in session:
         session["csrf_token"] = secrets.token_hex(32)
+    session.permanent = True  # Ensure max_age (PERMANENT_SESSION_LIFETIME) is applied
     return session["csrf_token"]
 
 
@@ -475,10 +486,6 @@ def require_access(product):
 
 ADMIN_EMAILS = [e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()]
 
-# True when running on Railway (HTTPS enforced); False in local dev (HTTP only).
-# Used to set the `secure` flag on all session cookies.
-IS_PRODUCTION = bool(os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RAILWAY_PUBLIC_DOMAIN"))
-
 def is_admin(user):
     if not user: return False
     return user["email"].lower() in ADMIN_EMAILS
@@ -815,6 +822,30 @@ def stripe_foundation_webhook():
         event_id, event_type
     )
     return jsonify({"status": "ok"}), 200
+
+
+@app.route("/api/pro/pricing", methods=["GET"])
+def api_pro_pricing():
+    """
+    Return current Pro subscription pricing for display on the frontend.
+    Uses the same logic as checkout creation so the displayed price always
+    matches what Stripe will actually charge.
+
+    Response (all amounts in cents):
+      intro_cents   – intro price per month ($29 or $49 depending on promo)
+      intro_months  – number of months at the intro price (always 3)
+      standard_cents – ongoing monthly price after intro period
+      is_promo      – true if the promotional $29 rate is currently active
+    """
+    from stripe_checkout import _is_promo_active, PRO_INTRO_MONTHS
+    promo = _is_promo_active()
+    intro_cents = 2900 if promo else 4900
+    return jsonify({
+        "intro_cents":    intro_cents,
+        "intro_months":   PRO_INTRO_MONTHS,
+        "standard_cents": 7900,
+        "is_promo":       promo,
+    })
 
 
 @app.route("/api/pro/activation-status")

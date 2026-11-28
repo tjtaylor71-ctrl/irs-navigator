@@ -77,7 +77,7 @@ function ProApplicationForm() {
   var _sub = useSt(false); var submitted = _sub[0]; var setSubmitted = _sub[1];
   var _saving = useSt(false); var saving = _saving[0]; var setSaving = _saving[1];
   var _err = useSt(""); var error = _err[0]; var setError = _err[1];
-  var _f = useSt({ name:"", email:"", firm:"", address:"", phone:"", website:"" });
+  var _f = useSt({ name:"", email:"", firm:"", credential:"", address:"", phone:"", website:"", message:"" });
   var form = _f[0]; var setForm = _f[1];
 
   function set(key, val) { setForm(function(prev){ var n=Object.assign({},prev); n[key]=val; return n; }); }
@@ -87,18 +87,20 @@ function ProApplicationForm() {
       setError("Name, email, firm name, and phone number are required."); return;
     }
     setSaving(true); setError("");
-    fetch("/api/pro/apply", {
+    csrfFetch("/api/taxpro/interest", {
       method:"POST", credentials:"include",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         name: form.name, email: form.email, firm: form.firm,
-        address: form.address, phone: form.phone, website: form.website,
+        credential: form.credential, address: form.address,
+        phone: form.phone, website: form.website, message: form.message,
+        program: "pro-subscription",
       })
     })
     .then(function(r){ return r.json(); })
     .then(function(d){
       setSaving(false);
-      if (d.ok) { setSubmitted(true); }
+      if (d.message) { setSubmitted(true); }
       else { setError(d.error || "Something went wrong. Please try again."); }
     })
     .catch(function(){ setSaving(false); setError("Network error. Please try again."); });
@@ -159,6 +161,20 @@ function ProApplicationForm() {
 }
 
 function TaxProPage() {
+  // Dynamic pricing fetched from backend so display always matches Stripe billing
+  const [pricing, setPricing] = React.useState(null);
+  React.useEffect(() => {
+    fetch("/api/pro/pricing", { credentials: "same-origin" })
+      .then(r => r.json())
+      .then(d => setPricing(d))
+      .catch(() => {});
+  }, []);
+  const introDollars = pricing ? Math.round(pricing.intro_cents / 100) : null;
+  const standardDollars = pricing ? Math.round(pricing.standard_cents / 100) : null;
+  const introMonths = pricing ? pricing.intro_months : 3;
+  const introLabel = introDollars !== null
+    ? `Intro: $${introDollars}/mo for first ${introMonths} months → $${standardDollars}/mo`
+    : "Intro pricing · then $79/mo";
   const [demoForm, setDemoForm] = React.useState({ name: "", profession: "", email: "", mobile: "" });
   const [demoSubmitting, setDemoSubmitting] = React.useState(false);
   const [demoMsg, setDemoMsg] = React.useState("");
@@ -238,14 +254,14 @@ function TaxProPage() {
     "Real-time dashboard to track conversions",
     "Monthly commission payouts",
     "No cap on earnings"
-  ].map((f, i) => /* @__PURE__ */ React.createElement("div", { key: i, style: { display: "flex", gap: 8, fontSize: 13, color: "#333" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "#7ec11f", fontWeight: "bold", flexShrink: 0 } }, "\u2713"), f))), /* @__PURE__ */ React.createElement("div", { style: { background: "#f0f9e0", border: "1px solid #7ec11f", borderRadius: 8, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#1a2d5a", lineHeight: 1.6 } }, /* @__PURE__ */ React.createElement("strong", null, "\u2705 No approval required."), " Create a free account and enroll immediately at irspilot.com/referral."), /* @__PURE__ */ React.createElement("a", { href: "/login", style: { display: "block", textAlign: "center", padding: "12px", background: "#1a2d5a", color: "#7ec11f", border: "2px solid #7ec11f", borderRadius: 8, fontWeight: "bold", fontSize: 14, textDecoration: "none" } }, "Join Referral Program \u2192"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#aaa", textAlign: "center", marginTop: 8 } }, "Create a free account, then go to irspilot.com/referral"))), /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 300px", minWidth: 0, background: "#fff", borderRadius: 14, border: "2px solid #7ec11f", overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: { background: "#1a2d5a", padding: "8px 24px", textAlign: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: "bold", color: "#1a2d5a", background: "#7ec11f", padding: "2px 12px", borderRadius: 20, letterSpacing: 1 } }, "MOST POPULAR")), /* @__PURE__ */ React.createElement("div", { style: { background: "#1a2d5a", padding: "16px 24px 20px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 32, marginBottom: 8 } }, "\u{1F3E2}"), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontWeight: "bold", fontSize: 20, marginBottom: 4 } }, "Pro Subscription"), /* @__PURE__ */ React.createElement("div", { style: { color: "#7ec11f", fontSize: 13, marginBottom: 12 } }, "White-label \xB7 Your branding \xB7 Requires approval"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { color: "#7ec11f", fontSize: 32, fontWeight: "bold" } }, "$49", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16, fontWeight: "normal" } }, "/mo")), /* @__PURE__ */ React.createElement("div", { style: { color: "#aaa", fontSize: 13 } }, "first 3 months, then $79/mo"))), /* @__PURE__ */ React.createElement("div", { style: { padding: "20px 24px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "#555", lineHeight: 1.7, marginBottom: 16 } }, "Offer IRS Pilot to your clients under your firm's name and brand. Your clients click your unique link and see your name, phone, and Calendly \u2014 not ours. Every call-to-action drives clients back to you."), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: 8, marginBottom: 20 } }, [
+  ].map((f, i) => /* @__PURE__ */ React.createElement("div", { key: i, style: { display: "flex", gap: 8, fontSize: 13, color: "#333" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "#7ec11f", fontWeight: "bold", flexShrink: 0 } }, "\u2713"), f))), /* @__PURE__ */ React.createElement("div", { style: { background: "#f0f9e0", border: "1px solid #7ec11f", borderRadius: 8, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#1a2d5a", lineHeight: 1.6 } }, /* @__PURE__ */ React.createElement("strong", null, "\u2705 No approval required."), " Create a free account and enroll immediately at irspilot.com/referral."), /* @__PURE__ */ React.createElement("a", { href: "/login", style: { display: "block", textAlign: "center", padding: "12px", background: "#1a2d5a", color: "#7ec11f", border: "2px solid #7ec11f", borderRadius: 8, fontWeight: "bold", fontSize: 14, textDecoration: "none" } }, "Join Referral Program \u2192"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#aaa", textAlign: "center", marginTop: 8 } }, "Create a free account, then go to irspilot.com/referral"))), /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 300px", minWidth: 0, background: "#fff", borderRadius: 14, border: "2px solid #7ec11f", overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: { background: "#1a2d5a", padding: "8px 24px", textAlign: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, fontWeight: "bold", color: "#1a2d5a", background: "#7ec11f", padding: "2px 12px", borderRadius: 20, letterSpacing: 1 } }, "MOST POPULAR")), /* @__PURE__ */ React.createElement("div", { style: { background: "#1a2d5a", padding: "16px 24px 20px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 32, marginBottom: 8 } }, "\u{1F3E2}"), /* @__PURE__ */ React.createElement("div", { style: { color: "#fff", fontWeight: "bold", fontSize: 20, marginBottom: 4 } }, "Pro Subscription"), /* @__PURE__ */ React.createElement("div", { style: { color: "#7ec11f", fontSize: 13, marginBottom: 12 } }, "White-label \xB7 Your branding \xB7 Requires approval"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "baseline", gap: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { color: "#7ec11f", fontSize: 32, fontWeight: "bold" } }, introDollars !== null ? `$${introDollars}` : "…", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 16, fontWeight: "normal" } }, "/mo")), /* @__PURE__ */ React.createElement("div", { style: { color: "#aaa", fontSize: 13 } }, `first ${introMonths} months, then $${standardDollars !== null ? standardDollars : 79}/mo`))), /* @__PURE__ */ React.createElement("div", { style: { padding: "20px 24px" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 14, color: "#555", lineHeight: 1.7, marginBottom: 16 } }, "Offer IRS Pilot to your clients under your firm's name and brand. Your clients click your unique link and see your name, phone, and Calendly \u2014 not ours. Every call-to-action drives clients back to you."), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gap: 8, marginBottom: 20 } }, [
     "Your firm name and contact info throughout the app",
     "Full Navigator + Wizard for clients",
     "10 client sessions per month included",
     "Additional sessions at $5 each",
     "24-hour client sessions \u2014 no client login needed",
     "Set your own reseller prices (min 50% markup)",
-    "Intro: $49/mo for first 3 months \u2192 $79/mo"
+    introLabel
   ].map((f, i) => /* @__PURE__ */ React.createElement("div", { key: i, style: { display: "flex", gap: 8, fontSize: 13, color: "#333" } }, /* @__PURE__ */ React.createElement("span", { style: { color: "#7ec11f", fontWeight: "bold", flexShrink: 0 } }, "\u2713"), f))), /* @__PURE__ */ React.createElement("div", { style: { background: "#fff8e8", border: "1px solid #f59e0b", borderRadius: 8, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#92400e", lineHeight: 1.6 } }, /* @__PURE__ */ React.createElement("strong", null, "\u23F3 Requires approval."), " Submit your information and we'll set you up within 1 business day."), /* @__PURE__ */ React.createElement("button", {
     onClick: function(){ document.getElementById("pro-apply-form").scrollIntoView({ behavior: "smooth" }); },
     style: { display: "block", width: "100%", textAlign: "center", padding: "12px", background: "#1a2d5a", color: "#7ec11f", border: "2px solid #7ec11f", borderRadius: 8, fontWeight: "bold", fontSize: 14, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }

@@ -80,14 +80,17 @@ PRODUCT_REDIRECT = {
 }
 
 # ── Pro subscription price IDs ─────────────────────────────────────────────────
-# Standard two-phase pricing: intro price for 3 months, then standard forever.
-PRO_PRICE_INTRO_LIVE    = "price_1TB3phKCmkbEhj2E9Hq0w2rm"   # $49/month
-PRO_PRICE_STANDARD_LIVE = "price_1TB3phKCmkbEhj2ELLF6CG6t"   # $79/month
+# Regular intro pricing: $49/month for 3 months, then $79/month.
+# Promotional intro pricing ($29/month) is a separate Stripe price active only
+# during the promotional window (Nov 30 – Dec 6, 2026 CT); see PROMO constants below.
+PRO_PRICE_INTRO_LIVE    = os.environ.get("STRIPE_PRO_PRICE_INTRO_LIVE",
+                                          "price_1TB3phKCmkbEhj2E9Hq0w2rm")  # $49/month intro
+PRO_PRICE_STANDARD_LIVE = "price_1TB3phKCmkbEhj2ELLF6CG6t"   # $79/month (unchanged)
 PRO_PRICE_INTRO_TEST    = os.environ.get("STRIPE_PRO_PRICE_INTRO_TEST", "")
 PRO_PRICE_STANDARD_TEST = os.environ.get("STRIPE_PRO_PRICE_STANDARD_TEST", "")
 
-# Phase 2 — Black Friday promotional price (set env var to enable)
-# Separate IDs for test and live to avoid cross-contamination.
+# Promotional override (overrides intro price during a date window; leave unset
+# unless running a separate promotional Stripe price, e.g. a coupon-based price).
 PRO_PRICE_PROMO_LIVE = os.environ.get("STRIPE_PRO_PRICE_PROMO_LIVE", "")
 PRO_PRICE_PROMO_TEST = os.environ.get("STRIPE_PRO_PRICE_PROMO_TEST", "")
 
@@ -104,11 +107,27 @@ def _pro_price_promo() -> str:
     return PRO_PRICE_PROMO_TEST if _is_test_mode() else PRO_PRICE_PROMO_LIVE
 
 
-# ── Phase 2: Promotional window ────────────────────────────────────────────────
-# Enrollment window in US Central Time per approval document.
+# ── Promotional window ─────────────────────────────────────────────────────────
+# Cyber Monday promotional period: Nov 30 – Dec 6, 2026 CT.
+# During this window, STRIPE_PRO_PRICE_PROMO_* (the $29/month price) is used
+# instead of the regular $49/month intro price.
 _CT = ZoneInfo("America/Chicago")
-PROMO_START_CT = datetime(2026, 11, 27, 0, 0, 0, tzinfo=_CT)
-PROMO_END_CT   = datetime(2026, 11, 30, 23, 59, 59, tzinfo=_CT)
+PROMO_START_CT = datetime(2026, 11, 30, 0, 0, 0, tzinfo=_CT)
+PROMO_END_CT   = datetime(2026, 12, 6, 23, 59, 59, tzinfo=_CT)
+
+# Set STAGING_PROMO_OVERRIDE=1 in Railway staging to test promotional pricing
+# before Nov 30 without changing the promo date window.
+STAGING_PROMO_OVERRIDE = bool(os.environ.get("STAGING_PROMO_OVERRIDE"))
+
+
+def _is_promo_active() -> bool:
+    """Return True if promotional pricing should apply right now."""
+    if not _pro_price_promo():
+        return False
+    if STAGING_PROMO_OVERRIDE:
+        return True
+    now_ct = datetime.now(tz=_CT)
+    return PROMO_START_CT <= now_ct <= PROMO_END_CT
 
 
 def _get_active_intro_price() -> str:
@@ -118,11 +137,8 @@ def _get_active_intro_price() -> str:
     promotional eligibility. The returned price ID is stored in Checkout metadata
     and used by the webhook — the webhook never re-evaluates the date.
     """
-    promo = _pro_price_promo()
-    if promo:
-        now_ct = datetime.now(tz=_CT)
-        if PROMO_START_CT <= now_ct <= PROMO_END_CT:
-            return promo
+    if _is_promo_active():
+        return _pro_price_promo()
     return _pro_price_intro()
 
 
