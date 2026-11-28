@@ -2626,6 +2626,7 @@ def api_admin_pro_send_subscription_link():
 
 # ── Tax Pro page & interest form ──────────────────────────────────────────────
 
+@app.route("/taxpro")
 @app.route("/tax-professionals")
 def tax_professionals():
     html = build_page("taxpro_page.js", "TaxProPage", "Tax Professionals — IRS Pilot")
